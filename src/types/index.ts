@@ -337,3 +337,25 @@ export interface SubscriptionPlan {
 }
 
 export type LimitReason = 'products' | 'categories' | null;
+
+// Notification System Types
+export type NotificationType =
+  | 'new_lead'
+  | 'whatsapp_click'
+  | 'view_milestone'
+  | 'subscription_expiring'
+  | 'subscription_expired'
+  | 'product_sold'
+  | 'system';
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  related_entity_id?: string | null;
+  related_entity_type?: string | null;
+  is_read: boolean;
+  created_at: string;
+}

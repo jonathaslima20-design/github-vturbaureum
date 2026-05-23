@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,18 +10,21 @@ import Logo from '@/components/Logo';
 import SubscriptionModal from '@/components/subscription/SubscriptionModal';
 import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import PlanUsageIndicator from '@/components/dashboard/PlanUsageIndicator';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export default function DashboardSidebar() {
   const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const { signOut, user } = useAuth();
-  
+  const { unreadCount } = useNotifications();
+
   // Navigation items
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Categorias', href: '/dashboard/categories', icon: FolderTree },
     { name: 'Produtos', href: '/dashboard/listings', icon: Package },
+    { name: 'Notificações', href: '/dashboard/notifications', icon: Bell, badge: unreadCount },
     { name: 'Indique e Ganhe', href: '/dashboard/referral', icon: Gift },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
     { name: 'Central de Ajuda', href: '/help', icon: HelpCircle },
@@ -115,7 +118,12 @@ export default function DashboardSidebar() {
                 className={navItemClasses}
               >
                 <item.icon className="h-5 w-5" />
-                {expanded && <span>{item.name}</span>}
+                {expanded && <span className="flex-1">{item.name}</span>}
+                {expanded && 'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>
@@ -200,7 +208,12 @@ export default function DashboardSidebar() {
                 className={navItemClasses}
               >
                 <item.icon className="h-5 w-5" />
-                {expanded && <span>{item.name}</span>}
+                {expanded && <span className="flex-1">{item.name}</span>}
+                {expanded && 'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>

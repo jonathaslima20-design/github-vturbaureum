@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { SubscriptionModalProvider } from '@/contexts/SubscriptionModalContext';
 import { CorretorPageStateProvider } from '@/contexts/CorretorPageStateContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useState, Suspense } from 'react';
 import { CircleAlert as AlertCircle } from 'lucide-react';
@@ -38,6 +39,7 @@ import EditProductPage from '@/pages/dashboard/EditProductPage.tsx';
 import TrackingSettingsPage from '@/pages/dashboard/TrackingSettingsPage.tsx';
 import CategoriesPage from '@/pages/dashboard/CategoriesPage.tsx';
 import ReferralPage from '@/pages/dashboard/ReferralPage.tsx';
+import NotificationsPage from '@/pages/dashboard/NotificationsPage.tsx';
 
 // Admin Pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.tsx';
@@ -170,6 +172,7 @@ function AppContent() {
             <Route path="/dashboard/products/:id/edit" element={<EditProductPage />} />
             <Route path="/dashboard/categories" element={<CategoriesPage />} />
             <Route path="/dashboard/referral" element={<ReferralPage />} />
+            <Route path="/dashboard/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
 
@@ -198,15 +201,17 @@ export default function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <SubscriptionModalProvider>
-            <CartProvider>
-              <CorretorPageStateProvider>
-                <AppContent />
-                <Toaster />
-                <FloatingWhatsAppButton />
-              </CorretorPageStateProvider>
-            </CartProvider>
-          </SubscriptionModalProvider>
+          <NotificationProvider>
+            <SubscriptionModalProvider>
+              <CartProvider>
+                <CorretorPageStateProvider>
+                  <AppContent />
+                  <Toaster />
+                  <FloatingWhatsAppButton />
+                </CorretorPageStateProvider>
+              </CartProvider>
+            </SubscriptionModalProvider>
+          </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

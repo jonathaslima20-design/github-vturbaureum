@@ -1,9 +1,10 @@
-import { Bell, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { getInitials } from '@/lib/utils';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 interface AdminHeaderProps {
   onMenuClick?: () => void;
@@ -29,10 +30,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       <div className="flex items-center gap-1 md:gap-3 shrink-0">
         <ThemeToggle />
 
-        <Button variant="ghost" size="icon" className="relative h-8 w-8 md:h-9 md:w-9">
-          <Bell className="h-4 w-4 md:h-5 md:w-5" />
-          <span className="absolute top-1 right-1 h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-primary"></span>
-        </Button>
+        <NotificationBell />
 
         <div className="flex items-center gap-2 md:gap-3">
           <Avatar className="h-7 w-7 md:h-9 md:w-9">
