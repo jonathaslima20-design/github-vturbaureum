@@ -21,7 +21,7 @@ function ClientCard({ client }: { client: BannerClient }) {
       href={client.corretor_page_url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-col items-center gap-3 px-4 group"
+      className="flex flex-col items-center gap-3 px-4 group flex-shrink-0"
       style={{ minWidth: '96px' }}
       draggable={false}
     >
@@ -30,6 +30,9 @@ function ClientCard({ client }: { client: BannerClient }) {
           <img
             src={client.avatar_url}
             alt={client.business_name}
+            width={64}
+            height={64}
+            loading="lazy"
             className="h-full w-full object-cover"
             draggable={false}
             onError={(e) => {
@@ -55,7 +58,7 @@ function ClientCard({ client }: { client: BannerClient }) {
 function CounterCard() {
   return (
     <div
-      className="flex flex-col items-center gap-3 px-4"
+      className="flex flex-col items-center gap-3 px-4 flex-shrink-0"
       style={{ minWidth: '96px' }}
     >
       <div className="h-16 w-16 rounded-full bg-ink-900 flex items-center justify-center flex-shrink-0">
@@ -75,7 +78,9 @@ export default function LandingSocialProof() {
   const [loaded, setLoaded] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -99,6 +104,17 @@ export default function LandingSocialProof() {
   }, []);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.05 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const container = containerRef.current;
     if (!loaded || !container || clients.length === 0) return;
 
@@ -106,7 +122,7 @@ export default function LandingSocialProof() {
     if (prefersReducedMotion) return;
 
     const step = () => {
-      if (container) {
+      if (container && isVisibleRef.current) {
         container.scrollLeft += 0.6;
         const half = container.scrollWidth / 2;
         if (container.scrollLeft >= half) {
@@ -131,7 +147,7 @@ export default function LandingSocialProof() {
   const duplicated = [...itemsWithCounter, ...itemsWithCounter];
 
   return (
-    <div className="mt-14 rounded-2xl border hairline bg-surface py-10 overflow-hidden">
+    <div ref={sectionRef} className="mt-14 rounded-2xl border hairline bg-surface py-10 overflow-hidden">
       <div
         className="relative"
         style={{ maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)' }}

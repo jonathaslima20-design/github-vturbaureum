@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plus, Package, MessageCircle, Gift, Instagram, Settings2, Globe as Globe2, ChartBar as BarChart3, Check, Zap, ShoppingBag, TrendingUp, Users, Star, LogIn, ShoppingCart, Radio } from 'lucide-react';
-import LandingSocialProof from '@/components/landing/LandingSocialProof';
+import { ArrowRight, Plus, Package, MessageCircle, Gift, Globe as Globe2, ChartBar as BarChart3, Check, Zap, TrendingUp, Users, LogIn, ShoppingCart, Radio } from 'lucide-react';
 import HeroPhoneCarousel from '@/components/landing/HeroPhoneCarousel';
 import { supabase } from '@/lib/supabase';
+
+const LandingSocialProof = lazy(() => import('@/components/landing/LandingSocialProof'));
 
 function useLandingTracking() {
   useEffect(() => {
@@ -13,7 +14,7 @@ function useLandingTracking() {
     let gtmNoScript: HTMLElement | null = null;
     let gtmDataLayer: HTMLScriptElement | null = null;
 
-    (async () => {
+    const loadTracking = async () => {
       const { data } = await supabase
         .from('landing_tracking_config')
         .select('meta_pixel_id, google_tag_id')
@@ -79,9 +80,12 @@ function useLandingTracking() {
           document.head.appendChild(gtmDataLayer);
         }
       }
-    })();
+    };
+
+    const timer = window.setTimeout(loadTracking, 2000);
 
     return () => {
+      window.clearTimeout(timer);
       [metaScript, metaNoScript, gtmScript, gtmNoScript, gtmDataLayer].forEach((el) => el?.remove());
     };
   }, []);
@@ -239,7 +243,7 @@ function BentoCard({
 
 function BentoGrid() {
   return (
-    <section id="recursos" className="py-24 lg:py-32 bg-white border-t hairline">
+    <section id="recursos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <SectionHeading kicker="/ recursos" title="Tudo que você precisa para impulsionar suas vendas" />
         <div className="grid grid-cols-1 lg:grid-cols-3 auto-rows-[minmax(200px,auto)] gap-4 mt-14">
@@ -271,8 +275,11 @@ function BentoGrid() {
                     <img
                       src={img}
                       alt={name}
+                      width={200}
+                      height={200}
                       loading="lazy"
-                      className="w-[88%] h-[88%] object-contain drop-shadow-sm transition-transform duration-500 group-hover:scale-110"
+                      decoding="async"
+                      className="w-[88%] h-[88%] object-contain transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>
                   <div className="mt-2.5 px-0.5 space-y-0.5">
@@ -385,7 +392,7 @@ function AnalyticsSection() {
     { Icon: TrendingUp, l: 'Conversões', v: '+3,7%' },
   ];
   return (
-    <section id="analytics" className="py-24 lg:py-32 bg-surface border-t hairline">
+    <section id="analytics" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="reveal">
@@ -532,10 +539,12 @@ function PricingCard({
 
 function SocialProofSection() {
   return (
-    <section id="usuários" className="py-24 lg:py-32 bg-white border-t hairline">
+    <section id="usuários" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <SectionHeading kicker="/ usuários" title="Junte-se a milhares de usuários do VitrineTurbo" />
-        <LandingSocialProof />
+        <Suspense fallback={<div className="mt-14 h-32 rounded-2xl border hairline bg-surface animate-pulse" />}>
+          <LandingSocialProof />
+        </Suspense>
       </div>
     </section>
   );
@@ -543,7 +552,7 @@ function SocialProofSection() {
 
 function PricingSection() {
   return (
-    <section id="precos" className="py-24 lg:py-32 bg-white border-t hairline">
+    <section id="precos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <SectionHeading kicker="/ planos" title="Escolha o plano ideal pra você" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-14">
@@ -580,7 +589,7 @@ function FaqSection() {
     },
   ];
   return (
-    <section id="faq" className="py-24 lg:py-32 bg-surface border-t hairline">
+    <section id="faq" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
       <div className="max-w-4xl mx-auto px-6 lg:px-10">
         <SectionHeading kicker="/ dúvidas" title="Perguntas frequentes." />
         <div className="mt-12 divide-y hairline border-t border-b hairline">
