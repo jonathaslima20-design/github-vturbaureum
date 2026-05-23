@@ -644,6 +644,7 @@ export default function ProductDetailsPage() {
                 itemType="produto"
                 createdAt={product.created_at}
                 itemImageUrl={product.featured_image_url}
+                itemPrice={product.discounted_price || product.price}
                 language={language}
               />
             </motion.div>

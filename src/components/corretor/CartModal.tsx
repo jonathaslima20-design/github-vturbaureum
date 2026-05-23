@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -23,8 +23,9 @@ import { useCart } from '@/contexts/CartContext';
 import { formatCurrencyI18n, generateWhatsAppMessage, useTranslation, type SupportedLanguage, type SupportedCurrency } from '@/lib/i18n';
 import { generateWhatsAppUrl } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
-import type { User, PriceTier } from '@/types';
+import type { User as UserType, PriceTier } from '@/types';
 import { generateCartOrderMessage } from '@/lib/cartUtils';
+import { createOrder } from '@/lib/orderService';
 import { fetchProductPriceTiers, calculateApplicablePrice } from '@/lib/tieredPricingUtils';
 import { supabase } from '@/lib/supabase';
 import {
@@ -34,11 +35,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import TieredPricingIndicator from '@/components/product/TieredPricingIndicator';
+import { PhoneInputWithCountry } from '@/components/ui/phone-input-with-country';
 
 interface CartModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  corretor: User;
+  corretor: UserType;
   currency?: SupportedCurrency;
   language?: SupportedLanguage;
 }
@@ -57,6 +59,12 @@ export default function CartModal({
   const [editingVariant, setEditingVariant] = useState<string | null>(null);
   const [productTiers, setProductTiers] = useState<Map<string, { tiers: PriceTier[], hasTieredPricing: boolean }>>(new Map());
   const [expandedDistributions, setExpandedDistributions] = useState<Set<string>>(new Set());
+
+  const [step, setStep] = useState<'cart' | 'checkout'>('cart');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerCountryCode, setCustomerCountryCode] = useState('55');
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
 
   useEffect(() => {
     const loadTieredPricing = async () => {
@@ -85,7 +93,7 @@ export default function CartModal({
     }
   }, [cart.items.map(i => `${i.id}-${i.quantity}`).join(',')]);
 
-  const generateOrderMessage = () => {
+  const generateOrderMessage = (customer?: { name: string; whatsapp: string; countryCode: string }) => {
     return generateCartOrderMessage(
       cart.items,
       cart.total,
@@ -93,30 +101,96 @@ export default function CartModal({
       corretor.slug || '',
       currency,
       language,
-      cart.distributions
+      cart.distributions,
+      customer
     );
   };
 
+  const handleGoToCheckout = () => {
+    if (cart.items.length === 0 && cart.distributions.length === 0) return;
+    setStep('checkout');
+  };
+
+  const validateCustomerInfo = (): boolean => {
+    const newErrors: { name?: string; phone?: string } = {};
+    if (!customerName.trim()) {
+      newErrors.name = 'Informe seu nome';
+    }
+    const cleanPhone = customerPhone.replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 8) {
+      newErrors.phone = 'Informe um numero de WhatsApp valido';
+    }
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSendOrder = async () => {
+    if (!validateCustomerInfo()) return;
     if (cart.items.length === 0 && cart.distributions.length === 0) return;
 
     try {
       setSendingOrder(true);
 
-      const orderMessage = generateOrderMessage();
+      const cleanPhone = customerPhone.replace(/\D/g, '');
+      const customer = { name: customerName.trim(), whatsapp: cleanPhone, countryCode: customerCountryCode };
+      const orderMessage = generateOrderMessage(customer);
       const countryCode = corretor.country_code || '55';
       const whatsappUrl = generateWhatsAppUrl(corretor.whatsapp || '', orderMessage, countryCode);
-      
-      // Track the order as a WhatsApp lead
+
+      const orderItems = [
+        ...cart.distributions.map((dist) => ({
+          product_id: dist.product.id,
+          product_title: dist.product.title,
+          product_image_url: dist.product.featured_image_url || '',
+          quantity: dist.distribution.total_quantity,
+          unit_price: dist.distribution.applied_tier_price,
+          subtotal: dist.distribution.applied_tier_price * dist.distribution.total_quantity,
+        })),
+        ...cart.items.map((item) => ({
+          product_id: item.id,
+          product_title: item.title,
+          product_image_url: item.featured_image_url || '',
+          quantity: item.quantity,
+          unit_price: item.applied_tier_price || item.discounted_price || item.price,
+          selected_color: item.selectedColor || null,
+          selected_size: item.selectedSize || null,
+          selected_flavor: item.selectedFlavor || null,
+          selected_variant_label: item.selectedVariantLabel || null,
+          item_notes: item.notes || '',
+          subtotal: (item.applied_tier_price || item.discounted_price || item.price) * item.quantity,
+        })),
+      ];
+
+      try {
+        await createOrder(
+          {
+            store_owner_id: corretor.id,
+            customer_name: customer.name,
+            customer_whatsapp: cleanPhone,
+            customer_country_code: customerCountryCode,
+            order_type: 'whatsapp',
+            subtotal: cart.total,
+            total: cart.total,
+            whatsapp_message: orderMessage,
+            source: 'cart',
+          },
+          orderItems
+        );
+      } catch (err) {
+        console.error('Failed to save order, proceeding with WhatsApp:', err);
+      }
+
       await trackWhatsAppClick('storefront', 'product', 'cart_checkout');
-      
-      // Open WhatsApp
+
       window.open(whatsappUrl, '_blank');
-      
-      // Clear cart after sending
+
       clearCart();
+      setStep('cart');
+      setCustomerName('');
+      setCustomerPhone('');
+      setCustomerCountryCode('55');
+      setFormErrors({});
       onOpenChange(false);
-      
     } catch (error) {
       console.error('Error sending order:', error);
     } finally {
@@ -596,60 +670,114 @@ export default function CartModal({
 
             <Separator />
 
-            {/* Cart Summary */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Total:</span>
-                <span className="text-xl font-bold text-primary">
-                  {formatCurrencyI18n(cart.total, currency, language)}
-                </span>
-              </div>
+            {step === 'cart' ? (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">Total:</span>
+                  <span className="text-xl font-bold text-primary">
+                    {formatCurrencyI18n(cart.total, currency, language)}
+                  </span>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={clearCart}
-                  className="flex-1"
-                >
-                  Limpar Carrinho
-                </Button>
-                
-                {corretor.whatsapp && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={clearCart}
+                    className="flex-1"
+                  >
+                    Limpar Carrinho
+                  </Button>
+
+                  {corretor.whatsapp && (
+                    <Button
+                      onClick={handleGoToCheckout}
+                      className="flex-1"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Enviar Pedido
+                    </Button>
+                  )}
+                </div>
+
+                {!corretor.whatsapp && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    WhatsApp nao configurado para este vendedor
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-muted/50 rounded-lg p-3 flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    {cart.itemCount} {cart.itemCount === 1 ? 'item' : 'itens'}
+                  </span>
+                  <span className="text-lg font-bold text-primary">
+                    {formatCurrencyI18n(cart.total, currency, language)}
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="checkout-name" className="flex items-center gap-1.5">
+                      <User className="h-3.5 w-3.5" />
+                      Nome completo
+                    </Label>
+                    <Input
+                      id="checkout-name"
+                      placeholder="Seu nome"
+                      value={customerName}
+                      onChange={(e) => {
+                        setCustomerName(e.target.value);
+                        if (formErrors.name) setFormErrors((p) => ({ ...p, name: undefined }));
+                      }}
+                      autoFocus
+                    />
+                    {formErrors.name && (
+                      <p className="text-xs text-destructive">{formErrors.name}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1.5">
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      WhatsApp
+                    </Label>
+                    <PhoneInputWithCountry
+                      value={customerPhone}
+                      defaultCountry="BR"
+                      onChange={(data) => {
+                        setCustomerPhone(data.phone);
+                        setCustomerCountryCode(data.ddi.replace('+', ''));
+                        if (formErrors.phone) setFormErrors((p) => ({ ...p, phone: undefined }));
+                      }}
+                    />
+                    {formErrors.phone && (
+                      <p className="text-xs text-destructive">{formErrors.phone}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep('cart')}
+                    disabled={sendingOrder}
+                    className="flex-1"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Voltar
+                  </Button>
                   <Button
                     onClick={handleSendOrder}
                     disabled={sendingOrder}
                     className="flex-1"
-                   asChild
                   >
-                    <a
-                      href={generateWhatsAppUrl(corretor.whatsapp || '', generateOrderMessage(), corretor.country_code || '55')}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={async (e) => {
-                        // Track the order as a WhatsApp lead
-                        await trackWhatsAppClick('storefront', 'product', 'cart_checkout');
-                        
-                        // Clear cart after sending
-                        setTimeout(() => {
-                          clearCart();
-                          onOpenChange(false);
-                        }, 100);
-                      }}
-                    >
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Enviar Pedido
-                    </a>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    {sendingOrder ? 'Enviando...' : 'Confirmar'}
                   </Button>
-                )}
+                </div>
               </div>
-
-              {!corretor.whatsapp && (
-                <p className="text-xs text-muted-foreground text-center">
-                  WhatsApp não configurado para este vendedor
-                </p>
-              )}
-            </div>
+            )}
           </>
         )}
       </DialogContent>

@@ -16,7 +16,9 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
 
   const handleNotificationClick = (notification: AppNotification) => {
     onClose?.();
-    if (notification.related_entity_type === 'product' && notification.related_entity_id) {
+    if (notification.related_entity_type === 'order') {
+      navigate('/dashboard/orders');
+    } else if (notification.related_entity_type === 'product' && notification.related_entity_id) {
       navigate('/dashboard/listings');
     }
   };

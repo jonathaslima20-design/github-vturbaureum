@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, Bell } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { NavLink, Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, Bell, ShoppingBag, ClipboardList, CreditCard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn, getInitials } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -11,19 +12,41 @@ import SubscriptionModal from '@/components/subscription/SubscriptionModal';
 import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import PlanUsageIndicator from '@/components/dashboard/PlanUsageIndicator';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { getPendingOrderCount } from '@/lib/orderService';
 
 export default function DashboardSidebar() {
   const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [salesExpanded, setSalesExpanded] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState(0);
   const { signOut, user } = useAuth();
   const { unreadCount } = useNotifications();
+  const location = useLocation();
 
-  // Navigation items
+  const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales');
+
+  useEffect(() => {
+    if (isSalesSection) setSalesExpanded(true);
+  }, [isSalesSection]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getPendingOrderCount(user.id).then(setPendingOrders);
+  }, [user?.id]);
+
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Categorias', href: '/dashboard/categories', icon: FolderTree },
     { name: 'Produtos', href: '/dashboard/listings', icon: Package },
+  ];
+
+  const salesSubItems = [
+    { name: 'Pedidos', href: '/dashboard/orders', icon: ClipboardList, badge: pendingOrders },
+    { name: 'Vendas Online', href: '/dashboard/sales', icon: CreditCard, comingSoon: true },
+  ];
+
+  const navigationAfterSales = [
     { name: 'Notificações', href: '/dashboard/notifications', icon: Bell, badge: unreadCount },
     { name: 'Indique e Ganhe', href: '/dashboard/referral', icon: Gift },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
@@ -118,8 +141,61 @@ export default function DashboardSidebar() {
                 className={navItemClasses}
               >
                 <item.icon className="h-5 w-5" />
-                {expanded && <span className="flex-1">{item.name}</span>}
-                {expanded && 'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
+                <span className="flex-1">{item.name}</span>
+              </NavLink>
+            ))}
+
+            {/* Sales Group */}
+            <div>
+              <button
+                onClick={() => setSalesExpanded(!salesExpanded)}
+                className={cn(
+                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
+                  isSalesSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <ShoppingBag className="h-5 w-5" />
+                <span className="flex-1">Vendas</span>
+                {pendingOrders > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                    {pendingOrders > 99 ? '99+' : pendingOrders}
+                  </span>
+                )}
+                <ChevronDown className={cn("h-4 w-4 transition-transform", salesExpanded && "rotate-180")} />
+              </button>
+              {salesExpanded && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {salesSubItems.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={navItemClasses}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="flex-1">{item.name}</span>
+                      {'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
+                      {'comingSoon' in item && item.comingSoon && (
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 ml-auto">Breve</Badge>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {navigationAfterSales.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={navItemClasses}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="flex-1">{item.name}</span>
+                {'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
                   <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
@@ -128,7 +204,7 @@ export default function DashboardSidebar() {
             ))}
           </nav>
         </div>
-        
+
         <div className="mt-auto">
           <PlanUsageIndicator expanded={true} />
           <div className="p-4">
@@ -202,6 +278,63 @@ export default function DashboardSidebar() {
         <div className="px-2 py-2 flex-1">
           <nav className="space-y-1 flex flex-col">
             {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={navItemClasses}
+              >
+                <item.icon className="h-5 w-5" />
+                {expanded && <span className="flex-1">{item.name}</span>}
+              </NavLink>
+            ))}
+
+            {/* Sales Group */}
+            <div>
+              <button
+                onClick={() => setSalesExpanded(!salesExpanded)}
+                className={cn(
+                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
+                  isSalesSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {expanded && (
+                  <>
+                    <span className="flex-1">Vendas</span>
+                    {pendingOrders > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                        {pendingOrders > 99 ? '99+' : pendingOrders}
+                      </span>
+                    )}
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", salesExpanded && "rotate-180")} />
+                  </>
+                )}
+              </button>
+              {salesExpanded && expanded && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {salesSubItems.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={navItemClasses}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="flex-1">{item.name}</span>
+                      {'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
+                      {'comingSoon' in item && item.comingSoon && (
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 ml-auto">Breve</Badge>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {navigationAfterSales.map((item) => (
               <NavLink
                 key={item.name}
                 to={item.href}

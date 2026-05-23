@@ -27,6 +27,7 @@ const TYPE_LABELS: Record<NotificationType | 'all', string> = {
   subscription_expiring: 'Assinatura expirando',
   subscription_expired: 'Assinatura expirada',
   product_sold: 'Vendas',
+  new_order: 'Novos pedidos',
   system: 'Sistema',
 };
 
@@ -129,7 +130,9 @@ export default function NotificationsPage() {
   };
 
   const handleNotificationClick = (notification: AppNotification) => {
-    if (notification.related_entity_type === 'product' && notification.related_entity_id) {
+    if (notification.related_entity_type === 'order') {
+      navigate('/dashboard/orders');
+    } else if (notification.related_entity_type === 'product' && notification.related_entity_id) {
       navigate('/dashboard/listings');
     }
   };

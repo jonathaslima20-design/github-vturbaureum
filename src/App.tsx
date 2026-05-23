@@ -40,6 +40,8 @@ import TrackingSettingsPage from '@/pages/dashboard/TrackingSettingsPage.tsx';
 import CategoriesPage from '@/pages/dashboard/CategoriesPage.tsx';
 import ReferralPage from '@/pages/dashboard/ReferralPage.tsx';
 import NotificationsPage from '@/pages/dashboard/NotificationsPage.tsx';
+import OrdersPage from '@/pages/dashboard/OrdersPage.tsx';
+import SalesPage from '@/pages/dashboard/SalesPage.tsx';
 
 // Admin Pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.tsx';
@@ -172,6 +174,8 @@ function AppContent() {
             <Route path="/dashboard/products/:id/edit" element={<EditProductPage />} />
             <Route path="/dashboard/categories" element={<CategoriesPage />} />
             <Route path="/dashboard/referral" element={<ReferralPage />} />
+            <Route path="/dashboard/orders" element={<OrdersPage />} />
+            <Route path="/dashboard/sales" element={<SalesPage />} />
             <Route path="/dashboard/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>

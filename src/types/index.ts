@@ -338,6 +338,45 @@ export interface SubscriptionPlan {
 
 export type LimitReason = 'products' | 'categories' | null;
 
+// Order System Types
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderType = 'whatsapp' | 'ecommerce';
+export type OrderSource = 'cart' | 'product_page';
+
+export interface Order {
+  id: string;
+  store_owner_id: string;
+  customer_name: string;
+  customer_whatsapp: string;
+  customer_country_code: string;
+  status: OrderStatus;
+  order_type: OrderType;
+  subtotal: number;
+  total: number;
+  notes: string;
+  whatsapp_message: string;
+  source: OrderSource;
+  created_at: string;
+  updated_at: string;
+  order_items?: OrderItem[];
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  product_title: string;
+  product_image_url: string;
+  quantity: number;
+  unit_price: number;
+  selected_color?: string | null;
+  selected_size?: string | null;
+  selected_flavor?: string | null;
+  selected_variant_label?: string | null;
+  item_notes: string;
+  subtotal: number;
+}
+
 // Notification System Types
 export type NotificationType =
   | 'new_lead'
@@ -346,6 +385,7 @@ export type NotificationType =
   | 'subscription_expiring'
   | 'subscription_expired'
   | 'product_sold'
+  | 'new_order'
   | 'system';
 
 export interface AppNotification {

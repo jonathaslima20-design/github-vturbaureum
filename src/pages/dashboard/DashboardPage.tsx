@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, Users, DollarSign, Loader as Loader2, ExternalLink } from 'lucide-react';
+import { Package, TrendingUp, Users, DollarSign, Loader as Loader2, ExternalLink, ShoppingBag } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { totalProducts, totalViews, uniqueVisitors, totalLeads, loading, error } = useDashboardStats();
+  const { totalProducts, totalViews, uniqueVisitors, totalLeads, totalOrders, loading, error } = useDashboardStats();
 
   const getMissingProfileFields = () => {
     const missing: string[] = [];
@@ -64,7 +64,7 @@ export default function DashboardPage() {
         </Alert>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
@@ -128,6 +128,23 @@ export default function DashboardPage() {
               <>
                 <div className="text-2xl font-bold">{totalLeads}</div>
                 <p className="text-xs text-muted-foreground">contatos recebidos</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => navigate('/dashboard/orders')}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pedidos</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{totalOrders}</div>
+                <p className="text-xs text-muted-foreground">nos ultimos 30 dias</p>
               </>
             )}
           </CardContent>

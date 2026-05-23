@@ -4,6 +4,12 @@ import { formatCurrencyI18n, generateWhatsAppMessage, type SupportedLanguage, ty
 /**
  * Generate a formatted WhatsApp message for a cart order
  */
+interface CustomerData {
+  name: string;
+  whatsapp: string;
+  countryCode: string;
+}
+
 export function generateCartOrderMessage(
   cartItems: CartItem[],
   total: number,
@@ -11,14 +17,25 @@ export function generateCartOrderMessage(
   corretorSlug: string,
   currency: SupportedCurrency = 'BRL',
   language: SupportedLanguage = 'pt-BR',
-  distributions: CartDistribution[] = []
+  distributions: CartDistribution[] = [],
+  customer?: CustomerData
 ): string {
   if (cartItems.length === 0 && distributions.length === 0) return '';
 
-  // Simplified greeting for cart orders
   const greeting = `Olá ${sellerName}, gostaria de realizar um pedido com os itens abaixo.`;
-  
+
   let orderMessage = `${greeting}\n\n`;
+
+  if (customer) {
+    const customerLabels = {
+      'pt-BR': { name: 'Cliente', whatsapp: 'WhatsApp' },
+      'en-US': { name: 'Customer', whatsapp: 'WhatsApp' },
+      'es-ES': { name: 'Cliente', whatsapp: 'WhatsApp' },
+    };
+    const labels = customerLabels[language] || customerLabels['pt-BR'];
+    orderMessage += `*${labels.name}:* ${customer.name}\n`;
+    orderMessage += `*${labels.whatsapp}:* +${customer.countryCode}${customer.whatsapp}\n\n`;
+  }
   
   // Order header
   const orderTitles = {

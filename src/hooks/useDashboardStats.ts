@@ -7,6 +7,7 @@ interface DashboardStats {
   totalViews: number;
   uniqueVisitors: number;
   totalLeads: number;
+  totalOrders: number;
   loading: boolean;
   error: string | null;
 }
@@ -18,6 +19,7 @@ export function useDashboardStats() {
     totalViews: 0,
     uniqueVisitors: 0,
     totalLeads: 0,
+    totalOrders: 0,
     loading: true,
     error: null,
   });
@@ -56,7 +58,7 @@ export function useDashboardStats() {
 
       const productIds = products?.map(p => p.id) || [];
 
-      const [viewsResponse, uniqueVisitorsResponse, leadsResponse] = await Promise.all([
+      const [viewsResponse, uniqueVisitorsResponse, leadsResponse, ordersResponse] = await Promise.all([
         supabase
           .from('property_views')
           .select('id', { count: 'exact', head: true })
@@ -74,6 +76,12 @@ export function useDashboardStats() {
           .select('id', { count: 'exact', head: true })
           .in('property_id', productIds.length > 0 ? productIds : ['00000000-0000-0000-0000-000000000000'])
           .gte('created_at', thirtyDaysAgo.toISOString()),
+
+        supabase
+          .from('orders')
+          .select('id', { count: 'exact', head: true })
+          .eq('store_owner_id', user.id)
+          .gte('created_at', thirtyDaysAgo.toISOString()),
       ]);
 
       const uniqueViewerIds = new Set(
@@ -85,6 +93,7 @@ export function useDashboardStats() {
         totalViews: viewsResponse.count || 0,
         uniqueVisitors: uniqueViewerIds.size,
         totalLeads: leadsResponse.count || 0,
+        totalOrders: ordersResponse.count || 0,
         loading: false,
         error: null,
       });
