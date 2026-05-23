@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ChartBar as BarChart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, Trash2, UsersRound } from 'lucide-react';
+import { LayoutDashboard, Users, ChartBar as BarChart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,7 +23,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileToggle }: Adm
     { name: 'Planos', href: '/admin/plans', icon: CreditCard, roles: ['admin'] },
     { name: 'Banner de Clientes', href: '/admin/banner-clients', icon: UsersRound, roles: ['admin'] },
     { name: 'Indicações', href: '/admin/referrals', icon: Gift, roles: ['admin', 'parceiro'] },
-    { name: 'Arquivos Órfãos', href: '/admin/orphaned-files', icon: Trash2, roles: ['admin'] },
+
     { name: 'Configurações', href: '/admin/settings', icon: Settings, roles: ['admin'] },
     { name: 'Central de Ajuda', href: '/admin/help', icon: HelpCircle, roles: ['admin'] },
   ].filter(item => item.roles.includes(user?.role || ''));
