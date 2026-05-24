@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -289,26 +289,29 @@ function PixSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void
 function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void }) {
   const [sdkReady, setSdkReady] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sdkError, setSdkError] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<CardPaymentResult | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    const init = async () => {
-      try {
-        await ensureMercadoPago();
-        if (!cancelled) {
-          setSdkReady(true);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error initializing MercadoPago SDK:', error);
-        if (!cancelled) setLoading(false);
-      }
-    };
-    init();
-    return () => { cancelled = true; };
+  const initialization = useMemo(() => ({ amount: plan.price }), [plan.price]);
+
+  const initSdk = useCallback(async () => {
+    setLoading(true);
+    setSdkError(false);
+    try {
+      await ensureMercadoPago();
+      setSdkReady(true);
+    } catch (error) {
+      console.error('Error initializing MercadoPago SDK:', error);
+      setSdkError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    initSdk();
+  }, [initSdk]);
 
   const handleCardSubmit = useCallback(async (formData: any) => {
     setProcessing(true);
@@ -384,7 +387,7 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
     );
   }
 
-  if (loading || !sdkReady) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -392,10 +395,29 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
     );
   }
 
+  if (sdkError || !sdkReady) {
+    return (
+      <div className="text-center space-y-4 py-8">
+        <div className="flex justify-center">
+          <div className="h-14 w-14 rounded-full bg-red-500/10 flex items-center justify-center">
+            <AlertCircle className="h-7 w-7 text-red-500" />
+          </div>
+        </div>
+        <h3 className="text-lg font-semibold">Erro ao carregar formulario</h3>
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+          Nao foi possivel carregar o formulario de pagamento com cartao. Verifique sua conexao e tente novamente.
+        </p>
+        <Button variant="outline" onClick={initSdk}>
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <CardPayment
-        initialization={{ amount: plan.price }}
+        initialization={initialization}
         onSubmit={handleCardSubmit}
         onReady={handleReady}
         onError={handleError}
@@ -465,7 +487,7 @@ export default function CheckoutPage() {
       setPlan({
         id: data.id,
         name: data.name,
-        price: data.price,
+        price: Number(data.price),
         duration: cycle || data.duration,
       });
       setLoading(false);
@@ -562,12 +584,12 @@ export default function CheckoutPage() {
               <Separator />
 
               {/* Tab Content */}
-              {activeTab === 'pix' && (
+              <div style={{ display: activeTab === 'pix' ? 'block' : 'none' }}>
                 <PixSection plan={plan} onSuccess={handleSuccess} />
-              )}
-              {activeTab === 'card' && (
+              </div>
+              <div style={{ display: activeTab === 'card' ? 'block' : 'none' }}>
                 <CardSection plan={plan} onSuccess={handleSuccess} />
-              )}
+              </div>
             </CardContent>
           </Card>
         )}

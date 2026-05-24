@@ -5,11 +5,15 @@ let initialized = false;
 let cachedInfo: { public_key: string; environment: string } | null = null;
 
 export async function ensureMercadoPago(): Promise<{ public_key: string; environment: string }> {
-  if (cachedInfo) return cachedInfo;
+  if (cachedInfo && initialized) return cachedInfo;
 
   const info = await getPublicKey();
 
-  if (!initialized && info.public_key) {
+  if (!info.public_key) {
+    throw new Error('Chave publica do Mercado Pago nao configurada');
+  }
+
+  if (!initialized) {
     initMercadoPago(info.public_key, { locale: 'pt-BR' });
     initialized = true;
   }
