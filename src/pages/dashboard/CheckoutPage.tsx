@@ -28,6 +28,29 @@ declare global {
   }
 }
 
+function loadMercadoPagoScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.MercadoPago) {
+      resolve();
+      return;
+    }
+    const existing = document.querySelector('script[src*="sdk.mercadopago.com"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('error', () => reject(new Error('SDK script failed')));
+      if (window.MercadoPago) {
+        resolve();
+      }
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://sdk.mercadopago.com/js/v2';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('SDK script failed to load'));
+    document.head.appendChild(script);
+  });
+}
+
 type PaymentTab = 'pix' | 'card';
 
 interface PlanInfo {
@@ -307,16 +330,43 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
   const containerRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<any>(null);
   const mountedRef = useRef(true);
+  const onSuccessRef = useRef(onSuccess);
+  const planRef = useRef(plan);
+  onSuccessRef.current = onSuccess;
+  planRef.current = plan;
 
   useEffect(() => {
     mountedRef.current = true;
     let cancelled = false;
 
+    async function waitForContainer(id: string, timeoutMs = 3000): Promise<HTMLElement> {
+      const el = document.getElementById(id);
+      if (el) return el;
+      return new Promise((resolve, reject) => {
+        const interval = setInterval(() => {
+          const found = document.getElementById(id);
+          if (found) { clearInterval(interval); clearTimeout(timeout); resolve(found); }
+        }, 50);
+        const timeout = setTimeout(() => {
+          clearInterval(interval);
+          reject(new Error('Container nao encontrado no DOM'));
+        }, timeoutMs);
+      });
+    }
+
     async function createBrick() {
       try {
+        await loadMercadoPagoScript();
+
+        if (cancelled) return;
+
         if (!window.MercadoPago) {
-          throw new Error('SDK nao carregado');
+          throw new Error('window.MercadoPago nao disponivel apos carregamento do script');
         }
+
+        await waitForContainer('mp-card-brick-container');
+
+        if (cancelled) return;
 
         const mp = new window.MercadoPago(publicKey, {
           locale: 'pt-BR',
@@ -325,7 +375,7 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
         const bricksBuilder = mp.bricks();
 
         if (controllerRef.current) {
-          await controllerRef.current.unmount();
+          try { await controllerRef.current.unmount(); } catch {}
           controllerRef.current = null;
         }
 
@@ -346,8 +396,8 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
               setProcessing(true);
               try {
                 const cardResult = await createCardPayment({
-                  plan_id: plan.id,
-                  billing_cycle: plan.duration,
+                  plan_id: planRef.current.id,
+                  billing_cycle: planRef.current.duration,
                   token: formData.token,
                   installments: formData.installments,
                   payment_method_id: formData.payment_method_id,
@@ -360,7 +410,7 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
                 if (!mountedRef.current) return;
                 setResult(cardResult);
                 if (cardResult.status === 'approved') {
-                  onSuccess();
+                  onSuccessRef.current();
                 }
               } catch (error) {
                 if (mountedRef.current) {
@@ -373,7 +423,7 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
               }
             },
             onError: (error: any) => {
-              console.error('CardPayment Brick error:', error);
+              console.error('CardPayment Brick onError:', error);
               if (!cancelled && mountedRef.current) {
                 setBrickError(error?.message || 'Erro no formulario de pagamento');
               }
@@ -382,7 +432,7 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
         });
 
         if (cancelled) {
-          await controller.unmount();
+          try { await controller.unmount(); } catch {}
         } else {
           controllerRef.current = controller;
         }
@@ -400,11 +450,12 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
       cancelled = true;
       mountedRef.current = false;
       if (controllerRef.current) {
-        controllerRef.current.unmount().catch(() => {});
+        try { controllerRef.current.unmount(); } catch {}
         controllerRef.current = null;
       }
     };
-  }, [publicKey, plan.price, plan.id, plan.duration, onSuccess]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey, plan.price]);
 
   if (result) {
     if (result.status === 'approved') {
@@ -459,6 +510,9 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
         <h3 className="text-lg font-semibold">Erro ao carregar formulario</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           Nao foi possivel carregar o formulario de pagamento. Tente novamente.
+        </p>
+        <p className="text-xs text-muted-foreground/60 font-mono max-w-sm mx-auto break-all">
+          {brickError}
         </p>
         <Button variant="outline" onClick={onRetry}>
           Tentar novamente
