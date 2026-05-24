@@ -45,6 +45,7 @@ import SalesPage from '@/pages/dashboard/SalesPage.tsx';
 import StockMovementsPage from '@/pages/dashboard/StockMovementsPage.tsx';
 import InventoryOverviewPage from '@/pages/dashboard/InventoryOverviewPage.tsx';
 import InventorySettingsPage from '@/pages/dashboard/InventorySettingsPage.tsx';
+import CheckoutPage from '@/pages/dashboard/CheckoutPage.tsx';
 
 // Admin Pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.tsx';
@@ -58,6 +59,7 @@ import ReferralManagementPage from '@/pages/admin/ReferralManagementPage.tsx';
 import HelpManagementPage from '@/pages/admin/HelpManagementPage.tsx';
 import { OrphanedFilesPage } from '@/pages/admin/OrphanedFilesPage.tsx';
 import BannerClientsPage from '@/pages/admin/BannerClientsPage.tsx';
+import MercadoPagoPage from '@/pages/admin/MercadoPagoPage.tsx';
 
 // Route Guards
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -182,6 +184,7 @@ function AppContent() {
             <Route path="/dashboard/inventory" element={<InventoryOverviewPage />} />
             <Route path="/dashboard/inventory/settings" element={<InventorySettingsPage />} />
             <Route path="/dashboard/stock-movements" element={<StockMovementsPage />} />
+            <Route path="/dashboard/checkout" element={<CheckoutPage />} />
             <Route path="/dashboard/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
@@ -198,6 +201,7 @@ function AppContent() {
             <Route path="/admin/orphaned-files" element={<OrphanedFilesPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/help" element={<HelpManagementPage />} />
+            <Route path="/admin/mercadopago" element={<MercadoPagoPage />} />
             <Route path="/admin/banner-clients" element={<BannerClientsPage />} />
           </Route>
         </Route>

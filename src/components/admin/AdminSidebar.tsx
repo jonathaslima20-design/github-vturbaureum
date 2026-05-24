@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ChartBar as BarChart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound } from 'lucide-react';
+import { LayoutDashboard, Users, ChartBar as BarChart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,6 +21,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileToggle }: Adm
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin', 'parceiro'] },
     { name: 'Usuários', href: '/admin/users', icon: Users, roles: ['admin', 'parceiro'] },
     { name: 'Planos', href: '/admin/plans', icon: CreditCard, roles: ['admin'] },
+    { name: 'Mercado Pago', href: '/admin/mercadopago', icon: Wallet, roles: ['admin'] },
     { name: 'Banner de Clientes', href: '/admin/banner-clients', icon: UsersRound, roles: ['admin'] },
     { name: 'Indicações', href: '/admin/referrals', icon: Gift, roles: ['admin', 'parceiro'] },
 

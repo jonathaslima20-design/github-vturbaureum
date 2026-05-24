@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Check, ExternalLink, Crown, Zap, Star, LogOut, Package, FolderOpen, CircleArrowUp as ArrowUpCircle, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Check, CreditCard, Crown, Zap, Star, LogOut, Package, FolderOpen, CircleArrowUp as ArrowUpCircle, Lock } from 'lucide-react';
 import BannerClients from '@/components/subscription/BannerClients';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
@@ -309,31 +311,17 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
                         </div>
 
                         <div className="pt-2">
-                          {plan.checkout_url ? (
-                            <Button
-                              className={`w-full ${popular ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0' : ''}`}
-                              size="lg"
-                              asChild
-                            >
-                              <a
-                                href={plan.checkout_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <ExternalLink className="h-4 w-4 mr-2" />
-                                Assinar Agora
-                              </a>
-                            </Button>
-                          ) : (
-                            <Button
-                              className="w-full"
-                              size="lg"
-                              variant="outline"
-                              disabled
-                            >
-                              Em Breve
-                            </Button>
-                          )}
+                          <Button
+                            className={`w-full ${popular ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0' : ''}`}
+                            size="lg"
+                            onClick={() => {
+                              onOpenChange(false);
+                              navigate(`/dashboard/checkout?plan=${plan.id}&cycle=${plan.duration}`);
+                            }}
+                          >
+                            <CreditCard className="h-4 w-4 mr-2" />
+                            Assinar Agora
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>

@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { CreditCard as Edit, Trash2, Plus, ExternalLink, Copy, Check } from 'lucide-react';
+import { CreditCard as Edit, Trash2, Plus, Check } from 'lucide-react';
 import type { SubscriptionPlan } from '@/types';
 import { formatCurrencyI18n } from '@/lib/i18n';
 
@@ -38,13 +38,11 @@ export default function SubscriptionPlansManager() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const [editForm, setEditForm] = useState({
     name: '',
     duration: 'Mensal' as 'Mensal' | 'Trimestral' | 'Semestral' | 'Anual',
     price: 0,
-    checkout_url: '',
     is_active: true,
     display_order: 0,
   });
@@ -53,7 +51,6 @@ export default function SubscriptionPlansManager() {
     name: '',
     duration: 'Mensal' as 'Mensal' | 'Trimestral' | 'Semestral' | 'Anual',
     price: 0,
-    checkout_url: '',
     is_active: true,
     display_order: 0,
   });
@@ -86,7 +83,6 @@ export default function SubscriptionPlansManager() {
       name: plan.name,
       duration: plan.duration,
       price: plan.price,
-      checkout_url: plan.checkout_url || '',
       is_active: plan.is_active,
       display_order: plan.display_order,
     });
@@ -106,11 +102,6 @@ export default function SubscriptionPlansManager() {
       return;
     }
 
-    if (!editForm.checkout_url.trim()) {
-      toast.error('URL de checkout é obrigatória');
-      return;
-    }
-
     setIsUpdating(true);
     try {
       const { error } = await supabase
@@ -119,7 +110,6 @@ export default function SubscriptionPlansManager() {
           name: editForm.name,
           duration: editForm.duration,
           price: editForm.price,
-          checkout_url: editForm.checkout_url,
           is_active: editForm.is_active,
           display_order: editForm.display_order,
           updated_at: new Date().toISOString(),
@@ -187,11 +177,7 @@ export default function SubscriptionPlansManager() {
     }
   };
 
-  const copyToClipboard = (text: string, planId: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(planId);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+
 
   const handleCreatePlan = async () => {
     if (!createForm.name.trim()) {
@@ -204,11 +190,6 @@ export default function SubscriptionPlansManager() {
       return;
     }
 
-    if (!createForm.checkout_url.trim()) {
-      toast.error('URL de checkout é obrigatória');
-      return;
-    }
-
     setIsUpdating(true);
     try {
       const { error } = await supabase
@@ -217,7 +198,6 @@ export default function SubscriptionPlansManager() {
           name: createForm.name,
           duration: createForm.duration,
           price: createForm.price,
-          checkout_url: createForm.checkout_url,
           is_active: createForm.is_active,
           display_order: createForm.display_order,
         });
@@ -230,7 +210,6 @@ export default function SubscriptionPlansManager() {
         name: '',
         duration: 'Mensal',
         price: 0,
-        checkout_url: '',
         is_active: true,
         display_order: 0,
       });
@@ -372,23 +351,6 @@ export default function SubscriptionPlansManager() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="create-plan-checkout-url">
-                      Link de Checkout
-                    </Label>
-                    <Input
-                      id="create-plan-checkout-url"
-                      value={createForm.checkout_url}
-                      onChange={(e) =>
-                        setCreateForm({
-                          ...createForm,
-                          checkout_url: e.target.value,
-                        })
-                      }
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="create-plan-order">Ordem de Exibição</Label>
                     <Input
                       id="create-plan-order"
@@ -496,44 +458,8 @@ export default function SubscriptionPlansManager() {
 
                       <div className="space-y-2">
                         <div className="text-sm">
-                          <span className="text-muted-foreground">Link de Checkout: </span>
-                        </div>
-                        <div className="flex items-center gap-2 bg-muted p-2 rounded text-xs">
-                          <code className="flex-1 truncate">
-                            {plan.checkout_url || 'Não configurado'}
-                          </code>
-                          {plan.checkout_url && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  copyToClipboard(plan.checkout_url || '', plan.id)
-                                }
-                                className="h-6 w-6 p-0"
-                              >
-                                {copiedId === plan.id ? (
-                                  <Check className="h-3 w-3 text-green-600" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className="h-6 w-6 p-0"
-                              >
-                                <a
-                                  href={plan.checkout_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <ExternalLink className="h-3 w-3" />
-                                </a>
-                              </Button>
-                            </>
-                          )}
+                          <span className="text-muted-foreground">Checkout: </span>
+                          <span className="text-xs text-green-600 font-medium">Mercado Pago</span>
                         </div>
                       </div>
                     </div>
@@ -617,23 +543,6 @@ export default function SubscriptionPlansManager() {
                                   })
                                 }
                                 placeholder="0.00"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="plan-checkout-url">
-                                Link de Checkout
-                              </Label>
-                              <Input
-                                id="plan-checkout-url"
-                                value={editForm.checkout_url}
-                                onChange={(e) =>
-                                  setEditForm({
-                                    ...editForm,
-                                    checkout_url: e.target.value,
-                                  })
-                                }
-                                placeholder="https://..."
                               />
                             </div>
 
