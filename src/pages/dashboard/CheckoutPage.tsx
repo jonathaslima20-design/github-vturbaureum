@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { ensureMercadoPago } from '@/lib/mercadopago';
+import { CardPayment } from '@mercadopago/sdk-react';
 import {
   createPixPayment,
   createCardPayment,
@@ -290,7 +291,6 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<CardPaymentResult | null>(null);
-  const brickContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -310,77 +310,31 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    if (!sdkReady || !brickContainerRef.current) return;
-
-    const mp = (window as any).MercadoPago;
-    if (!mp) return;
-
-    let bricksController: any = null;
-
-    const renderBrick = async () => {
-      try {
-        const bricksBuilder = mp.bricks();
-        bricksController = await bricksBuilder.create('payment', 'mp-card-brick', {
-          initialization: {
-            amount: plan.price,
-          },
-          customization: {
-            paymentMethods: {
-              creditCard: 'all',
-              debitCard: 'all',
-            },
-            visual: {
-              style: {
-                theme: 'default',
-              },
-            },
-          },
-          callbacks: {
-            onReady: () => {},
-            onSubmit: async (formData: any) => {
-              setProcessing(true);
-              try {
-                const cardResult = await createCardPayment({
-                  plan_id: plan.id,
-                  billing_cycle: plan.duration,
-                  token: formData.token,
-                  installments: formData.installments,
-                  payment_method_id: formData.payment_method_id,
-                  issuer_id: formData.issuer_id || '',
-                  payer: {
-                    email: formData.payer?.email || '',
-                    doc: formData.payer?.identification?.number || '',
-                  },
-                });
-                setResult(cardResult);
-                if (cardResult.status === 'approved') {
-                  onSuccess();
-                }
-              } catch (error) {
-                toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
-              } finally {
-                setProcessing(false);
-              }
-            },
-            onError: (error: any) => {
-              console.error('Brick error:', error);
-            },
-          },
-        });
-      } catch (error) {
-        console.error('Error rendering payment brick:', error);
+  const handleCardSubmit = useCallback(async (formData: any) => {
+    setProcessing(true);
+    try {
+      const cardResult = await createCardPayment({
+        plan_id: plan.id,
+        billing_cycle: plan.duration,
+        token: formData.token,
+        installments: formData.installments,
+        payment_method_id: formData.payment_method_id,
+        issuer_id: formData.issuer_id || '',
+        payer: {
+          email: formData.payer?.email || '',
+          doc: formData.payer?.identification?.number || '',
+        },
+      });
+      setResult(cardResult);
+      if (cardResult.status === 'approved') {
+        onSuccess();
       }
-    };
-
-    renderBrick();
-
-    return () => {
-      if (bricksController) {
-        bricksController.unmount?.();
-      }
-    };
-  }, [sdkReady, plan.price, plan.id, plan.duration, onSuccess]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
+    } finally {
+      setProcessing(false);
+    }
+  }, [plan.id, plan.duration, onSuccess]);
 
   if (result) {
     if (result.status === 'approved') {
@@ -424,7 +378,7 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
     );
   }
 
-  if (loading) {
+  if (loading || !sdkReady) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -434,7 +388,15 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
 
   return (
     <div className="space-y-4">
-      <div id="mp-card-brick" ref={brickContainerRef} />
+      <CardPayment
+        initialization={{ amount: plan.price }}
+        onSubmit={handleCardSubmit}
+        onReady={() => {}}
+        onError={(error: any) => {
+          console.error('CardPayment Brick error:', error);
+        }}
+        locale="pt-BR"
+      />
       {processing && (
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
