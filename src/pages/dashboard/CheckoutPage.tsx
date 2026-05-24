@@ -336,6 +336,12 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
     }
   }, [plan.id, plan.duration, onSuccess]);
 
+  const handleReady = useCallback(() => {}, []);
+
+  const handleError = useCallback((error: any) => {
+    console.error('CardPayment Brick error:', error);
+  }, []);
+
   if (result) {
     if (result.status === 'approved') {
       return <PaymentSuccess />;
@@ -391,10 +397,8 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
       <CardPayment
         initialization={{ amount: plan.price }}
         onSubmit={handleCardSubmit}
-        onReady={() => {}}
-        onError={(error: any) => {
-          console.error('CardPayment Brick error:', error);
-        }}
+        onReady={handleReady}
+        onError={handleError}
         locale="pt-BR"
       />
       {processing && (
@@ -577,3 +581,6 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+
+export default CheckoutPage
