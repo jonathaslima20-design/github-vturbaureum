@@ -5,20 +5,33 @@ import { useAuth } from '@/contexts/AuthContext';
 interface InventorySettings {
   inventoryEnabled: boolean;
   showStockOnStorefront: boolean;
+  autoDeductStock: boolean;
+  blockZeroStock: boolean;
+  reservationMinutes: number;
   loading: boolean;
 }
 
 export function useInventoryEnabled(): InventorySettings {
   const { user } = useAuth();
-  const [inventoryEnabled, setInventoryEnabled] = useState(false);
-  const [showStockOnStorefront, setShowStockOnStorefront] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<InventorySettings>({
+    inventoryEnabled: false,
+    showStockOnStorefront: false,
+    autoDeductStock: true,
+    blockZeroStock: false,
+    reservationMinutes: 15,
+    loading: true,
+  });
 
   useEffect(() => {
     if (!user?.id) {
-      setInventoryEnabled(false);
-      setShowStockOnStorefront(false);
-      setLoading(false);
+      setSettings({
+        inventoryEnabled: false,
+        showStockOnStorefront: false,
+        autoDeductStock: true,
+        blockZeroStock: false,
+        reservationMinutes: 15,
+        loading: false,
+      });
       return;
     }
 
@@ -30,26 +43,38 @@ export function useInventoryEnabled(): InventorySettings {
         .maybeSingle();
 
       if (!error && data?.settings) {
-        setInventoryEnabled(data.settings.enableInventory ?? false);
-        setShowStockOnStorefront(data.settings.showStockOnStorefront ?? false);
+        setSettings({
+          inventoryEnabled: data.settings.enableInventory ?? false,
+          showStockOnStorefront: data.settings.showStockOnStorefront ?? false,
+          autoDeductStock: data.settings.autoDeductStock ?? true,
+          blockZeroStock: data.settings.blockZeroStock ?? false,
+          reservationMinutes: data.settings.reservationMinutes ?? 15,
+          loading: false,
+        });
+      } else {
+        setSettings(prev => ({ ...prev, loading: false }));
       }
-      setLoading(false);
     };
 
     fetchSettings();
   }, [user?.id]);
 
-  return { inventoryEnabled, showStockOnStorefront, loading };
+  return settings;
 }
 
 export function useInventoryEnabledForStore(storeOwnerId: string | undefined) {
-  const [inventoryEnabled, setInventoryEnabled] = useState(false);
-  const [showStockOnStorefront, setShowStockOnStorefront] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<InventorySettings>({
+    inventoryEnabled: false,
+    showStockOnStorefront: false,
+    autoDeductStock: true,
+    blockZeroStock: false,
+    reservationMinutes: 15,
+    loading: true,
+  });
 
   useEffect(() => {
     if (!storeOwnerId) {
-      setLoading(false);
+      setSettings(prev => ({ ...prev, loading: false }));
       return;
     }
 
@@ -61,14 +86,21 @@ export function useInventoryEnabledForStore(storeOwnerId: string | undefined) {
         .maybeSingle();
 
       if (!error && data?.settings) {
-        setInventoryEnabled(data.settings.enableInventory ?? false);
-        setShowStockOnStorefront(data.settings.showStockOnStorefront ?? false);
+        setSettings({
+          inventoryEnabled: data.settings.enableInventory ?? false,
+          showStockOnStorefront: data.settings.showStockOnStorefront ?? false,
+          autoDeductStock: data.settings.autoDeductStock ?? true,
+          blockZeroStock: data.settings.blockZeroStock ?? false,
+          reservationMinutes: data.settings.reservationMinutes ?? 15,
+          loading: false,
+        });
+      } else {
+        setSettings(prev => ({ ...prev, loading: false }));
       }
-      setLoading(false);
     };
 
     fetchSettings();
   }, [storeOwnerId]);
 
-  return { inventoryEnabled, showStockOnStorefront, loading };
+  return settings;
 }

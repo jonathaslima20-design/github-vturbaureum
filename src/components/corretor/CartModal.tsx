@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/tooltip';
 import TieredPricingIndicator from '@/components/product/TieredPricingIndicator';
 import { PhoneInputWithCountry } from '@/components/ui/phone-input-with-country';
+import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 
 interface CartModalProps {
   open: boolean;
@@ -54,6 +55,7 @@ export default function CartModal({
 }: CartModalProps) {
   const { cart, updateVariantQuantity, removeCartVariant, clearCart, updateVariantNotes, updateVariantOptions, removeDistribution } = useCart();
   const { t } = useTranslation(language);
+  const { autoDeductStock, inventoryEnabled } = useInventoryEnabledForStore(corretor?.id);
   const [sendingOrder, setSendingOrder] = useState(false);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [editingVariant, setEditingVariant] = useState<string | null>(null);
@@ -174,7 +176,10 @@ export default function CartModal({
             whatsapp_message: orderMessage,
             source: 'cart',
           },
-          orderItems
+          orderItems,
+          inventoryEnabled && autoDeductStock
+            ? { enabled: true, storeOwnerId: corretor.id }
+            : undefined
         );
       } catch (err) {
         console.error('Failed to save order, proceeding with WhatsApp:', err);

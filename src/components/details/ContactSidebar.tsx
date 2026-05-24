@@ -9,6 +9,7 @@ import type { User } from '@/types';
 import { trackWhatsAppClick } from '@/lib/tracking';
 import { createOrder } from '@/lib/orderService';
 import { useTranslation, generateWhatsAppMessage, type SupportedLanguage } from '@/lib/i18n';
+import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 import CustomerInfoDialog, { type CustomerInfo } from '@/components/orders/CustomerInfoDialog';
 
 interface ContactSidebarProps {
@@ -33,6 +34,7 @@ export default function ContactSidebar({
   language = 'pt-BR'
 }: ContactSidebarProps) {
   const { t } = useTranslation(language);
+  const { inventoryEnabled, autoDeductStock } = useInventoryEnabledForStore(corretor?.id);
   const [showCustomerDialog, setShowCustomerDialog] = useState(false);
   const [sendingOrder, setSendingOrder] = useState(false);
 
@@ -79,7 +81,10 @@ export default function ContactSidebar({
               unit_price: unitPrice,
               subtotal: unitPrice,
             },
-          ]
+          ],
+          inventoryEnabled && autoDeductStock
+            ? { enabled: true, storeOwnerId: corretor.id }
+            : undefined
         );
       } catch (err) {
         console.error('Failed to save order from product page:', err);

@@ -34,12 +34,27 @@ interface DistributionItem {
   quantity: number;
 }
 
+interface VariantStockInfo {
+  id: string;
+  color: string | null;
+  size: string | null;
+  flavor: string | null;
+  weight_variant_id: string | null;
+  quantity: number;
+  reserved_quantity: number;
+  available: number;
+}
+
 interface ProductVariantModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: Product;
   currency?: SupportedCurrency;
   language?: SupportedLanguage;
+  variantStockData?: VariantStockInfo[];
+  inventoryEnabled?: boolean;
+  blockZeroStock?: boolean;
+  showStockOnStorefront?: boolean;
 }
 
 export default function ProductVariantModal({
@@ -47,7 +62,11 @@ export default function ProductVariantModal({
   onOpenChange,
   product,
   currency = 'BRL',
-  language = 'pt-BR'
+  language = 'pt-BR',
+  variantStockData = [],
+  inventoryEnabled = false,
+  blockZeroStock = false,
+  showStockOnStorefront = false,
 }: ProductVariantModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [distributionMode, setDistributionMode] = useState(false);
@@ -67,6 +86,25 @@ export default function ProductVariantModal({
   const hasWeightVariants = !!product.has_weight_variants;
   const { addToCart, hasVariant, getVariantQuantity } = useCart();
   const { t } = useTranslation(language);
+
+  const getVariantAvailable = (color?: string, size?: string, flavor?: string): number | null => {
+    if (!inventoryEnabled || !product.track_inventory || variantStockData.length === 0) return null;
+    const match = variantStockData.find(
+      (v) =>
+        (v.color || null) === (color || null) &&
+        (v.size || null) === (size || null) &&
+        (v.flavor || null) === (flavor || null)
+    );
+    if (match) return match.available;
+    if (variantStockData.length === 1 && !variantStockData[0].color && !variantStockData[0].size && !variantStockData[0].flavor) {
+      return variantStockData[0].available;
+    }
+    return null;
+  };
+
+  const currentVariantAvailable = getVariantAvailable(selectedColor, selectedSize, selectedFlavor);
+  const isVariantOutOfStock = currentVariantAvailable !== null && currentVariantAvailable <= 0;
+  const maxQuantityForVariant = currentVariantAvailable !== null && currentVariantAvailable > 0 ? currentVariantAvailable : undefined;
 
   useEffect(() => {
     const loadTieredPricing = async () => {
@@ -340,8 +378,8 @@ export default function ProductVariantModal({
     onOpenChange(false);
   };
 
-  // Can add to cart if distribution is complete (when in distribution mode) or no options
-  const canAddToCart = (distributionMode ? isDistributionComplete : true) && (!hasFlavors || !!selectedFlavor) && (!hasWeightVariants || !!selectedWeightVariantId);
+  const stockBlocked = blockZeroStock && isVariantOutOfStock;
+  const canAddToCart = (distributionMode ? isDistributionComplete : true) && (!hasFlavors || !!selectedFlavor) && (!hasWeightVariants || !!selectedWeightVariantId) && !stockBlocked;
 
   const selectedWeightVariantForPrice = hasWeightVariants
     ? weightVariants.find((v) => v.id === selectedWeightVariantId)
@@ -418,6 +456,27 @@ export default function ProductVariantModal({
             </div>
           </div>
 
+          {/* Variant stock indicator */}
+          {inventoryEnabled && product.track_inventory && currentVariantAvailable !== null && (
+            <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs ${
+              isVariantOutOfStock
+                ? 'bg-red-500/10 text-red-600'
+                : currentVariantAvailable <= (product.low_stock_threshold ?? 5)
+                ? 'bg-amber-500/10 text-amber-600'
+                : showStockOnStorefront
+                ? 'bg-emerald-500/10 text-emerald-600'
+                : ''
+            }`}>
+              {isVariantOutOfStock ? (
+                <span className="font-medium">Variante esgotada</span>
+              ) : currentVariantAvailable <= (product.low_stock_threshold ?? 5) ? (
+                <span className="font-medium">Restam apenas {currentVariantAvailable} unidades</span>
+              ) : showStockOnStorefront ? (
+                <span>{currentVariantAvailable} unidades disponíveis</span>
+              ) : null}
+            </div>
+          )}
+
           {/* Quantity Selection - Only shown when NO tiered pricing */}
           {!hasTieredPricing && (
             <div className="space-y-3">
@@ -439,7 +498,11 @@ export default function ProductVariantModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => {
+                    if (maxQuantityForVariant && quantity >= maxQuantityForVariant) return;
+                    setQuantity(quantity + 1);
+                  }}
+                  disabled={maxQuantityForVariant !== undefined && quantity >= maxQuantityForVariant}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>

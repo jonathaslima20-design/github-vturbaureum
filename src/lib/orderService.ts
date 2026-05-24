@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { Order, OrderItem, OrderStatus } from '@/types';
+import { deductStockForOrder } from '@/lib/stockUtils';
 
 interface CreateOrderData {
   store_owner_id: string;
@@ -28,9 +29,15 @@ interface CreateOrderItemData {
   subtotal: number;
 }
 
+interface AutoDeductConfig {
+  enabled: boolean;
+  storeOwnerId: string;
+}
+
 export async function createOrder(
   orderData: CreateOrderData,
-  items: CreateOrderItemData[]
+  items: CreateOrderItemData[],
+  autoDeduct?: AutoDeductConfig
 ): Promise<Order | null> {
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -75,6 +82,18 @@ export async function createOrder(
 
   if (itemsError) {
     console.error('Error creating order items:', itemsError);
+  }
+
+  if (autoDeduct?.enabled) {
+    const deductionItems = items.map((item) => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      selected_color: item.selected_color,
+      selected_size: item.selected_size,
+      selected_flavor: item.selected_flavor,
+      selected_variant_label: item.selected_variant_label,
+    }));
+    await deductStockForOrder(order.id, autoDeduct.storeOwnerId, deductionItems);
   }
 
   return order as Order;
@@ -219,6 +238,10 @@ export interface OrderInventoryItem {
   quantity: number;
   current_stock: number | null;
   track_inventory: boolean;
+  selected_color?: string | null;
+  selected_size?: string | null;
+  selected_flavor?: string | null;
+  selected_variant_label?: string | null;
 }
 
 export async function fetchOrderInventoryInfo(
@@ -226,7 +249,7 @@ export async function fetchOrderInventoryInfo(
 ): Promise<OrderInventoryItem[]> {
   const { data: items, error } = await supabase
     .from('order_items')
-    .select('product_id, product_title, quantity')
+    .select('product_id, product_title, quantity, selected_color, selected_size, selected_flavor, selected_variant_label')
     .eq('order_id', orderId);
 
   if (error || !items) return [];
@@ -249,6 +272,10 @@ export async function fetchOrderInventoryInfo(
       quantity: item.quantity,
       current_stock: product?.stock_quantity ?? null,
       track_inventory: product?.track_inventory ?? false,
+      selected_color: item.selected_color,
+      selected_size: item.selected_size,
+      selected_flavor: item.selected_flavor,
+      selected_variant_label: item.selected_variant_label,
     };
   });
 }

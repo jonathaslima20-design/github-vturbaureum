@@ -17,6 +17,10 @@ interface InventoryItemInfo {
   quantity: number;
   current_stock: number | null;
   track_inventory: boolean;
+  selected_color?: string | null;
+  selected_size?: string | null;
+  selected_flavor?: string | null;
+  selected_variant_label?: string | null;
 }
 
 interface InventoryDeductionDialogProps {
@@ -79,13 +83,20 @@ export default function InventoryDeductionDialog({
         </AlertDialogHeader>
 
         <div className="my-2 space-y-2 max-h-[200px] overflow-y-auto">
-          {trackedItems.map((item) => (
+          {trackedItems.map((item, index) => {
+            const variantParts = [item.selected_color, item.selected_size, item.selected_flavor, item.selected_variant_label].filter(Boolean);
+            const variantLabel = variantParts.length > 0 ? variantParts.join(' / ') : null;
+
+            return (
             <div
-              key={item.product_id}
+              key={`${item.product_id}-${index}`}
               className="flex items-center justify-between rounded-lg border p-3 text-sm"
             >
               <div className="min-w-0 flex-1">
                 <p className="font-medium truncate">{item.product_title}</p>
+                {variantLabel && (
+                  <p className="text-xs text-muted-foreground truncate">{variantLabel}</p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Estoque atual: {item.current_stock ?? 0} un.
                 </p>
@@ -98,7 +109,8 @@ export default function InventoryDeductionDialog({
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {isDeduct && trackedItems.some((item) => (item.current_stock ?? 0) < item.quantity) && (

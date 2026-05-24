@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,7 @@ export default function DashboardSidebar() {
   const { signOut, user } = useAuth();
   const location = useLocation();
 
-  const isCatalogSection = location.pathname.startsWith('/dashboard/listings') || location.pathname.startsWith('/dashboard/categories');
+  const isCatalogSection = location.pathname.startsWith('/dashboard/listings') || location.pathname.startsWith('/dashboard/categories') || location.pathname.startsWith('/dashboard/stock-movements');
   const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales');
 
   useEffect(() => {
@@ -46,6 +46,7 @@ export default function DashboardSidebar() {
   const catalogSubItems = [
     { name: 'Produtos', href: '/dashboard/listings', icon: Package },
     { name: 'Categorias', href: '/dashboard/categories', icon: FolderTree },
+    { name: 'Movimentações', href: '/dashboard/stock-movements', icon: ArrowLeftRight },
   ];
 
   const salesSubItems = [

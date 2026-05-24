@@ -38,6 +38,7 @@ import {
 } from '@/lib/productImageService';
 import { PromotionalPhraseSelector } from '@/components/ui/promotional-phrase-selector';
 import { useInventoryEnabled } from '@/hooks/useInventoryEnabled';
+import VariantStockGrid from '@/components/dashboard/VariantStockGrid';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -701,6 +702,19 @@ export default function EditProductPage() {
                               <FormMessage />
                             </FormItem>
                           )}
+                        />
+                      </div>
+                    )}
+
+                    {form.watch('track_inventory') && id && (form.watch('colors')?.length > 0 || form.watch('sizes')?.length > 0 || form.watch('flavors')?.length > 0) && (
+                      <div className="pt-2 border-t">
+                        <VariantStockGrid
+                          productId={id}
+                          colors={form.watch('colors') || []}
+                          sizes={form.watch('sizes') || []}
+                          flavors={form.watch('flavors') || []}
+                          lowStockThreshold={form.watch('low_stock_threshold') ?? 5}
+                          performedBy={user?.id || ''}
                         />
                       </div>
                     )}

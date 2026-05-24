@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Loader as Loader2, Package } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,12 +17,25 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface InventoryState {
+  enableInventory: boolean;
+  showStockOnStorefront: boolean;
+  autoDeductStock: boolean;
+  blockZeroStock: boolean;
+  reservationMinutes: number;
+}
+
 export default function InventorySettingsContent() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [enableInventory, setEnableInventory] = useState(false);
-  const [showStockOnStorefront, setShowStockOnStorefront] = useState(false);
+  const [state, setState] = useState<InventoryState>({
+    enableInventory: false,
+    showStockOnStorefront: false,
+    autoDeductStock: true,
+    blockZeroStock: false,
+    reservationMinutes: 15,
+  });
   const [showDisableDialog, setShowDisableDialog] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
 
@@ -38,8 +51,13 @@ export default function InventorySettingsContent() {
 
       if (!error && data) {
         setSettingsId(data.id);
-        setEnableInventory(data.settings?.enableInventory ?? false);
-        setShowStockOnStorefront(data.settings?.showStockOnStorefront ?? false);
+        setState({
+          enableInventory: data.settings?.enableInventory ?? false,
+          showStockOnStorefront: data.settings?.showStockOnStorefront ?? false,
+          autoDeductStock: data.settings?.autoDeductStock ?? true,
+          blockZeroStock: data.settings?.blockZeroStock ?? false,
+          reservationMinutes: data.settings?.reservationMinutes ?? 15,
+        });
       }
       setLoading(false);
     };
@@ -47,7 +65,7 @@ export default function InventorySettingsContent() {
     fetchSettings();
   }, [user?.id]);
 
-  const handleSave = async (inventoryEnabled: boolean, stockOnStorefront: boolean) => {
+  const handleSave = async (newState: InventoryState) => {
     if (!user?.id) return;
     setSaving(true);
 
@@ -61,8 +79,11 @@ export default function InventorySettingsContent() {
 
         const updatedSettings = {
           ...(current?.settings || {}),
-          enableInventory: inventoryEnabled,
-          showStockOnStorefront: stockOnStorefront,
+          enableInventory: newState.enableInventory,
+          showStockOnStorefront: newState.showStockOnStorefront,
+          autoDeductStock: newState.autoDeductStock,
+          blockZeroStock: newState.blockZeroStock,
+          reservationMinutes: newState.reservationMinutes,
         };
 
         const { error } = await supabase
@@ -77,8 +98,11 @@ export default function InventorySettingsContent() {
           .insert({
             user_id: user.id,
             settings: {
-              enableInventory: inventoryEnabled,
-              showStockOnStorefront: stockOnStorefront,
+              enableInventory: newState.enableInventory,
+              showStockOnStorefront: newState.showStockOnStorefront,
+              autoDeductStock: newState.autoDeductStock,
+              blockZeroStock: newState.blockZeroStock,
+              reservationMinutes: newState.reservationMinutes,
             },
           })
           .select('id')
@@ -88,8 +112,7 @@ export default function InventorySettingsContent() {
         if (data) setSettingsId(data.id);
       }
 
-      setEnableInventory(inventoryEnabled);
-      setShowStockOnStorefront(stockOnStorefront);
+      setState(newState);
       toast.success('Configuracoes de estoque salvas');
     } catch (error) {
       console.error('Error saving inventory settings:', error);
@@ -99,21 +122,31 @@ export default function InventorySettingsContent() {
     }
   };
 
-  const handleToggleInventory = (checked: boolean) => {
-    if (!checked && enableInventory) {
+  const handleToggle = (key: keyof InventoryState, checked: boolean) => {
+    if (key === 'enableInventory' && !checked && state.enableInventory) {
       setShowDisableDialog(true);
       return;
     }
-    handleSave(checked, showStockOnStorefront);
+
+    const newState = { ...state, [key]: checked };
+    if (key === 'enableInventory' && !checked) {
+      newState.showStockOnStorefront = false;
+    }
+    handleSave(newState);
   };
 
   const handleConfirmDisable = () => {
     setShowDisableDialog(false);
-    handleSave(false, false);
+    handleSave({
+      ...state,
+      enableInventory: false,
+      showStockOnStorefront: false,
+    });
   };
 
-  const handleToggleShowStock = (checked: boolean) => {
-    handleSave(enableInventory, checked);
+  const handleReservationChange = (value: string) => {
+    const minutes = parseInt(value);
+    handleSave({ ...state, reservationMinutes: minutes });
   };
 
   if (loading) {
@@ -136,7 +169,7 @@ export default function InventorySettingsContent() {
             Gerencie a quantidade de produtos disponíveis na sua loja. Esta funcionalidade é opcional e pode ser desativada a qualquer momento sem perder dados.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           <div className="flex flex-row items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Gerenciar estoque dos produtos</p>
@@ -145,26 +178,80 @@ export default function InventorySettingsContent() {
               </p>
             </div>
             <Switch
-              checked={enableInventory}
-              onCheckedChange={handleToggleInventory}
+              checked={state.enableInventory}
+              onCheckedChange={(checked) => handleToggle('enableInventory', checked)}
               disabled={saving}
             />
           </div>
 
-          {enableInventory && (
-            <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">Mostrar estoque na vitrine</p>
-                <p className="text-xs text-muted-foreground">
-                  Exibe a quantidade disponível para o cliente na página do produto. Produtos com estoque baixo sempre mostram "Últimas unidades" independente desta configuração.
-                </p>
+          {state.enableInventory && (
+            <>
+              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Mostrar estoque na vitrine</p>
+                  <p className="text-xs text-muted-foreground">
+                    Exibe a quantidade disponível para o cliente na página do produto. Produtos com estoque baixo sempre mostram "Últimas unidades" independente desta configuração.
+                  </p>
+                </div>
+                <Switch
+                  checked={state.showStockOnStorefront}
+                  onCheckedChange={(checked) => handleToggle('showStockOnStorefront', checked)}
+                  disabled={saving}
+                />
               </div>
-              <Switch
-                checked={showStockOnStorefront}
-                onCheckedChange={handleToggleShowStock}
-                disabled={saving}
-              />
-            </div>
+
+              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Dedução automática de estoque</p>
+                  <p className="text-xs text-muted-foreground">
+                    Reduz o estoque automaticamente quando um pedido é criado. Se desativado, você decide manualmente quando reduzir.
+                  </p>
+                </div>
+                <Switch
+                  checked={state.autoDeductStock}
+                  onCheckedChange={(checked) => handleToggle('autoDeductStock', checked)}
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Bloquear venda com estoque zerado</p>
+                  <p className="text-xs text-muted-foreground">
+                    Impede que clientes adicionem ao carrinho produtos sem estoque disponível. Se desativado, clientes podem contatar via WhatsApp para consultar.
+                  </p>
+                </div>
+                <Switch
+                  checked={state.blockZeroStock}
+                  onCheckedChange={(checked) => handleToggle('blockZeroStock', checked)}
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Tempo de reserva do carrinho</p>
+                  <p className="text-xs text-muted-foreground">
+                    Quanto tempo um item fica reservado no carrinho antes de ser liberado para outros clientes.
+                  </p>
+                </div>
+                <Select
+                  value={String(state.reservationMinutes)}
+                  onValueChange={handleReservationChange}
+                  disabled={saving}
+                >
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5 min</SelectItem>
+                    <SelectItem value="10">10 min</SelectItem>
+                    <SelectItem value="15">15 min</SelectItem>
+                    <SelectItem value="30">30 min</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

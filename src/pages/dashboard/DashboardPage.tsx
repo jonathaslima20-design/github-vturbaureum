@@ -153,7 +153,7 @@ export default function DashboardPage() {
         </Card>
 
         {inventoryEnabled && (
-          <Card className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => navigate('/dashboard/listings')}>
+          <Card className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => navigate('/dashboard/stock-movements')}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Estoque</CardTitle>
               <AlertTriangle className={`h-4 w-4 ${outOfStockCount > 0 ? 'text-red-500' : lowStockCount > 0 ? 'text-amber-500' : 'text-muted-foreground'}`} />

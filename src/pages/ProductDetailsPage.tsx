@@ -20,7 +20,9 @@ import { useTieredPricing } from '@/hooks/useTieredPricing';
 import { useCart } from '@/contexts/CartContext';
 import ProductVariantModal from '@/components/product/ProductVariantModal';
 import { getStockStatus } from '@/lib/stockUtils';
+import { getAvailableVariantStock } from '@/lib/stockReservationService';
 import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
+import type { ProductVariantStock } from '@/types';
 
 export default function ProductDetailsPage() {
   const { slug, productId } = useParams();
@@ -36,7 +38,8 @@ export default function ProductDetailsPage() {
   const { t } = useTranslation(language);
   const { addToCart, getItemQuantity } = useCart();
 
-  const { inventoryEnabled, showStockOnStorefront } = useInventoryEnabledForStore(corretor?.id);
+  const { inventoryEnabled, showStockOnStorefront, blockZeroStock } = useInventoryEnabledForStore(corretor?.id);
+  const [variantStockData, setVariantStockData] = useState<Array<{ id: string; color: string | null; size: string | null; flavor: string | null; weight_variant_id: string | null; quantity: number; reserved_quantity: number; available: number }>>([]);
 
   const { tiers: priceTiers, loading: loadingTiers } = useTieredPricing(
     product?.id,
@@ -44,6 +47,12 @@ export default function ProductDetailsPage() {
     product?.discounted_price,
     product?.has_tiered_pricing
   );
+
+  useEffect(() => {
+    if (product?.id && inventoryEnabled && product.track_inventory) {
+      getAvailableVariantStock(product.id).then(setVariantStockData);
+    }
+  }, [product?.id, inventoryEnabled, product?.track_inventory]);
 
   useEffect(() => {
     setShareSupported(!!navigator.share && window.isSecureContext);
@@ -298,6 +307,11 @@ export default function ProductDetailsPage() {
 
   const handleAddToCart = () => {
     if (!isAvailable || !hasPrice) return;
+
+    if (blockZeroStock && isOutOfStock) {
+      toast.error('Este produto está esgotado');
+      return;
+    }
 
     // If product has options, tiered pricing, or weight variants, show variant modal
     if (hasOptions || product.has_tiered_pricing || hasWeightVariants) {
@@ -706,6 +720,10 @@ export default function ProductDetailsPage() {
         product={product}
         currency={currency}
         language={language}
+        variantStockData={variantStockData}
+        inventoryEnabled={inventoryEnabled}
+        blockZeroStock={blockZeroStock}
+        showStockOnStorefront={showStockOnStorefront}
       />
     </div>
   );

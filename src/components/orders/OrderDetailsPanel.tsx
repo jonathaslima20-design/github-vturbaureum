@@ -60,7 +60,7 @@ export default function OrderDetailsPanel({
 }: OrderDetailsPanelProps) {
   const [updating, setUpdating] = useState(false);
   const { user } = useAuth();
-  const { inventoryEnabled } = useInventoryEnabled();
+  const { inventoryEnabled, autoDeductStock } = useInventoryEnabled();
   const [inventoryDialogOpen, setInventoryDialogOpen] = useState(false);
   const [inventoryDialogMode, setInventoryDialogMode] = useState<'deduct' | 'restore'>('deduct');
   const [inventoryItems, setInventoryItems] = useState<InventoryItemInfo[]>([]);
@@ -93,7 +93,7 @@ export default function OrderDetailsPanel({
       return;
     }
 
-    if (newStatus === 'confirmed') {
+    if (newStatus === 'confirmed' && !autoDeductStock) {
       setUpdating(true);
       const invItems = await fetchOrderInventoryInfo(order.id);
       setUpdating(false);
@@ -132,13 +132,27 @@ export default function OrderDetailsPanel({
     if (inventoryDialogMode === 'deduct') {
       const deductionItems = inventoryItems
         .filter((i) => i.track_inventory)
-        .map((i) => ({ product_id: i.product_id, quantity: i.quantity }));
+        .map((i) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+          selected_color: i.selected_color,
+          selected_size: i.selected_size,
+          selected_flavor: i.selected_flavor,
+          selected_variant_label: i.selected_variant_label,
+        }));
 
       await deductStockForOrder(order.id, user.id, deductionItems);
     } else {
       const restoreItems = inventoryItems
         .filter((i) => i.track_inventory)
-        .map((i) => ({ product_id: i.product_id, quantity: i.quantity }));
+        .map((i) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+          selected_color: i.selected_color,
+          selected_size: i.selected_size,
+          selected_flavor: i.selected_flavor,
+          selected_variant_label: i.selected_variant_label,
+        }));
 
       await restoreStockForOrder(order.id, restoreItems);
     }

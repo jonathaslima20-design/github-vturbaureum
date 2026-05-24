@@ -162,6 +162,9 @@ export interface StorefrontSettings {
     categoryDisplaySettings?: CategoryDisplaySetting[];
     enableInventory?: boolean;
     showStockOnStorefront?: boolean;
+    autoDeductStock?: boolean;
+    blockZeroStock?: boolean;
+    reservationMinutes?: number;
   };
   created_at: string;
   updated_at?: string;
@@ -381,6 +384,53 @@ export interface OrderItem {
   selected_variant_label?: string | null;
   item_notes: string;
   subtotal: number;
+}
+
+// Variant Stock Types
+export interface ProductVariantStock {
+  id: string;
+  product_id: string;
+  color?: string | null;
+  size?: string | null;
+  flavor?: string | null;
+  weight_variant_id?: string | null;
+  quantity: number;
+  reserved_quantity: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type StockMovementType = 'entrada' | 'saida' | 'ajuste' | 'reserva' | 'cancelamento';
+export type StockReferenceType = 'order' | 'manual' | 'system';
+
+export interface StockMovement {
+  id: string;
+  product_id: string;
+  variant_stock_id?: string | null;
+  movement_type: StockMovementType;
+  quantity: number;
+  previous_quantity: number;
+  new_quantity: number;
+  reference_type?: StockReferenceType | null;
+  reference_id?: string | null;
+  reason?: string | null;
+  performed_by?: string | null;
+  created_at: string;
+  product?: { title: string; featured_image_url?: string };
+  variant_stock?: ProductVariantStock | null;
+}
+
+export type StockReservationStatus = 'active' | 'expired' | 'converted';
+
+export interface StockReservation {
+  id: string;
+  product_id: string;
+  variant_stock_id?: string | null;
+  session_id: string;
+  quantity: number;
+  expires_at: string;
+  status: StockReservationStatus;
+  created_at: string;
 }
 
 // Notification System Types
