@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, Bell, ShoppingBag, ClipboardList, CreditCard, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,6 @@ import Logo from '@/components/Logo';
 import SubscriptionModal from '@/components/subscription/SubscriptionModal';
 import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import PlanUsageIndicator from '@/components/dashboard/PlanUsageIndicator';
-import { useNotifications } from '@/contexts/NotificationContext';
 import { getPendingOrderCount } from '@/lib/orderService';
 
 export default function DashboardSidebar() {
@@ -21,7 +20,6 @@ export default function DashboardSidebar() {
   const [salesExpanded, setSalesExpanded] = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
   const { signOut, user } = useAuth();
-  const { unreadCount } = useNotifications();
   const location = useLocation();
 
   const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales');
@@ -47,7 +45,6 @@ export default function DashboardSidebar() {
   ];
 
   const navigationAfterSales = [
-    { name: 'Notificações', href: '/dashboard/notifications', icon: Bell, badge: unreadCount },
     { name: 'Indique e Ganhe', href: '/dashboard/referral', icon: Gift },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
     { name: 'Central de Ajuda', href: '/help', icon: HelpCircle },
