@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { resetMercadoPago } from '@/lib/mercadopago';
-import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react';
+import { initMercadoPagoSdk, resetMercadoPago } from '@/lib/mercadopago';
+import { CardPayment } from '@mercadopago/sdk-react';
 import {
   createPixPayment,
   createCardPayment,
@@ -298,12 +298,25 @@ function CardSection({ plan, onSuccess, onRetryInit }: CardSectionProps) {
   const [brickReady, setBrickReady] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<CardPaymentResult | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use refs to hold the latest plan/onSuccess so callbacks never change reference
   const planRef = useRef(plan);
   const onSuccessRef = useRef(onSuccess);
   useEffect(() => { planRef.current = plan; }, [plan]);
   useEffect(() => { onSuccessRef.current = onSuccess; }, [onSuccess]);
+
+  // Timeout: if brick doesn't become ready within 15s, show error
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => {
+      if (!brickReady) {
+        setBrickError(true);
+      }
+    }, 15000);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const initialization = useMemo(() => ({ amount: plan.price }), [plan.price]);
 
@@ -335,6 +348,7 @@ function CardSection({ plan, onSuccess, onRetryInit }: CardSectionProps) {
   }, []);
 
   const handleReady = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setBrickReady(true);
   }, []);
 
@@ -506,7 +520,7 @@ export default function CheckoutPage() {
       if (!info.public_key) {
         throw new Error('Chave publica nao configurada');
       }
-      initMercadoPago(info.public_key, { locale: 'pt-BR' });
+      initMercadoPagoSdk(info.public_key);
       setSdkState('ready');
     } catch (error) {
       console.error('MercadoPago SDK init failed:', error);
