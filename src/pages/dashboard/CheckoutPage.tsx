@@ -288,25 +288,24 @@ function PixSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void
 
 interface CardSectionProps {
   plan: PlanInfo;
-  publicKey: string;
   onSuccess: () => void;
-  onRetry: () => void;
 }
 
-let mpInitialized = false;
-
-function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) {
+function CardSection({ plan, onSuccess }: CardSectionProps) {
   const [result, setResult] = useState<CardPaymentResult | null>(null);
   const [brickReady, setBrickReady] = useState(false);
+  const planRef = useRef(plan);
+  planRef.current = plan;
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
 
   const handleSubmit = useCallback(async (formData: any) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
+        const currentPlan = planRef.current;
         const cardResult = await createCardPayment({
-          plan_id: plan.id,
-          billing_cycle: plan.duration,
+          plan_id: currentPlan.id,
+          billing_cycle: currentPlan.duration,
           token: formData.token,
           installments: formData.installments,
           payment_method_id: formData.payment_method_id,
@@ -326,7 +325,7 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
         reject();
       }
     });
-  }, [plan.id, plan.duration]);
+  }, []);
 
   const handleReady = useCallback(() => {
     setBrickReady(true);
@@ -392,13 +391,15 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
           <span className="text-sm text-muted-foreground">Carregando formulario seguro...</span>
         </div>
       )}
-      <CardPayment
-        initialization={initialization}
-        customization={customization}
-        onSubmit={handleSubmit}
-        onReady={handleReady}
-        onError={handleError}
-      />
+      <div style={{ minHeight: brickReady ? undefined : 0, overflow: brickReady ? undefined : 'hidden' }}>
+        <CardPayment
+          initialization={initialization}
+          customization={customization}
+          onSubmit={handleSubmit}
+          onReady={handleReady}
+          onError={handleError}
+        />
+      </div>
 
       {brickReady && (
         <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-2">
@@ -438,9 +439,8 @@ export default function CheckoutPage() {
   const [planLoading, setPlanLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<PaymentTab>('pix');
   const [paymentComplete, setPaymentComplete] = useState(false);
-  const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
   const [sdkError, setSdkError] = useState(false);
-  const [cardKey, setCardKey] = useState(0);
 
   const planId = searchParams.get('plan');
   const cycle = searchParams.get('cycle');
@@ -476,33 +476,46 @@ export default function CheckoutPage() {
     fetchPlan();
   }, [planId, cycle, navigate]);
 
-  const fetchPublicKey = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false;
+
+    const initSdk = async () => {
+      try {
+        const info = await getPublicKey();
+        if (cancelled) return;
+        if (!info.public_key) {
+          setSdkError(true);
+          return;
+        }
+        initMercadoPago(info.public_key, { locale: 'pt-BR' });
+        setSdkReady(true);
+      } catch (error) {
+        if (!cancelled) {
+          console.error('MercadoPago SDK init failed:', error);
+          setSdkError(true);
+        }
+      }
+    };
+
+    initSdk();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleRetrySDK = useCallback(async () => {
     setSdkError(false);
-    setPublicKey(null);
+    setSdkReady(false);
     try {
       const info = await getPublicKey();
       if (!info.public_key) {
-        throw new Error('Chave publica nao configurada');
+        setSdkError(true);
+        return;
       }
-      if (!mpInitialized) {
-        initMercadoPago(info.public_key, { locale: 'pt-BR' });
-        mpInitialized = true;
-      }
-      setPublicKey(info.public_key);
-    } catch (error) {
-      console.error('MercadoPago public key fetch failed:', error);
+      initMercadoPago(info.public_key, { locale: 'pt-BR' });
+      setSdkReady(true);
+    } catch {
       setSdkError(true);
     }
   }, []);
-
-  useEffect(() => {
-    fetchPublicKey();
-  }, [fetchPublicKey]);
-
-  const handleRetry = useCallback(() => {
-    setCardKey(k => k + 1);
-    fetchPublicKey();
-  }, [fetchPublicKey]);
 
   const handleSuccess = useCallback(() => {
     setPaymentComplete(true);
@@ -529,14 +542,14 @@ export default function CheckoutPage() {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             Nao foi possivel inicializar o sistema de pagamento. Verifique sua conexao.
           </p>
-          <Button variant="outline" onClick={handleRetry}>
+          <Button variant="outline" onClick={handleRetrySDK}>
             Tentar novamente
           </Button>
         </div>
       );
     }
 
-    if (!publicKey) {
+    if (!sdkReady) {
       return (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -546,11 +559,8 @@ export default function CheckoutPage() {
 
     return (
       <CardSection
-        key={cardKey}
         plan={plan}
-        publicKey={publicKey}
         onSuccess={handleSuccess}
-        onRetry={handleRetry}
       />
     );
   };
