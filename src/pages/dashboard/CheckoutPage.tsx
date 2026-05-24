@@ -34,19 +34,34 @@ function loadMercadoPagoScript(): Promise<void> {
       resolve();
       return;
     }
-    const existing = document.querySelector('script[src*="sdk.mercadopago.com"]');
-    if (existing) {
-      existing.addEventListener('load', () => resolve());
-      existing.addEventListener('error', () => reject(new Error('SDK script failed')));
-      if (window.MercadoPago) {
-        resolve();
-      }
-      return;
+
+    const timeout = setTimeout(() => {
+      reject(new Error('Timeout carregando SDK MercadoPago'));
+    }, 10000);
+
+    function done() {
+      clearTimeout(timeout);
+      resolve();
     }
+
+    function fail(msg: string) {
+      clearTimeout(timeout);
+      reject(new Error(msg));
+    }
+
+    const existing = document.querySelector('script[src*="sdk.mercadopago.com"]') as HTMLScriptElement | null;
+    if (existing) {
+      existing.remove();
+    }
+
     const script = document.createElement('script');
     script.src = 'https://sdk.mercadopago.com/js/v2';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('SDK script failed to load'));
+    script.async = true;
+    script.onload = () => {
+      if (window.MercadoPago) done();
+      else fail('Script carregou mas MercadoPago nao definido');
+    };
+    script.onerror = () => fail('Falha ao carregar script sdk.mercadopago.com');
     document.head.appendChild(script);
   });
 }
@@ -323,12 +338,11 @@ interface CardSectionProps {
 }
 
 function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) {
-  const [brickReady, setBrickReady] = useState(false);
-  const [brickError, setBrickError] = useState<string | null>(null);
+  const [formReady, setFormReady] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<CardPaymentResult | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const controllerRef = useRef<any>(null);
+  const cardFormRef = useRef<any>(null);
   const mountedRef = useRef(true);
   const onSuccessRef = useRef(onSuccess);
   const planRef = useRef(plan);
@@ -339,123 +353,116 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
     mountedRef.current = true;
     let cancelled = false;
 
-    async function waitForContainer(id: string, timeoutMs = 3000): Promise<HTMLElement> {
-      const el = document.getElementById(id);
-      if (el) return el;
-      return new Promise((resolve, reject) => {
-        const interval = setInterval(() => {
-          const found = document.getElementById(id);
-          if (found) { clearInterval(interval); clearTimeout(timeout); resolve(found); }
-        }, 50);
-        const timeout = setTimeout(() => {
-          clearInterval(interval);
-          reject(new Error('Container nao encontrado no DOM'));
-        }, timeoutMs);
-      });
-    }
-
-    async function createBrick() {
+    async function initCardForm() {
       try {
         await loadMercadoPagoScript();
-
         if (cancelled) return;
 
         if (!window.MercadoPago) {
-          throw new Error('window.MercadoPago nao disponivel apos carregamento do script');
+          throw new Error('SDK MercadoPago nao disponivel');
         }
 
-        await waitForContainer('mp-card-brick-container');
+        const mp = new window.MercadoPago(publicKey, { locale: 'pt-BR' });
 
-        if (cancelled) return;
-
-        const mp = new window.MercadoPago(publicKey, {
-          locale: 'pt-BR',
-        });
-
-        const bricksBuilder = mp.bricks();
-
-        if (controllerRef.current) {
-          try { await controllerRef.current.unmount(); } catch {}
-          controllerRef.current = null;
-        }
-
-        if (cancelled) return;
-
-        const controller = await bricksBuilder.create('cardPayment', 'mp-card-brick-container', {
-          initialization: {
-            amount: plan.price,
+        const cardForm = mp.cardForm({
+          amount: String(planRef.current.price),
+          iframe: true,
+          form: {
+            id: 'mp-card-form',
+            cardNumber: { id: 'mp-card-number', placeholder: '0000 0000 0000 0000' },
+            expirationDate: { id: 'mp-expiration-date', placeholder: 'MM/AA' },
+            securityCode: { id: 'mp-security-code', placeholder: 'CVV' },
+            cardholderName: { id: 'mp-cardholder-name', placeholder: 'Nome impresso no cartao' },
+            issuer: { id: 'mp-issuer' },
+            installments: { id: 'mp-installments' },
+            identificationType: { id: 'mp-doc-type' },
+            identificationNumber: { id: 'mp-doc-number', placeholder: 'CPF' },
+            cardholderEmail: { id: 'mp-email', placeholder: 'E-mail' },
           },
           callbacks: {
-            onReady: () => {
-              if (!cancelled && mountedRef.current) {
-                setBrickReady(true);
+            onFormMounted: (error: any) => {
+              if (cancelled) return;
+              if (error) {
+                console.error('CardForm mount error:', error);
+                setFormError(error.message || 'Erro ao montar formulario');
+              } else {
+                setFormReady(true);
               }
             },
-            onSubmit: async (formData: any) => {
+            onSubmit: (event: Event) => {
+              event.preventDefault();
               if (!mountedRef.current) return;
+
+              const formData = cardForm.getCardFormData();
               setProcessing(true);
-              try {
-                const cardResult = await createCardPayment({
-                  plan_id: planRef.current.id,
-                  billing_cycle: planRef.current.duration,
-                  token: formData.token,
-                  installments: formData.installments,
-                  payment_method_id: formData.payment_method_id,
-                  issuer_id: formData.issuer_id || '',
-                  payer: {
-                    email: formData.payer?.email || '',
-                    doc: formData.payer?.identification?.number || '',
-                  },
-                });
+
+              createCardPayment({
+                plan_id: planRef.current.id,
+                billing_cycle: planRef.current.duration,
+                token: formData.token,
+                installments: Number(formData.installments),
+                payment_method_id: formData.paymentMethodId,
+                issuer_id: formData.issuerId || '',
+                payer: {
+                  email: formData.cardholderEmail || '',
+                  doc: formData.identificationNumber || '',
+                },
+              }).then((cardResult) => {
                 if (!mountedRef.current) return;
                 setResult(cardResult);
                 if (cardResult.status === 'approved') {
                   onSuccessRef.current();
                 }
-              } catch (error) {
+              }).catch((error) => {
+                if (!mountedRef.current) return;
+                toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
+              }).finally(() => {
+                if (mountedRef.current) setProcessing(false);
+              });
+            },
+            onFetching: (resource: string) => {
+              const progressBar = document.getElementById('mp-progress');
+              if (progressBar) progressBar.style.display = 'block';
+              return () => {
+                if (progressBar) progressBar.style.display = 'none';
+              };
+            },
+            onCardTokenReceived: (error: any, token: any) => {
+              if (error) {
+                console.error('Token error:', error);
                 if (mountedRef.current) {
-                  toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
-                }
-              } finally {
-                if (mountedRef.current) {
+                  toast.error('Erro ao processar dados do cartao');
                   setProcessing(false);
                 }
               }
             },
             onError: (error: any) => {
-              console.error('CardPayment Brick onError:', error);
-              if (!cancelled && mountedRef.current) {
-                setBrickError(error?.message || 'Erro no formulario de pagamento');
-              }
+              console.error('CardForm error:', error);
             },
           },
         });
 
-        if (cancelled) {
-          try { await controller.unmount(); } catch {}
-        } else {
-          controllerRef.current = controller;
-        }
+        cardFormRef.current = cardForm;
       } catch (error) {
-        console.error('Failed to create card brick:', error);
+        console.error('CardForm init failed:', error);
         if (!cancelled && mountedRef.current) {
-          setBrickError(error instanceof Error ? error.message : 'Erro ao criar formulario');
+          setFormError(error instanceof Error ? error.message : 'Erro ao inicializar formulario');
         }
       }
     }
 
-    createBrick();
+    initCardForm();
 
     return () => {
       cancelled = true;
       mountedRef.current = false;
-      if (controllerRef.current) {
-        try { controllerRef.current.unmount(); } catch {}
-        controllerRef.current = null;
+      if (cardFormRef.current) {
+        try { cardFormRef.current.unmount(); } catch {}
+        cardFormRef.current = null;
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicKey, plan.price]);
+  }, [publicKey]);
 
   if (result) {
     if (result.status === 'approved') {
@@ -499,7 +506,7 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
     );
   }
 
-  if (brickError) {
+  if (formError) {
     return (
       <div className="text-center space-y-4 py-8">
         <div className="flex justify-center">
@@ -511,9 +518,6 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           Nao foi possivel carregar o formulario de pagamento. Tente novamente.
         </p>
-        <p className="text-xs text-muted-foreground/60 font-mono max-w-sm mx-auto break-all">
-          {brickError}
-        </p>
         <Button variant="outline" onClick={onRetry}>
           Tentar novamente
         </Button>
@@ -523,18 +527,79 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
 
   return (
     <div className="space-y-4">
-      <div className="relative min-h-[200px]" ref={containerRef}>
-        {!brickReady && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background z-10">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        )}
-        <div id="mp-card-brick-container" />
+      <div id="mp-progress" className="hidden">
+        <div className="h-1 w-full bg-muted rounded overflow-hidden">
+          <div className="h-full bg-primary animate-pulse w-full" />
+        </div>
       </div>
-      {processing && (
+
+      <form id="mp-card-form" className="space-y-4">
+        <div className="space-y-2">
+          <Label>Numero do cartao</Label>
+          <div id="mp-card-number" className="h-10 border rounded-md" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Validade</Label>
+            <div id="mp-expiration-date" className="h-10 border rounded-md" />
+          </div>
+          <div className="space-y-2">
+            <Label>CVV</Label>
+            <div id="mp-security-code" className="h-10 border rounded-md" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mp-cardholder-name">Nome no cartao</Label>
+          <Input id="mp-cardholder-name" />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mp-email">E-mail</Label>
+          <Input id="mp-email" type="email" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="mp-doc-type">Tipo doc.</Label>
+            <select id="mp-doc-type" className="w-full h-10 border rounded-md px-3 bg-background text-sm" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="mp-doc-number">Documento</Label>
+            <Input id="mp-doc-number" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mp-issuer">Banco emissor</Label>
+          <select id="mp-issuer" className="w-full h-10 border rounded-md px-3 bg-background text-sm" />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mp-installments">Parcelas</Label>
+          <select id="mp-installments" className="w-full h-10 border rounded-md px-3 bg-background text-sm" />
+        </div>
+
+        <Button type="submit" disabled={processing || !formReady} className="w-full" size="lg">
+          {processing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Processando...
+            </>
+          ) : (
+            <>
+              <CreditCard className="h-4 w-4 mr-2" />
+              Pagar {formatCurrencyI18n(plan.price)}
+            </>
+          )}
+        </Button>
+      </form>
+
+      {!formReady && !formError && (
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Processando pagamento...</span>
+          <span>Carregando formulario seguro...</span>
         </div>
       )}
     </div>
