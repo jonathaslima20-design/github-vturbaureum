@@ -124,6 +124,9 @@ export interface Product {
   flavors?: string[];
   price_tiers?: PriceTier[];
   weight_variants?: WeightVariant[];
+  track_inventory?: boolean;
+  stock_quantity?: number | null;
+  low_stock_threshold?: number;
 }
 
 export interface ProductCategory {
@@ -157,6 +160,8 @@ export interface StorefrontSettings {
     };
     itemsPerPage?: number;
     categoryDisplaySettings?: CategoryDisplaySetting[];
+    enableInventory?: boolean;
+    showStockOnStorefront?: boolean;
   };
   created_at: string;
   updated_at?: string;
@@ -359,6 +364,7 @@ export interface Order {
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];
+  inventory_deducted?: boolean;
 }
 
 export interface OrderItem {
@@ -386,6 +392,8 @@ export type NotificationType =
   | 'subscription_expired'
   | 'product_sold'
   | 'new_order'
+  | 'low_stock'
+  | 'out_of_stock'
   | 'system';
 
 export interface AppNotification {

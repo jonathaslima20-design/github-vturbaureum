@@ -10,12 +10,17 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import OrderStatusBadge from './OrderStatusBadge';
-import { updateOrderStatus } from '@/lib/orderService';
+import InventoryDeductionDialog from './InventoryDeductionDialog';
+import type { InventoryItemInfo } from './InventoryDeductionDialog';
+import { updateOrderStatus, fetchOrderInventoryInfo } from '@/lib/orderService';
+import { deductStockForOrder, restoreStockForOrder } from '@/lib/stockUtils';
+import { useInventoryEnabled } from '@/hooks/useInventoryEnabled';
 import { generateWhatsAppUrl } from '@/lib/utils';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Order, OrderStatus } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface OrderDetailsPanelProps {
   order: Order | null;
@@ -54,13 +59,19 @@ export default function OrderDetailsPanel({
   onStatusUpdate,
 }: OrderDetailsPanelProps) {
   const [updating, setUpdating] = useState(false);
+  const { user } = useAuth();
+  const { inventoryEnabled } = useInventoryEnabled();
+  const [inventoryDialogOpen, setInventoryDialogOpen] = useState(false);
+  const [inventoryDialogMode, setInventoryDialogMode] = useState<'deduct' | 'restore'>('deduct');
+  const [inventoryItems, setInventoryItems] = useState<InventoryItemInfo[]>([]);
+  const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
 
   if (!order) return null;
 
   const transitions = STATUS_TRANSITIONS[order.status] || [];
   const items = order.order_items || [];
 
-  const handleStatusChange = async (newStatus: OrderStatus) => {
+  const executeStatusChange = async (newStatus: OrderStatus) => {
     setUpdating(true);
     const success = await updateOrderStatus(order.id, newStatus);
     if (success) {
@@ -76,6 +87,73 @@ export default function OrderDetailsPanel({
     setUpdating(false);
   };
 
+  const handleStatusChange = async (newStatus: OrderStatus) => {
+    if (!inventoryEnabled) {
+      await executeStatusChange(newStatus);
+      return;
+    }
+
+    if (newStatus === 'confirmed') {
+      setUpdating(true);
+      const invItems = await fetchOrderInventoryInfo(order.id);
+      setUpdating(false);
+
+      const trackedItems = invItems.filter((i) => i.track_inventory);
+      if (trackedItems.length > 0) {
+        setInventoryItems(invItems);
+        setInventoryDialogMode('deduct');
+        setPendingStatus(newStatus);
+        setInventoryDialogOpen(true);
+        return;
+      }
+    }
+
+    if (newStatus === 'cancelled' && order.inventory_deducted) {
+      setUpdating(true);
+      const invItems = await fetchOrderInventoryInfo(order.id);
+      setUpdating(false);
+
+      const trackedItems = invItems.filter((i) => i.track_inventory);
+      if (trackedItems.length > 0) {
+        setInventoryItems(invItems);
+        setInventoryDialogMode('restore');
+        setPendingStatus(newStatus);
+        setInventoryDialogOpen(true);
+        return;
+      }
+    }
+
+    await executeStatusChange(newStatus);
+  };
+
+  const handleInventoryConfirm = async () => {
+    if (!pendingStatus || !user?.id) return;
+
+    if (inventoryDialogMode === 'deduct') {
+      const deductionItems = inventoryItems
+        .filter((i) => i.track_inventory)
+        .map((i) => ({ product_id: i.product_id, quantity: i.quantity }));
+
+      await deductStockForOrder(order.id, user.id, deductionItems);
+    } else {
+      const restoreItems = inventoryItems
+        .filter((i) => i.track_inventory)
+        .map((i) => ({ product_id: i.product_id, quantity: i.quantity }));
+
+      await restoreStockForOrder(order.id, restoreItems);
+    }
+
+    await executeStatusChange(pendingStatus);
+    setPendingStatus(null);
+  };
+
+  const handleInventorySkip = async () => {
+    if (pendingStatus) {
+      await executeStatusChange(pendingStatus);
+      setPendingStatus(null);
+    }
+  };
+
   const whatsappUrl = order.customer_whatsapp
     ? generateWhatsAppUrl(
         order.customer_whatsapp,
@@ -85,134 +163,150 @@ export default function OrderDetailsPanel({
     : '';
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg overflow-y-auto">
-        <SheetHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg">Detalhes do Pedido</SheetTitle>
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <OrderStatusBadge status={order.status} />
-            <Badge variant="outline" className="text-xs">
-              {order.source === 'cart' ? 'Carrinho' : 'Pagina do Produto'}
-            </Badge>
-          </div>
-        </SheetHeader>
-
-        <div className="space-y-6">
-          {/* Customer Info */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cliente</h4>
-            <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-              <p className="font-medium">{order.customer_name}</p>
-              <p className="text-sm text-muted-foreground">
-                +{order.customer_country_code} {order.customer_whatsapp}
-              </p>
-              {whatsappUrl && (
-                <Button variant="outline" size="sm" className="mt-2 gap-1.5" asChild>
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    Falar no WhatsApp
-                  </a>
-                </Button>
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <SheetTitle className="text-lg">Detalhes do Pedido</SheetTitle>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <OrderStatusBadge status={order.status} />
+              <Badge variant="outline" className="text-xs">
+                {order.source === 'cart' ? 'Carrinho' : 'Pagina do Produto'}
+              </Badge>
+              {order.inventory_deducted && (
+                <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-300">
+                  Estoque reduzido
+                </Badge>
               )}
             </div>
-          </div>
+          </SheetHeader>
 
-          <Separator />
-
-          {/* Order Items */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Itens ({items.length})
-            </h4>
+          <div className="space-y-6">
+            {/* Customer Info */}
             <div className="space-y-3">
-              {items.map((item) => (
-                <div key={item.id} className="flex gap-3 p-3 border rounded-lg">
-                  <div className="w-14 h-14 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                    {item.product_image_url ? (
-                      <img
-                        src={item.product_image_url}
-                        alt={item.product_title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="h-5 w-5 text-muted-foreground" />
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cliente</h4>
+              <div className="bg-muted/30 rounded-lg p-4 space-y-2">
+                <p className="font-medium">{order.customer_name}</p>
+                <p className="text-sm text-muted-foreground">
+                  +{order.customer_country_code} {order.customer_whatsapp}
+                </p>
+                {whatsappUrl && (
+                  <Button variant="outline" size="sm" className="mt-2 gap-1.5" asChild>
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      Falar no WhatsApp
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Order Items */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Itens ({items.length})
+              </h4>
+              <div className="space-y-3">
+                {items.map((item) => (
+                  <div key={item.id} className="flex gap-3 p-3 border rounded-lg">
+                    <div className="w-14 h-14 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                      {item.product_image_url ? (
+                        <img
+                          src={item.product_image_url}
+                          alt={item.product_title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium line-clamp-1">{item.product_title}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {item.selected_color && (
+                          <span className="text-xs text-muted-foreground">Cor: {item.selected_color}</span>
+                        )}
+                        {item.selected_size && (
+                          <span className="text-xs text-muted-foreground">Tam: {item.selected_size}</span>
+                        )}
+                        {item.selected_flavor && (
+                          <span className="text-xs text-muted-foreground">Sabor: {item.selected_flavor}</span>
+                        )}
+                        {item.selected_variant_label && (
+                          <span className="text-xs text-muted-foreground">{item.selected_variant_label}</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium line-clamp-1">{item.product_title}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {item.selected_color && (
-                        <span className="text-xs text-muted-foreground">Cor: {item.selected_color}</span>
+                      {item.item_notes && (
+                        <p className="text-xs text-muted-foreground/70 mt-1 italic">{item.item_notes}</p>
                       )}
-                      {item.selected_size && (
-                        <span className="text-xs text-muted-foreground">Tam: {item.selected_size}</span>
-                      )}
-                      {item.selected_flavor && (
-                        <span className="text-xs text-muted-foreground">Sabor: {item.selected_flavor}</span>
-                      )}
-                      {item.selected_variant_label && (
-                        <span className="text-xs text-muted-foreground">{item.selected_variant_label}</span>
-                      )}
-                    </div>
-                    {item.item_notes && (
-                      <p className="text-xs text-muted-foreground/70 mt-1 italic">{item.item_notes}</p>
-                    )}
-                    <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-xs text-muted-foreground">
-                        {item.quantity}x {formatCurrency(item.unit_price)}
-                      </span>
-                      <span className="text-sm font-semibold">
-                        {formatCurrency(item.subtotal)}
-                      </span>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-xs text-muted-foreground">
+                          {item.quantity}x {formatCurrency(item.unit_price)}
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {formatCurrency(item.subtotal)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          {/* Order Total */}
-          <div className="flex justify-between items-center">
-            <span className="text-base font-semibold">Total</span>
-            <span className="text-xl font-bold text-primary">
-              {formatCurrency(order.total)}
-            </span>
-          </div>
-
-          {/* Order Info */}
-          <div className="text-xs text-muted-foreground space-y-1">
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-3 w-3" />
-              {format(new Date(order.created_at), "dd 'de' MMMM 'de' yyyy 'as' HH:mm", { locale: ptBR })}
+            {/* Order Total */}
+            <div className="flex justify-between items-center">
+              <span className="text-base font-semibold">Total</span>
+              <span className="text-xl font-bold text-primary">
+                {formatCurrency(order.total)}
+              </span>
             </div>
-          </div>
 
-          <Separator />
-
-          {/* Status Actions */}
-          {transitions.length > 0 && (
-            <div className="space-y-2">
-              {transitions.map((t) => (
-                <Button
-                  key={t.next}
-                  variant={t.next === 'cancelled' ? 'destructive' : 'default'}
-                  className="w-full"
-                  disabled={updating}
-                  onClick={() => handleStatusChange(t.next)}
-                >
-                  {updating ? 'Atualizando...' : t.label}
-                </Button>
-              ))}
+            {/* Order Info */}
+            <div className="text-xs text-muted-foreground space-y-1">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3 w-3" />
+                {format(new Date(order.created_at), "dd 'de' MMMM 'de' yyyy 'as' HH:mm", { locale: ptBR })}
+              </div>
             </div>
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
+
+            <Separator />
+
+            {/* Status Actions */}
+            {transitions.length > 0 && (
+              <div className="space-y-2">
+                {transitions.map((t) => (
+                  <Button
+                    key={t.next}
+                    variant={t.next === 'cancelled' ? 'destructive' : 'default'}
+                    className="w-full"
+                    disabled={updating}
+                    onClick={() => handleStatusChange(t.next)}
+                  >
+                    {updating ? 'Atualizando...' : t.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <InventoryDeductionDialog
+        open={inventoryDialogOpen}
+        onOpenChange={setInventoryDialogOpen}
+        mode={inventoryDialogMode}
+        items={inventoryItems}
+        onConfirm={handleInventoryConfirm}
+        onSkip={handleInventorySkip}
+      />
+    </>
   );
 }

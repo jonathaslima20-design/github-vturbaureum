@@ -1,7 +1,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, Users, DollarSign, Loader as Loader2, ExternalLink, ShoppingBag } from 'lucide-react';
+import { Package, TrendingUp, Users, DollarSign, Loader as Loader2, ExternalLink, ShoppingBag, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useInventoryEnabled } from '@/hooks/useInventoryEnabled';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ViewsAndLeadsChart } from '@/components/dashboard/ViewsAndLeadsChart';
@@ -11,7 +12,8 @@ import { toast } from 'sonner';
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { totalProducts, totalViews, uniqueVisitors, totalLeads, totalOrders, loading, error } = useDashboardStats();
+  const { totalProducts, totalViews, uniqueVisitors, totalLeads, totalOrders, lowStockCount, outOfStockCount, loading, error } = useDashboardStats();
+  const { inventoryEnabled } = useInventoryEnabled();
 
   const getMissingProfileFields = () => {
     const missing: string[] = [];
@@ -64,7 +66,7 @@ export default function DashboardPage() {
         </Alert>
       )}
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
+      <div className={`grid gap-4 grid-cols-2 ${inventoryEnabled ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
@@ -149,6 +151,30 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+
+        {inventoryEnabled && (
+          <Card className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => navigate('/dashboard/listings')}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Estoque</CardTitle>
+              <AlertTriangle className={`h-4 w-4 ${outOfStockCount > 0 ? 'text-red-500' : lowStockCount > 0 ? 'text-amber-500' : 'text-muted-foreground'}`} />
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">{lowStockCount + outOfStockCount}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {outOfStockCount > 0 ? `${outOfStockCount} esgotado${outOfStockCount > 1 ? 's' : ''}` : ''}
+                    {outOfStockCount > 0 && lowStockCount > 0 ? ' / ' : ''}
+                    {lowStockCount > 0 ? `${lowStockCount} baixo${lowStockCount > 1 ? 's' : ''}` : ''}
+                    {outOfStockCount === 0 && lowStockCount === 0 ? 'tudo em ordem' : ''}
+                  </p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <div className="grid gap-4">

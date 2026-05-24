@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,12 +10,14 @@ import ProductVariantModal from './ProductVariantModal';
 import type { Product } from '@/types';
 import { fetchProductPriceTiers, getMinimumPriceFromTiers, getFirstTierPrices } from '@/lib/tieredPricingUtils';
 import { supabase } from '@/lib/supabase';
+import { getStockStatus } from '@/lib/stockUtils';
 
 interface ProductCardProps {
   product: Product;
   corretorSlug: string;
   currency?: SupportedCurrency;
   language?: SupportedLanguage;
+  showStockOnStorefront?: boolean;
   onNavigate?: () => void;
 }
 
@@ -24,6 +26,7 @@ function ProductCardComponent({
   corretorSlug,
   currency = 'BRL',
   language = 'pt-BR',
+  showStockOnStorefront = false,
   onNavigate
 }: ProductCardProps) {
   const { t } = useTranslation(language);
@@ -86,6 +89,8 @@ function ProductCardComponent({
   const weightVariantMinPrice = hasWeightVariants ? Number(product.min_variant_price) : null;
 
   const isAvailable = product.status === 'disponivel';
+  const stockStatus = getStockStatus(product);
+  const isOutOfStock = stockStatus === 'out_of_stock';
   const hasPrice = (displayPrice && displayPrice > 0) || (product.has_tiered_pricing && minimumTieredPrice && minimumTieredPrice > 0) || hasWeightVariants;
   
   // More robust checking for colors and sizes with debug logging
@@ -211,6 +216,21 @@ function ProductCardComponent({
                   -{firstTierPrices?.discountPercentage || discountPercentage}%
                 </Badge>
               )}
+              {stockStatus === 'out_of_stock' && (
+                <Badge className="bg-red-600 hover:bg-red-700 text-white border-transparent text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1">
+                  Esgotado
+                </Badge>
+              )}
+              {stockStatus === 'low_stock' && (
+                <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-transparent text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1">
+                  Últimas unidades
+                </Badge>
+              )}
+              {stockStatus === 'in_stock' && showStockOnStorefront && (
+                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white border-transparent text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1">
+                  Em estoque
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -279,8 +299,15 @@ function ProductCardComponent({
               )}
 
 
-              {/* Add to Cart Button */}
-              {isAvailable && hasPrice && (
+              {/* Stock quantity text */}
+              {stockStatus === 'in_stock' && showStockOnStorefront && product.stock_quantity != null && (
+                <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
+                  {product.stock_quantity} {product.stock_quantity === 1 ? 'unidade disponível' : 'unidades disponíveis'}
+                </p>
+              )}
+
+              {/* Add to Cart Button or Consult Availability */}
+              {isAvailable && hasPrice && !isOutOfStock && (
                 <div className="mt-2 md:mt-3 pt-1.5 md:pt-2 border-t">
                   <Button
                     size="sm"
@@ -289,6 +316,19 @@ function ProductCardComponent({
                   >
                     <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                     {totalInCart > 0 ? `No Carrinho (${totalInCart})` : 'Adicionar'}
+                  </Button>
+                </div>
+              )}
+              {isOutOfStock && (
+                <div className="mt-2 md:mt-3 pt-1.5 md:pt-2 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-[10px] md:text-xs h-7 md:h-8"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MessageCircle className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                    Consultar disponibilidade
                   </Button>
                 </div>
               )}
@@ -343,6 +383,10 @@ const arePropsEqual = (prevProps: ProductCardProps, nextProps: ProductCardProps)
     prevProps.product.has_tiered_pricing === nextProps.product.has_tiered_pricing &&
     prevProps.product.has_weight_variants === nextProps.product.has_weight_variants &&
     prevProps.product.min_variant_price === nextProps.product.min_variant_price &&
+    prevProps.product.track_inventory === nextProps.product.track_inventory &&
+    prevProps.product.stock_quantity === nextProps.product.stock_quantity &&
+    prevProps.product.low_stock_threshold === nextProps.product.low_stock_threshold &&
+    prevProps.showStockOnStorefront === nextProps.showStockOnStorefront &&
     prevProps.currency === nextProps.currency &&
     prevProps.language === nextProps.language &&
     prevProps.corretorSlug === nextProps.corretorSlug

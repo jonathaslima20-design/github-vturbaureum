@@ -37,6 +37,7 @@ import {
   checkRemainingImagesCount,
 } from '@/lib/productImageService';
 import { PromotionalPhraseSelector } from '@/components/ui/promotional-phrase-selector';
+import { useInventoryEnabled } from '@/hooks/useInventoryEnabled';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -58,6 +59,9 @@ const productSchema = z.object({
   sizes: z.array(z.string()).default([]),
   flavors: z.array(z.string()).default([]),
   has_tiered_pricing: z.boolean().default(false),
+  track_inventory: z.boolean().default(false),
+  stock_quantity: z.number().min(0).optional(),
+  low_stock_threshold: z.number().min(0).default(5),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -83,8 +87,10 @@ export default function EditProductPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
+  const { inventoryEnabled } = useInventoryEnabled();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [pricingMode, setPricingMode] = useState<'simple' | 'tiered'>('simple');
   const [priceTiers, setPriceTiers] = useState<PriceTier[]>([]);
   const [isPriceTiersValid, setIsPriceTiersValid] = useState(true);
@@ -121,6 +127,9 @@ export default function EditProductPage() {
       sizes: [],
       flavors: [],
       has_tiered_pricing: false,
+      track_inventory: false,
+      stock_quantity: undefined,
+      low_stock_threshold: 5,
     },
   });
 
@@ -163,7 +172,14 @@ export default function EditProductPage() {
           sizes: product.sizes || [],
           flavors: product.flavors || [],
           has_tiered_pricing: product.has_tiered_pricing || false,
+          track_inventory: product.track_inventory || false,
+          stock_quantity: product.stock_quantity ?? undefined,
+          low_stock_threshold: product.low_stock_threshold ?? 5,
         });
+
+        if (product.track_inventory) {
+          setIsInventoryOpen(true);
+        }
 
         setPricingMode(product.has_tiered_pricing ? 'tiered' : 'simple');
 
@@ -312,6 +328,9 @@ export default function EditProductPage() {
         has_tiered_pricing: pricingMode === 'tiered',
         pricing_mode: pricingMode === 'tiered' ? 'exact' : 'range',
         has_weight_variants: hasWeightVariants,
+        track_inventory: data.track_inventory ?? false,
+        stock_quantity: data.track_inventory ? (data.stock_quantity ?? 0) : null,
+        low_stock_threshold: data.low_stock_threshold ?? 5,
       };
 
       const { error: productError } = await supabase
@@ -604,6 +623,92 @@ export default function EditProductPage() {
               </CollapsibleContent>
             </Card>
           </Collapsible>
+
+          {inventoryEnabled && (
+            <Collapsible open={isInventoryOpen} onOpenChange={setIsInventoryOpen}>
+              <Card>
+                <CollapsibleTrigger className="w-full">
+                  <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Estoque</CardTitle>
+                      <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isInventoryOpen ? 'transform rotate-180' : ''}`} />
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="track_inventory"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Controlar estoque deste produto</FormLabel>
+                            <FormDescription>
+                              Ative para gerenciar a quantidade disponível deste produto
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.watch('track_inventory') && (
+                      <div className="space-y-4 pl-1">
+                        <FormField
+                          control={form.control}
+                          name="stock_quantity"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Quantidade em estoque *</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  placeholder="0"
+                                  value={field.value ?? ''}
+                                  onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="low_stock_threshold"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Alertar quando atingir</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  placeholder="5"
+                                  value={field.value ?? 5}
+                                  onChange={(e) => field.onChange(e.target.value === '' ? 5 : Number(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Você será notificado quando o estoque atingir essa quantidade
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          )}
 
           <Card>
             <CardHeader>

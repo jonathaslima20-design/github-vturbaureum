@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
-import {
-  Share2,
-  ArrowLeft,
-  Loader,
-  Package,
-  ShoppingCart
-} from 'lucide-react';
+import { Share2, ArrowLeft, Loader, Package, ShoppingCart, MessageCircle, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency, getColorValue } from '@/lib/utils';
@@ -25,6 +19,8 @@ import TieredPricingSkeleton from '@/components/details/TieredPricingSkeleton';
 import { useTieredPricing } from '@/hooks/useTieredPricing';
 import { useCart } from '@/contexts/CartContext';
 import ProductVariantModal from '@/components/product/ProductVariantModal';
+import { getStockStatus } from '@/lib/stockUtils';
+import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 
 export default function ProductDetailsPage() {
   const { slug, productId } = useParams();
@@ -39,6 +35,8 @@ export default function ProductDetailsPage() {
   const [currency, setCurrency] = useState<SupportedCurrency>('BRL');
   const { t } = useTranslation(language);
   const { addToCart, getItemQuantity } = useCart();
+
+  const { inventoryEnabled, showStockOnStorefront } = useInventoryEnabledForStore(corretor?.id);
 
   const { tiers: priceTiers, loading: loadingTiers } = useTieredPricing(
     product?.id,
@@ -271,6 +269,13 @@ export default function ProductDetailsPage() {
   const isAvailable = product.status === 'disponivel';
   const hasPrice = (product.price && product.price > 0) || (product.has_tiered_pricing && priceTiers.length > 0) || hasWeightVariants;
 
+  const stockStatus = inventoryEnabled ? getStockStatus({
+    track_inventory: product.track_inventory,
+    stock_quantity: product.stock_quantity,
+    low_stock_threshold: product.low_stock_threshold,
+  }) : 'untracked';
+  const isOutOfStock = stockStatus === 'out_of_stock';
+
   // Check if product has color or size options
   const hasColors = product.colors && 
                    Array.isArray(product.colors) && 
@@ -339,6 +344,22 @@ export default function ProductDetailsPage() {
                       </Badge>
                     )}
                     {product.status !== 'disponivel' && getStatusBadge(product.status)}
+                    {stockStatus === 'out_of_stock' && (
+                      <Badge className="bg-red-600 hover:bg-red-700 text-white border-transparent">
+                        Esgotado
+                      </Badge>
+                    )}
+                    {stockStatus === 'low_stock' && (
+                      <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-transparent gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        Ultimas unidades
+                      </Badge>
+                    )}
+                    {stockStatus === 'in_stock' && showStockOnStorefront && (
+                      <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 border-transparent">
+                        Em estoque
+                      </Badge>
+                    )}
                   </div>
                   <h1 className="text-2xl md:text-3xl font-bold">{product.title}</h1>
                 </div>
@@ -611,7 +632,7 @@ export default function ProductDetailsPage() {
 
 
               {/* Send Button */}
-              {isAvailable && hasPrice && (
+              {isAvailable && hasPrice && !isOutOfStock && (
                 <div className="mt-8">
                   <Button
                     size="lg"
@@ -622,6 +643,32 @@ export default function ProductDetailsPage() {
                     {totalInCart > 0 ? `No Carrinho (${totalInCart})` : 'Adicionar ao carrinho'}
                   </Button>
                 </div>
+              )}
+
+              {isOutOfStock && corretor && (
+                <div className="mt-8">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full gap-2"
+                    asChild
+                  >
+                    <a
+                      href={`https://wa.me/${corretor.country_code || '55'}${corretor.whatsapp}?text=${encodeURIComponent(`Olá, gostaria de saber sobre a disponibilidade do produto: ${product.title}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      Consultar disponibilidade
+                    </a>
+                  </Button>
+                </div>
+              )}
+
+              {showStockOnStorefront && stockStatus === 'in_stock' && product.stock_quantity != null && (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {product.stock_quantity} {product.stock_quantity === 1 ? 'unidade disponivel' : 'unidades disponiveis'}
+                </p>
               )}
 
               {/* Description */}

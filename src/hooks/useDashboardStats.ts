@@ -8,6 +8,8 @@ interface DashboardStats {
   uniqueVisitors: number;
   totalLeads: number;
   totalOrders: number;
+  lowStockCount: number;
+  outOfStockCount: number;
   loading: boolean;
   error: string | null;
 }
@@ -20,6 +22,8 @@ export function useDashboardStats() {
     uniqueVisitors: 0,
     totalLeads: 0,
     totalOrders: 0,
+    lowStockCount: 0,
+    outOfStockCount: 0,
     loading: true,
     error: null,
   });
@@ -31,6 +35,9 @@ export function useDashboardStats() {
         totalViews: 0,
         uniqueVisitors: 0,
         totalLeads: 0,
+        totalOrders: 0,
+        lowStockCount: 0,
+        outOfStockCount: 0,
         loading: false,
         error: null,
       });
@@ -58,7 +65,7 @@ export function useDashboardStats() {
 
       const productIds = products?.map(p => p.id) || [];
 
-      const [viewsResponse, uniqueVisitorsResponse, leadsResponse, ordersResponse] = await Promise.all([
+      const [viewsResponse, uniqueVisitorsResponse, leadsResponse, ordersResponse, lowStockResponse, outOfStockResponse] = await Promise.all([
         supabase
           .from('property_views')
           .select('id', { count: 'exact', head: true })
@@ -82,6 +89,21 @@ export function useDashboardStats() {
           .select('id', { count: 'exact', head: true })
           .eq('store_owner_id', user.id)
           .gte('created_at', thirtyDaysAgo.toISOString()),
+
+        supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('track_inventory', true)
+          .gt('stock_quantity', 0)
+          .lte('stock_quantity', 5),
+
+        supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('track_inventory', true)
+          .lte('stock_quantity', 0),
       ]);
 
       const uniqueViewerIds = new Set(
@@ -94,6 +116,8 @@ export function useDashboardStats() {
         uniqueVisitors: uniqueViewerIds.size,
         totalLeads: leadsResponse.count || 0,
         totalOrders: ordersResponse.count || 0,
+        lowStockCount: lowStockResponse.count || 0,
+        outOfStockCount: outOfStockResponse.count || 0,
         loading: false,
         error: null,
       });

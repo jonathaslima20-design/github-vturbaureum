@@ -8,8 +8,9 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrencyI18n } from '@/lib/i18n';
 import type { Product } from '@/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchProductPriceTiers, getMinimumPriceFromTiers, getFirstTierPrices } from '@/lib/tieredPricingUtils';
+import { StockEditPopover } from './StockEditPopover';
 
 import { EnhancedProductGrid } from './EnhancedProductGrid';
 
@@ -27,6 +28,7 @@ interface ProductGridProps {
   onDragEnd: (result: any) => Promise<void>;
   onSaveOrder?: () => Promise<void>;
   onCancelReorder?: () => void;
+  onStockUpdated?: (productId: string, newQuantity: number) => void;
 }
 
 export function ProductGrid({
@@ -43,6 +45,7 @@ export function ProductGrid({
   onDragEnd,
   onSaveOrder,
   onCancelReorder,
+  onStockUpdated,
 }: ProductGridProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -152,6 +155,15 @@ export function ProductGrid({
                   </Badge>
                 )}
                 {getStatusBadge(product.status)}
+                {product.track_inventory && onStockUpdated && (
+                  <StockEditPopover
+                    productId={product.id}
+                    stockQuantity={product.stock_quantity ?? null}
+                    lowStockThreshold={product.low_stock_threshold ?? 5}
+                    trackInventory={product.track_inventory}
+                    onStockUpdated={onStockUpdated}
+                  />
+                )}
               </div>
 
               {/* Visibility Indicator */}

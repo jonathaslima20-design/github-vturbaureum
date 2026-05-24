@@ -212,3 +212,43 @@ export async function getPendingOrderCount(storeOwnerId: string): Promise<number
 
   return count || 0;
 }
+
+export interface OrderInventoryItem {
+  product_id: string;
+  product_title: string;
+  quantity: number;
+  current_stock: number | null;
+  track_inventory: boolean;
+}
+
+export async function fetchOrderInventoryInfo(
+  orderId: string
+): Promise<OrderInventoryItem[]> {
+  const { data: items, error } = await supabase
+    .from('order_items')
+    .select('product_id, product_title, quantity')
+    .eq('order_id', orderId);
+
+  if (error || !items) return [];
+
+  const productIds = [...new Set(items.map((i) => i.product_id))];
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, track_inventory, stock_quantity')
+    .in('id', productIds);
+
+  const productMap = new Map(
+    (products || []).map((p) => [p.id, p])
+  );
+
+  return items.map((item) => {
+    const product = productMap.get(item.product_id);
+    return {
+      product_id: item.product_id,
+      product_title: item.product_title,
+      quantity: item.quantity,
+      current_stock: product?.stock_quantity ?? null,
+      track_inventory: product?.track_inventory ?? false,
+    };
+  });
+}

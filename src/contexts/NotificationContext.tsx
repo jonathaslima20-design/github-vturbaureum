@@ -30,6 +30,9 @@ const NOTIFICATION_TITLES: Record<string, string> = {
   subscription_expiring: 'Assinatura',
   subscription_expired: 'Assinatura',
   product_sold: 'Venda',
+  new_order: 'Novo pedido',
+  low_stock: 'Estoque baixo',
+  out_of_stock: 'Produto esgotado',
   system: 'Sistema',
 };
 
