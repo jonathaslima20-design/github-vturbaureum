@@ -138,11 +138,15 @@ function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-        <a href="#top" className="flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-ink-900 flex items-center justify-center">
-            <Zap size={16} className="text-white" strokeWidth={2.5} />
-          </span>
-          <span className="font-display font-semibold text-[15px] text-ink-900">VitrineTurbo</span>
+        <a href="#top" className="flex items-center">
+          <img
+            src="/logos/vitrinelogo-black.png"
+            alt="VitrineTurbo"
+            className="h-9 w-auto"
+            onError={(e) => {
+              e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
+            }}
+          />
         </a>
         <nav className="hidden md:flex items-center gap-8">
           <a href="#recursos" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Recursos</a>
@@ -634,11 +638,15 @@ function FooterLanding() {
   return (
     <footer className="border-t hairline bg-white py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="w-7 h-7 rounded-lg bg-ink-900 flex items-center justify-center">
-            <Zap size={14} className="text-white" strokeWidth={2.5} />
-          </span>
-          <span className="font-display font-semibold text-[14px] text-ink-900">VitrineTurbo</span>
+        <div className="flex items-center">
+          <img
+            src="/logos/vitrinelogo-black.png"
+            alt="VitrineTurbo"
+            className="h-8 w-auto"
+            onError={(e) => {
+              e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
+            }}
+          />
         </div>
         <span className="font-mono-label uppercase text-[11px] text-ink-400">
           © 2026 — Todos os direitos reservados.
