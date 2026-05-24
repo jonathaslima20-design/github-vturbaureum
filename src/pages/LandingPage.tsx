@@ -142,7 +142,7 @@ function Header() {
           <img
             src="/logos/vitrinelogo-black.png"
             alt="VitrineTurbo"
-            className="h-9 w-auto"
+            className="h-14 w-auto"
             onError={(e) => {
               e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
             }}
@@ -642,7 +642,7 @@ function FooterLanding() {
           <img
             src="/logos/vitrinelogo-black.png"
             alt="VitrineTurbo"
-            className="h-8 w-auto"
+            className="h-12 w-auto"
             onError={(e) => {
               e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
             }}
