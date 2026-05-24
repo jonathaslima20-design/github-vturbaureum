@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -301,13 +301,6 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
 
-  useEffect(() => {
-    if (!mpInitialized) {
-      initMercadoPago(publicKey, { locale: 'pt-BR' });
-      mpInitialized = true;
-    }
-  }, [publicKey]);
-
   const handleSubmit = useCallback(async (formData: any) => {
     try {
       const cardResult = await createCardPayment({
@@ -338,6 +331,12 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
   const handleError = useCallback((error: any) => {
     console.error('CardPayment Brick error:', error);
   }, []);
+
+  const initialization = useMemo(() => ({ amount: plan.price }), [plan.price]);
+  const customization = useMemo(() => ({
+    visual: { hideFormTitle: true },
+    paymentMethods: { maxInstallments: 12 },
+  }), []);
 
   if (result) {
     if (result.status === 'approved') {
@@ -390,11 +389,8 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
         </div>
       )}
       <CardPayment
-        initialization={{ amount: plan.price }}
-        customization={{
-          visual: { hideFormTitle: true },
-          paymentMethods: { maxInstallments: 12 },
-        }}
+        initialization={initialization}
+        customization={customization}
         onSubmit={handleSubmit}
         onReady={handleReady}
         onError={handleError}
@@ -483,6 +479,10 @@ export default function CheckoutPage() {
       const info = await getPublicKey();
       if (!info.public_key) {
         throw new Error('Chave publica nao configurada');
+      }
+      if (!mpInitialized) {
+        initMercadoPago(info.public_key, { locale: 'pt-BR' });
+        mpInitialized = true;
       }
       setPublicKey(info.public_key);
     } catch (error) {
