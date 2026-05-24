@@ -395,6 +395,23 @@ Deno.serve(async (req: Request) => {
 
         const mpData = await mpResponse.json();
 
+        if (!mpResponse.ok) {
+          await admin
+            .from("mp_payments")
+            .update({
+              status: "rejected",
+              status_detail: mpData.message || "API error",
+              raw_response: mpData,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", paymentRow.id);
+
+          return new Response(
+            JSON.stringify({ error: mpData.message || "Erro ao processar pagamento com cartão" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
         const cardInfo = mpData.card || {};
         const last4 = cardInfo.last_four_digits || "";
         const brand = mpData.payment_method_id || "";

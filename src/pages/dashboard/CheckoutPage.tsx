@@ -302,26 +302,30 @@ function CardSection({ plan, publicKey, onSuccess, onRetry }: CardSectionProps) 
   onSuccessRef.current = onSuccess;
 
   const handleSubmit = useCallback(async (formData: any) => {
-    try {
-      const cardResult = await createCardPayment({
-        plan_id: plan.id,
-        billing_cycle: plan.duration,
-        token: formData.token,
-        installments: formData.installments,
-        payment_method_id: formData.payment_method_id,
-        issuer_id: formData.issuer_id || '',
-        payer: {
-          email: formData.payer?.email || '',
-          doc: formData.payer?.identification?.number || '',
-        },
-      });
-      setResult(cardResult);
-      if (cardResult.status === 'approved') {
-        onSuccessRef.current();
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const cardResult = await createCardPayment({
+          plan_id: plan.id,
+          billing_cycle: plan.duration,
+          token: formData.token,
+          installments: formData.installments,
+          payment_method_id: formData.payment_method_id,
+          issuer_id: formData.issuer_id || '',
+          payer: {
+            email: formData.payer?.email || '',
+            doc: formData.payer?.identification?.number || '',
+          },
+        });
+        setResult(cardResult);
+        if (cardResult.status === 'approved') {
+          onSuccessRef.current();
+        }
+        resolve();
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
+        reject();
       }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
-    }
+    });
   }, [plan.id, plan.duration]);
 
   const handleReady = useCallback(() => {
