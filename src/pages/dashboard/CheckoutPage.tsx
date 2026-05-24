@@ -306,10 +306,12 @@ function CardSection({ plan, onSuccess, onRetryInit }: CardSectionProps) {
   useEffect(() => { planRef.current = plan; }, [plan]);
   useEffect(() => { onSuccessRef.current = onSuccess; }, [onSuccess]);
 
+  const brickReadyRef = useRef(false);
+
   // Timeout: if brick doesn't become ready within 15s, show error
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
-      if (!brickReady) {
+      if (!brickReadyRef.current) {
         setBrickError(true);
       }
     }, 15000);
@@ -349,6 +351,7 @@ function CardSection({ plan, onSuccess, onRetryInit }: CardSectionProps) {
 
   const handleReady = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    brickReadyRef.current = true;
     setBrickReady(true);
   }, []);
 
@@ -420,12 +423,12 @@ function CardSection({ plan, onSuccess, onRetryInit }: CardSectionProps) {
 
   return (
     <div className="space-y-4">
-      {!brickReady && (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      )}
-      <div style={{ display: brickReady ? 'block' : 'none' }}>
+      <div className="relative min-h-[200px]">
+        {!brickReady && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background z-10">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         <CardPayment
           initialization={initialization}
           onSubmit={handleCardSubmit}
@@ -534,6 +537,7 @@ export default function CheckoutPage() {
   }, [initSdk]);
 
   const handleRetryInit = useCallback(() => {
+    resetMercadoPago();
     setCardKey(k => k + 1);
     initSdk();
   }, [initSdk]);
