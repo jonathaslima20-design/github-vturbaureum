@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { ensureMercadoPago } from '@/lib/mercadopago';
+import { ensureMercadoPago, resetMercadoPago } from '@/lib/mercadopago';
 import { CardPayment } from '@mercadopago/sdk-react';
 import {
   createPixPayment,
@@ -303,6 +303,7 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
       setSdkReady(true);
     } catch (error) {
       console.error('Error initializing MercadoPago SDK:', error);
+      resetMercadoPago();
       setSdkError(true);
     } finally {
       setLoading(false);
@@ -584,12 +585,11 @@ export default function CheckoutPage() {
               <Separator />
 
               {/* Tab Content */}
-              <div style={{ display: activeTab === 'pix' ? 'block' : 'none' }}>
+              {activeTab === 'pix' ? (
                 <PixSection plan={plan} onSuccess={handleSuccess} />
-              </div>
-              <div style={{ display: activeTab === 'card' ? 'block' : 'none' }}>
+              ) : (
                 <CardSection plan={plan} onSuccess={handleSuccess} />
-              </div>
+              )}
             </CardContent>
           </Card>
         )}
