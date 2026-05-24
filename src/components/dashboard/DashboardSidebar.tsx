@@ -54,10 +54,11 @@ export default function DashboardSidebar() {
   ];
 
   const navigationAfterSales = [
-    { name: 'Indique e Ganhe', href: '/dashboard/referral', icon: Gift },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
     { name: 'Central de Ajuda', href: '/help', icon: HelpCircle },
   ];
+
+  const isReferralActive = location.pathname === '/dashboard/referral';
   
   const toggleSidebar = () => {
     setExpanded(!expanded);
@@ -241,6 +242,21 @@ export default function DashboardSidebar() {
         </div>
 
         <div className="mt-auto">
+          <div className="px-2 pb-1">
+            <Separator className="mb-2" />
+            <NavLink
+              to="/dashboard/referral"
+              className={cn(
+                "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors",
+                isReferralActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-primary/80 hover:bg-primary/5 hover:text-primary"
+              )}
+            >
+              <Gift className="h-5 w-5" />
+              <span className="flex-1 font-medium">Indique e Ganhe</span>
+            </NavLink>
+          </div>
           <PlanUsageIndicator expanded={true} />
           <div className="p-4">
             <div
@@ -421,6 +437,21 @@ export default function DashboardSidebar() {
         </div>
 
         <div className="mt-auto flex-shrink-0">
+          <div className="px-2 pb-1">
+            <Separator className="mb-2" />
+            <NavLink
+              to="/dashboard/referral"
+              className={cn(
+                "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors",
+                isReferralActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-primary/80 hover:bg-primary/5 hover:text-primary"
+              )}
+            >
+              <Gift className="h-5 w-5" />
+              {expanded && <span className="flex-1 font-medium">Indique e Ganhe</span>}
+            </NavLink>
+          </div>
           <PlanUsageIndicator expanded={expanded} />
           <div className="p-4">
             <div
