@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -292,6 +292,8 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<CardPaymentResult | null>(null);
 
+  const initialization = useMemo(() => ({ amount: plan.price }), [plan.price]);
+
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
@@ -395,7 +397,7 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
   return (
     <div className="space-y-4">
       <CardPayment
-        initialization={{ amount: plan.price }}
+        initialization={initialization}
         onSubmit={handleCardSubmit}
         onReady={handleReady}
         onError={handleError}
@@ -465,7 +467,7 @@ export default function CheckoutPage() {
       setPlan({
         id: data.id,
         name: data.name,
-        price: data.price,
+        price: Number(data.price),
         duration: cycle || data.duration,
       });
       setLoading(false);
