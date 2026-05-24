@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, ChartLine as LineChart, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -18,17 +18,23 @@ export default function DashboardSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [catalogExpanded, setCatalogExpanded] = useState(false);
+  const [stockExpanded, setStockExpanded] = useState(false);
   const [salesExpanded, setSalesExpanded] = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
   const { signOut, user } = useAuth();
   const location = useLocation();
 
-  const isCatalogSection = location.pathname.startsWith('/dashboard/listings') || location.pathname.startsWith('/dashboard/categories') || location.pathname.startsWith('/dashboard/stock-movements');
+  const isCatalogSection = location.pathname.startsWith('/dashboard/listings') || location.pathname.startsWith('/dashboard/categories');
+  const isStockSection = location.pathname.startsWith('/dashboard/inventory') || location.pathname.startsWith('/dashboard/stock-movements');
   const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales');
 
   useEffect(() => {
     if (isCatalogSection) setCatalogExpanded(true);
   }, [isCatalogSection]);
+
+  useEffect(() => {
+    if (isStockSection) setStockExpanded(true);
+  }, [isStockSection]);
 
   useEffect(() => {
     if (isSalesSection) setSalesExpanded(true);
@@ -46,7 +52,12 @@ export default function DashboardSidebar() {
   const catalogSubItems = [
     { name: 'Produtos', href: '/dashboard/listings', icon: Package },
     { name: 'Categorias', href: '/dashboard/categories', icon: FolderTree },
+  ];
+
+  const stockSubItems = [
+    { name: 'Visão Geral', href: '/dashboard/inventory', icon: BarChart3 },
     { name: 'Movimentações', href: '/dashboard/stock-movements', icon: ArrowLeftRight },
+    { name: 'Configurações', href: '/dashboard/inventory/settings', icon: Settings2 },
   ];
 
   const salesSubItems = [
@@ -169,6 +180,35 @@ export default function DashboardSidebar() {
               {catalogExpanded && (
                 <div className="ml-4 mt-1 space-y-1">
                   {catalogSubItems.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={navItemClasses}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="flex-1">{item.name}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Stock Group */}
+            <div>
+              <button
+                onClick={() => setStockExpanded(!stockExpanded)}
+                className={cn(
+                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
+                  isStockSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Warehouse className="h-5 w-5" />
+                <span className="flex-1">Estoque</span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform", stockExpanded && "rotate-180")} />
+              </button>
+              {stockExpanded && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {stockSubItems.map((item) => (
                     <NavLink
                       key={item.name}
                       to={item.href}
@@ -360,6 +400,39 @@ export default function DashboardSidebar() {
               {catalogExpanded && expanded && (
                 <div className="ml-4 mt-1 space-y-1">
                   {catalogSubItems.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={navItemClasses}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="flex-1">{item.name}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Stock Group */}
+            <div>
+              <button
+                onClick={() => setStockExpanded(!stockExpanded)}
+                className={cn(
+                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
+                  isStockSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Warehouse className="h-5 w-5" />
+                {expanded && (
+                  <>
+                    <span className="flex-1">Estoque</span>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", stockExpanded && "rotate-180")} />
+                  </>
+                )}
+              </button>
+              {stockExpanded && expanded && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {stockSubItems.map((item) => (
                     <NavLink
                       key={item.name}
                       to={item.href}

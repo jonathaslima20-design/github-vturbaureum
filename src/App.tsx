@@ -43,6 +43,8 @@ import NotificationsPage from '@/pages/dashboard/NotificationsPage.tsx';
 import OrdersPage from '@/pages/dashboard/OrdersPage.tsx';
 import SalesPage from '@/pages/dashboard/SalesPage.tsx';
 import StockMovementsPage from '@/pages/dashboard/StockMovementsPage.tsx';
+import InventoryOverviewPage from '@/pages/dashboard/InventoryOverviewPage.tsx';
+import InventorySettingsPage from '@/pages/dashboard/InventorySettingsPage.tsx';
 
 // Admin Pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.tsx';
@@ -177,6 +179,8 @@ function AppContent() {
             <Route path="/dashboard/referral" element={<ReferralPage />} />
             <Route path="/dashboard/orders" element={<OrdersPage />} />
             <Route path="/dashboard/sales" element={<SalesPage />} />
+            <Route path="/dashboard/inventory" element={<InventoryOverviewPage />} />
+            <Route path="/dashboard/inventory/settings" element={<InventorySettingsPage />} />
             <Route path="/dashboard/stock-movements" element={<StockMovementsPage />} />
             <Route path="/dashboard/notifications" element={<NotificationsPage />} />
           </Route>

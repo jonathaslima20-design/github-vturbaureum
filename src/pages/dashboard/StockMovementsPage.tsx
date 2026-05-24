@@ -72,7 +72,7 @@ export default function StockMovementsPage() {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/listings')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/inventory')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
