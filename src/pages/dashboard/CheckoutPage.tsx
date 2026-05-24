@@ -2,12 +2,13 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { ensureMercadoPago, resetMercadoPago } from '@/lib/mercadopago';
-import { CardPayment } from '@mercadopago/sdk-react';
+import { resetMercadoPago } from '@/lib/mercadopago';
+import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react';
 import {
   createPixPayment,
   createCardPayment,
   getPaymentStatus,
+  getPublicKey,
   type PixPaymentResult,
   type CardPaymentResult,
 } from '@/lib/mpPayments';
@@ -286,40 +287,33 @@ function PixSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void
   );
 }
 
-function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void }) {
-  const [sdkReady, setSdkReady] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [sdkError, setSdkError] = useState(false);
+interface CardSectionProps {
+  plan: PlanInfo;
+  onSuccess: () => void;
+  onRetryInit: () => void;
+}
+
+function CardSection({ plan, onSuccess, onRetryInit }: CardSectionProps) {
+  const [brickError, setBrickError] = useState(false);
+  const [brickReady, setBrickReady] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<CardPaymentResult | null>(null);
 
+  // Use refs to hold the latest plan/onSuccess so callbacks never change reference
+  const planRef = useRef(plan);
+  const onSuccessRef = useRef(onSuccess);
+  useEffect(() => { planRef.current = plan; }, [plan]);
+  useEffect(() => { onSuccessRef.current = onSuccess; }, [onSuccess]);
+
   const initialization = useMemo(() => ({ amount: plan.price }), [plan.price]);
 
-  const initSdk = useCallback(async () => {
-    setLoading(true);
-    setSdkError(false);
-    try {
-      await ensureMercadoPago();
-      setSdkReady(true);
-    } catch (error) {
-      console.error('Error initializing MercadoPago SDK:', error);
-      resetMercadoPago();
-      setSdkError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    initSdk();
-  }, [initSdk]);
-
+  // Stable callbacks - never change reference, read latest values from refs
   const handleCardSubmit = useCallback(async (formData: any) => {
     setProcessing(true);
     try {
       const cardResult = await createCardPayment({
-        plan_id: plan.id,
-        billing_cycle: plan.duration,
+        plan_id: planRef.current.id,
+        billing_cycle: planRef.current.duration,
         token: formData.token,
         installments: formData.installments,
         payment_method_id: formData.payment_method_id,
@@ -331,19 +325,22 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
       });
       setResult(cardResult);
       if (cardResult.status === 'approved') {
-        onSuccess();
+        onSuccessRef.current();
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao processar pagamento');
     } finally {
       setProcessing(false);
     }
-  }, [plan.id, plan.duration, onSuccess]);
+  }, []);
 
-  const handleReady = useCallback(() => {}, []);
+  const handleReady = useCallback(() => {
+    setBrickReady(true);
+  }, []);
 
   const handleError = useCallback((error: any) => {
     console.error('CardPayment Brick error:', error);
+    setBrickError(true);
   }, []);
 
   if (result) {
@@ -388,15 +385,7 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (sdkError || !sdkReady) {
+  if (brickError) {
     return (
       <div className="text-center space-y-4 py-8">
         <div className="flex justify-center">
@@ -406,9 +395,9 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
         </div>
         <h3 className="text-lg font-semibold">Erro ao carregar formulario</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Nao foi possivel carregar o formulario de pagamento com cartao. Verifique sua conexao e tente novamente.
+          Nao foi possivel carregar o formulario de pagamento. Tente novamente.
         </p>
-        <Button variant="outline" onClick={initSdk}>
+        <Button variant="outline" onClick={onRetryInit}>
           Tentar novamente
         </Button>
       </div>
@@ -417,13 +406,20 @@ function CardSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => voi
 
   return (
     <div className="space-y-4">
-      <CardPayment
-        initialization={initialization}
-        onSubmit={handleCardSubmit}
-        onReady={handleReady}
-        onError={handleError}
-        locale="pt-BR"
-      />
+      {!brickReady && (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      )}
+      <div style={{ display: brickReady ? 'block' : 'none' }}>
+        <CardPayment
+          initialization={initialization}
+          onSubmit={handleCardSubmit}
+          onReady={handleReady}
+          onError={handleError}
+          locale="pt-BR"
+        />
+      </div>
       {processing && (
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -455,13 +451,18 @@ function PaymentSuccess() {
   );
 }
 
+type SdkState = 'loading' | 'ready' | 'error';
+
 export default function CheckoutPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [plan, setPlan] = useState<PlanInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [planLoading, setPlanLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<PaymentTab>('pix');
   const [paymentComplete, setPaymentComplete] = useState(false);
+  const [sdkState, setSdkState] = useState<SdkState>('loading');
+  // Track a key to force CardSection remount on retry
+  const [cardKey, setCardKey] = useState(0);
 
   const planId = searchParams.get('plan');
   const cycle = searchParams.get('cycle');
@@ -491,23 +492,87 @@ export default function CheckoutPage() {
         price: Number(data.price),
         duration: cycle || data.duration,
       });
-      setLoading(false);
+      setPlanLoading(false);
     };
 
     fetchPlan();
   }, [planId, cycle, navigate]);
 
+  // Initialize Mercado Pago SDK once at the page level
+  const initSdk = useCallback(async () => {
+    setSdkState('loading');
+    try {
+      const info = await getPublicKey();
+      if (!info.public_key) {
+        throw new Error('Chave publica nao configurada');
+      }
+      initMercadoPago(info.public_key, { locale: 'pt-BR' });
+      setSdkState('ready');
+    } catch (error) {
+      console.error('MercadoPago SDK init failed:', error);
+      resetMercadoPago();
+      setSdkState('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    initSdk();
+  }, [initSdk]);
+
+  const handleRetryInit = useCallback(() => {
+    setCardKey(k => k + 1);
+    initSdk();
+  }, [initSdk]);
+
   const handleSuccess = useCallback(() => {
     setPaymentComplete(true);
   }, []);
 
-  if (loading || !plan) {
+  if (planLoading || !plan) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
+
+  const renderCardContent = () => {
+    if (sdkState === 'loading') {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+
+    if (sdkState === 'error') {
+      return (
+        <div className="text-center space-y-4 py-8">
+          <div className="flex justify-center">
+            <div className="h-14 w-14 rounded-full bg-red-500/10 flex items-center justify-center">
+              <AlertCircle className="h-7 w-7 text-red-500" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold">Erro ao carregar formulario</h3>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            Nao foi possivel inicializar o sistema de pagamento. Verifique sua conexao.
+          </p>
+          <Button variant="outline" onClick={handleRetryInit}>
+            Tentar novamente
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <CardSection
+        key={cardKey}
+        plan={plan}
+        onSuccess={handleSuccess}
+        onRetryInit={handleRetryInit}
+      />
+    );
+  };
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
@@ -588,7 +653,7 @@ export default function CheckoutPage() {
               {activeTab === 'pix' ? (
                 <PixSection plan={plan} onSuccess={handleSuccess} />
               ) : (
-                <CardSection plan={plan} onSuccess={handleSuccess} />
+                renderCardContent()
               )}
             </CardContent>
           </Card>
