@@ -127,10 +127,10 @@ export function PhoneMockup({
               </div>
             </div>
 
-            {/* Avatar - large, overlapping cover */}
-            <div className="flex justify-center -mt-10 relative z-10">
+            {/* Avatar - large, overlapping cover with ring */}
+            <div className="flex justify-center -mt-12 relative z-10">
               <div
-                className="w-20 h-20 rounded-full border-[3px] overflow-hidden shadow-lg"
+                className="w-24 h-24 rounded-full border-4 overflow-hidden shadow-lg"
                 style={{ borderColor: appearance.bg_color, backgroundColor: appearance.card_bg_color }}
               >
                 {avatar_url ? (
@@ -347,23 +347,35 @@ function ProductMockupCard({
           {product.name}
         </p>
         <div className="mt-auto">
-          {hasDiscount && (
+          {hasDiscount ? (
+            <div className="space-y-0.5">
+              <span
+                className="line-through block"
+                style={{ color: appearance.muted_text_color, fontSize: `${parseFloat(fontScale) * 7}px` }}
+              >
+                De {formatCurrencyI18n(product.price, 'BRL', 'pt-BR')}
+              </span>
+              <span
+                className="font-bold block"
+                style={{
+                  color: appearance.accent_color,
+                  fontSize: `${parseFloat(fontScale) * 9.5}px`,
+                }}
+              >
+                por {formatCurrencyI18n(product.discount_price!, 'BRL', 'pt-BR')}
+              </span>
+            </div>
+          ) : (
             <span
-              className="line-through block"
-              style={{ color: appearance.muted_text_color, fontSize: `${parseFloat(fontScale) * 7.5}px` }}
+              className="font-bold"
+              style={{
+                color: appearance.accent_color,
+                fontSize: `${parseFloat(fontScale) * 9.5}px`,
+              }}
             >
               {formatCurrencyI18n(product.price, 'BRL', 'pt-BR')}
             </span>
           )}
-          <span
-            className="font-bold"
-            style={{
-              color: appearance.accent_color,
-              fontSize: `${parseFloat(fontScale) * 9.5}px`,
-            }}
-          >
-            {formatCurrencyI18n(hasDiscount ? product.discount_price! : product.price, 'BRL', 'pt-BR')}
-          </span>
         </div>
 
         {/* Add to Cart Button */}
