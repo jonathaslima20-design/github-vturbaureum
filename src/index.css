@@ -174,9 +174,15 @@ body {
     filter: brightness(0.9);
   }
 
-  /* Themed search input: match button radius */
+  /* Themed search input: match storefront appearance */
   .sf-themed input.rounded-xl.border {
     border-radius: var(--sf-radius-btn) !important;
+    background-color: var(--sf-card-bg) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+  }
+  .sf-themed input.rounded-xl.border::placeholder {
+    color: var(--sf-muted) !important;
   }
 
   /* Themed outline buttons: border follows --sf-border, icons follow --sf-icon */
