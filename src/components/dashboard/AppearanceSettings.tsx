@@ -18,8 +18,6 @@ import {
   FONT_OPTIONS,
   HEADING_FONT_OPTIONS,
   HOVER_EFFECT_OPTIONS,
-  GRADIENT_PRESETS,
-  GRADIENT_DIRECTION_OPTIONS,
   loadGoogleFont,
   type StorefrontAppearance,
 } from '@/lib/appearanceDefaults';
@@ -83,24 +81,6 @@ export function AppearanceSettings() {
     updateField(field, value);
   };
 
-  const applyGradientPreset = (preset: typeof GRADIENT_PRESETS[number]) => {
-    setLocalAppearance(prev => ({
-      ...prev,
-      bg_color: preset.colorStart,
-      bg_gradient_enabled: true,
-      bg_gradient_color_end: preset.colorEnd,
-      bg_gradient_direction: preset.direction,
-      ...deriveColorsFromBase(
-        preset.colorStart,
-        prev.text_color,
-        prev.button_bg_color,
-        prev.accent_color,
-        prev.border_color,
-      ),
-    }));
-    setHasChanges(true);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -129,77 +109,6 @@ export function AppearanceSettings() {
                 disabled={isFreePlan}
               />
 
-              {/* Gradient toggle */}
-              <div className="mt-3 ml-1">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={localAppearance.bg_gradient_enabled}
-                    onChange={(e) => {
-                      updateField('bg_gradient_enabled', e.target.checked);
-                      if (e.target.checked && !localAppearance.bg_gradient_color_end) {
-                        updateField('bg_gradient_color_end', '#e0e0e0');
-                      }
-                    }}
-                    disabled={isFreePlan}
-                    className="rounded border-border"
-                  />
-                  <span className="text-xs text-muted-foreground">Fundo com degrade</span>
-                </label>
-              </div>
-
-              {/* Gradient options */}
-              {localAppearance.bg_gradient_enabled && (
-                <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
-                  <ColorPicker
-                    label="Cor final do degrade"
-                    value={localAppearance.bg_gradient_color_end || '#e0e0e0'}
-                    onChange={(v) => updateField('bg_gradient_color_end', v)}
-                    disabled={isFreePlan}
-                  />
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-1.5 block">Direcao</Label>
-                    <Select
-                      value={localAppearance.bg_gradient_direction}
-                      onValueChange={(v) => updateField('bg_gradient_direction', v)}
-                      disabled={isFreePlan}
-                    >
-                      <SelectTrigger className="h-8">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {GRADIENT_DIRECTION_OPTIONS.map(o => (
-                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Presets */}
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-2 block">Presets</Label>
-                    <div className="flex gap-2 flex-wrap">
-                      {GRADIENT_PRESETS.map((preset) => (
-                        <button
-                          key={preset.name}
-                          onClick={() => applyGradientPreset(preset)}
-                          disabled={isFreePlan}
-                          className="flex flex-col items-center gap-1 group"
-                          title={preset.name}
-                        >
-                          <div
-                            className="w-10 h-10 rounded-lg border border-border shadow-sm transition-transform group-hover:scale-110"
-                            style={{
-                              background: `linear-gradient(${preset.direction}, ${preset.colorStart}, ${preset.colorEnd})`,
-                            }}
-                          />
-                          <span className="text-[10px] text-muted-foreground">{preset.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Core colors grid */}
