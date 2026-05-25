@@ -182,8 +182,11 @@ body {
     border-color: var(--sf-border) !important;
     color: var(--sf-icon) !important;
     background-color: transparent !important;
-    border-radius: var(--sf-radius-btn) !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  /* Apply themed radius only to non-icon outline buttons (e.g. Filtros) */
+  .sf-themed button.rounded-full.border:not([class*="w-14"]):not([class*="w-12"]):not([class*="w-9"]) {
+    border-radius: var(--sf-radius-btn) !important;
   }
   .sf-themed button.rounded-full.border:hover,
   .sf-themed a.rounded-full.border:hover {
