@@ -220,7 +220,7 @@ export function PhoneMockup({
                     style={{
                       backgroundColor: appearance.card_bg_color,
                       border: `1px solid ${appearance.border_color}`,
-                      borderRadius: `${Math.round(parseFloat(btnRadius) * 0.5)}px`,
+                      borderRadius: cardRadius,
                     }}
                   >
                     <Search size={10} style={{ color: appearance.muted_text_color }} />
@@ -232,7 +232,7 @@ export function PhoneMockup({
                     className="flex items-center gap-1 px-2 py-1.5 shrink-0"
                     style={{
                       border: `1px solid ${appearance.border_color}`,
-                      borderRadius: `${Math.round(parseFloat(btnRadius) * 0.5)}px`,
+                      borderRadius: cardRadius,
                       fontSize: `${parseFloat(fontScale) * 8}px`,
                       color: appearance.text_color,
                     }}
