@@ -158,12 +158,26 @@ body {
     border-color: var(--sf-border);
   }
 
+  /* Themed default (primary) buttons: bg, text, and radius from appearance settings */
+  .sf-themed button.rounded-full.bg-primary {
+    background-color: var(--sf-button-bg) !important;
+    color: var(--sf-button-text) !important;
+    border-radius: var(--sf-radius-btn) !important;
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+  .sf-themed button.rounded-full.bg-primary:hover {
+    background-color: var(--sf-button-bg) !important;
+    color: var(--sf-button-text) !important;
+    filter: brightness(0.9);
+  }
+
   /* Themed outline buttons: border follows --sf-border, icons follow --sf-icon */
   .sf-themed button.rounded-full.border,
   .sf-themed a.rounded-full.border {
     border-color: var(--sf-border) !important;
     color: var(--sf-icon) !important;
     background-color: transparent !important;
+    border-radius: var(--sf-radius-btn) !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .sf-themed button.rounded-full.border:hover,
