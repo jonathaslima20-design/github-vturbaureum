@@ -40,17 +40,21 @@ export function useMockupData(): MockupData {
     const fetchData = async () => {
       setLoading(true);
 
-      const categoriesResult = await supabase
-        .from('user_product_categories')
-        .select('name')
-        .eq('user_id', user.id)
-        .order('display_order', { ascending: true })
-        .limit(1);
-
       let firstCategory = 'Produtos';
-      if (categoriesResult.data && categoriesResult.data.length > 0) {
-        firstCategory = categoriesResult.data[0].name;
-        setCategoryName(firstCategory);
+      try {
+        const categoriesResult = await supabase
+          .from('user_product_categories')
+          .select('name')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true })
+          .limit(1);
+
+        if (categoriesResult.data && categoriesResult.data.length > 0) {
+          firstCategory = categoriesResult.data[0].name;
+          setCategoryName(firstCategory);
+        }
+      } catch {
+        // fallback to default category name
       }
 
       const productsQuery = supabase
