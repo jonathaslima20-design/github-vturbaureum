@@ -209,7 +209,7 @@ export default function ProductSearch({ onFiltersChange, products = [], filterMe
 
   const handleReset = () => {
     const resetFilters = {
-      ...initialFilters,
+      ...defaultFilters,
       minPrice: configuredMinPrice,
       maxPrice: configuredMaxPrice
     };
@@ -482,7 +482,7 @@ export default function ProductSearch({ onFiltersChange, products = [], filterMe
               )}
             </div>
 
-            <SheetFooter>
+            <SheetFooter className="mt-6 pt-6 border-t">
               <Button variant="outline" onClick={handleReset}>
                 {t('filters.clear_filters')}
               </Button>
