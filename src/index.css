@@ -224,10 +224,10 @@ body {
     color: var(--sf-button-text) !important;
   }
   .sf-themed .text-primary {
-    color: var(--sf-accent) !important;
+    color: var(--sf-text) !important;
   }
   .sf-themed .border-primary\/20 {
-    border-color: color-mix(in srgb, var(--sf-accent) 20%, transparent) !important;
+    border-color: color-mix(in srgb, var(--sf-text) 20%, transparent) !important;
   }
 
   /* ─── Dialog / Portal theming (rendered on body, inherits from html.sf-themed) */
@@ -281,7 +281,7 @@ body {
     background-color: color-mix(in srgb, var(--sf-card-bg) 80%, var(--sf-border) 20%) !important;
   }
   .sf-themed [role="dialog"] .text-primary {
-    color: var(--sf-accent) !important;
+    color: var(--sf-text) !important;
   }
   .sf-themed [role="dialog"] .bg-primary\/10 {
     background-color: color-mix(in srgb, var(--sf-button-bg) 10%, transparent) !important;
