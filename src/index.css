@@ -255,7 +255,8 @@ body {
     color: var(--sf-muted);
   }
   .sf-themed [role="dialog"] input,
-  .sf-themed [role="dialog"] select {
+  .sf-themed [role="dialog"] select,
+  .sf-themed [role="dialog"] button[role="combobox"] {
     background-color: var(--sf-bg) !important;
     border-color: var(--sf-border) !important;
     color: var(--sf-text) !important;
@@ -294,6 +295,23 @@ body {
   }
   .sf-themed [role="dialog"] .bg-primary\/10 {
     background-color: color-mix(in srgb, var(--sf-button-bg) 10%, transparent) !important;
+  }
+
+  /* ─── Select dropdown (portal) theming ────────────────────────────── */
+  .sf-themed [role="listbox"] {
+    background-color: var(--sf-card-bg) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+  }
+  .sf-themed [role="listbox"] [role="option"] {
+    color: var(--sf-text) !important;
+  }
+  .sf-themed [role="listbox"] [role="option"][data-highlighted] {
+    background-color: color-mix(in srgb, var(--sf-button-bg) 15%, transparent) !important;
+    color: var(--sf-text) !important;
+  }
+  .sf-themed [role="listbox"] [role="option"][data-state="checked"] {
+    color: var(--sf-accent) !important;
   }
 
   /* ─── ContactSidebar theming ───────────────────────────────────────── */
