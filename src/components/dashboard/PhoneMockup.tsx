@@ -117,12 +117,6 @@ export function PhoneMockup({
                     alt="Cover"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                  {cover_url_mobile && appearance.cover_overlay_color && (
-                    <div
-                      className="absolute inset-0"
-                      style={{ backgroundColor: appearance.cover_overlay_color, opacity: 0.3 }}
-                    />
-                  )}
                 </div>
               </div>
 
