@@ -22,6 +22,7 @@ import ProductVariantModal from '@/components/product/ProductVariantModal';
 import { getStockStatus } from '@/lib/stockUtils';
 import { getAvailableVariantStock } from '@/lib/stockReservationService';
 import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
+import { StorefrontThemeProvider } from '@/contexts/StorefrontThemeContext';
 import type { ProductVariantStock } from '@/types';
 
 export default function ProductDetailsPage() {
@@ -323,20 +324,23 @@ export default function ProductDetailsPage() {
     addToCart(product);
   };
 
+  const isPaidPlan = corretor?.plan_status !== 'free';
+
   return (
-    <div className="flex-1">
-      {/* Back button */}
-      <div className="container mx-auto px-4 py-4">
-        <Button
-          variant="ghost"
-          asChild
-          className="pl-0 hover:pl-1 transition-all"
-          onClick={() => console.log('🔙 Back button clicked - returning to storefront')}
-        >
-          <Link to={`/${slug}`} state={{ from: 'product-detail' }} className="flex items-center">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('header.back_to_storefront')}
-          </Link>
+    <StorefrontThemeProvider userId={corretor?.id} isPaidPlan={isPaidPlan}>
+      <div className="flex-1">
+        {/* Back button */}
+        <div className="container mx-auto px-4 py-4">
+          <Button
+            variant="ghost"
+            asChild
+            className="pl-0 hover:pl-1 transition-all"
+            onClick={() => console.log('Back button clicked - returning to storefront')}
+          >
+            <Link to={`/${slug}`} state={{ from: 'product-detail' }} className="flex items-center">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {t('header.back_to_storefront')}
+            </Link>
         </Button>
       </div>
 
@@ -713,18 +717,19 @@ export default function ProductDetailsPage() {
         </div>
       </section>
 
-      {/* Variant Selection Modal */}
-      <ProductVariantModal
-        open={showVariantModal}
-        onOpenChange={setShowVariantModal}
-        product={product}
-        currency={currency}
-        language={language}
-        variantStockData={variantStockData}
-        inventoryEnabled={inventoryEnabled}
-        blockZeroStock={blockZeroStock}
-        showStockOnStorefront={showStockOnStorefront}
-      />
-    </div>
+        {/* Variant Selection Modal */}
+        <ProductVariantModal
+          open={showVariantModal}
+          onOpenChange={setShowVariantModal}
+          product={product}
+          currency={currency}
+          language={language}
+          variantStockData={variantStockData}
+          inventoryEnabled={inventoryEnabled}
+          blockZeroStock={blockZeroStock}
+          showStockOnStorefront={showStockOnStorefront}
+        />
+      </div>
+    </StorefrontThemeProvider>
   );
 }

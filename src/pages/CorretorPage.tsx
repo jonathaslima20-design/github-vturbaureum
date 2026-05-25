@@ -23,8 +23,7 @@ import { logCategoryOperation } from '@/lib/categoryUtils';
 import { useTranslation, type SupportedLanguage, type SupportedCurrency } from '@/lib/i18n';
 import { updateMetaTags, getCorretorMetaTags } from '@/utils/metaTags';
 import { scrollCoordinator } from '@/lib/scrollCoordinator';
-import { useStorefrontAppearance } from '@/hooks/useStorefrontAppearance';
-import { getRadiusPx, getShadowCss, getSpacingValue, getFontSizeScale, loadGoogleFont } from '@/lib/appearanceDefaults';
+import { StorefrontThemeProvider } from '@/contexts/StorefrontThemeContext';
 
 const PromotionalBanner = lazy(() => import('@/components/corretor/PromotionalBanner'));
 
@@ -62,10 +61,7 @@ export default function CorretorPage() {
   // Load corretor data
   const { corretor, loading: corretorLoading, error: corretorError } = useCorretorData({ slug });
 
-  // Load storefront appearance customization
-  const { appearance, isCustomized } = useStorefrontAppearance(corretor?.id);
   const isPaidPlan = corretor?.plan_status !== 'free';
-  const applyCustomAppearance = isCustomized && isPaidPlan && appearance.is_active;
 
   const language: SupportedLanguage = corretor?.language || 'pt-BR';
   const currency: SupportedCurrency = corretor?.currency || 'BRL';
@@ -225,14 +221,6 @@ export default function CorretorPage() {
       updateMetaTags(metaConfig);
     }
   }, [corretor, language]);
-
-  // ─── Load custom fonts ────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (applyCustomAppearance) {
-      loadGoogleFont(appearance.font_family);
-      loadGoogleFont(appearance.heading_font_family);
-    }
-  }, [applyCustomAppearance, appearance.font_family, appearance.heading_font_family]);
 
   // ─── Cleanup ─────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -436,36 +424,9 @@ export default function CorretorPage() {
     currency
   });
 
-  const sfStyles = applyCustomAppearance ? {
-    '--sf-bg': appearance.bg_color,
-    '--sf-text': appearance.text_color,
-    '--sf-heading': appearance.heading_color,
-    '--sf-button-bg': appearance.button_bg_color,
-    '--sf-button-text': appearance.button_text_color,
-    '--sf-accent': appearance.accent_color,
-    '--sf-card-bg': appearance.card_bg_color,
-    '--sf-card-border': appearance.card_border_color,
-    '--sf-badge-bg': appearance.badge_bg_color,
-    '--sf-badge-text': appearance.badge_text_color,
-    '--sf-icon': appearance.icon_color,
-    '--sf-muted': appearance.muted_text_color,
-    '--sf-border': appearance.border_color,
-    '--sf-radius-card': getRadiusPx(appearance.card_border_radius),
-    '--sf-radius-btn': getRadiusPx(appearance.button_border_radius),
-    '--sf-radius-img': getRadiusPx(appearance.image_border_radius),
-    '--sf-shadow': getShadowCss(appearance.card_shadow),
-    '--sf-gap': getSpacingValue(appearance.card_gap, 'gap'),
-    '--sf-spacing': getSpacingValue(appearance.section_spacing, 'section'),
-    '--sf-font': `'${appearance.font_family}', sans-serif`,
-    '--sf-font-heading': `'${appearance.heading_font_family}', sans-serif`,
-    '--sf-font-scale': getFontSizeScale(appearance.font_size_base),
-    backgroundColor: appearance.bg_color,
-    color: appearance.text_color,
-    fontFamily: `'${appearance.font_family}', sans-serif`,
-  } as React.CSSProperties : undefined;
-
   return (
-    <div className={`flex-1 ${applyCustomAppearance ? 'sf-themed' : ''}`} style={sfStyles}>
+    <StorefrontThemeProvider userId={corretor.id} isPaidPlan={isPaidPlan}>
+      <div className="flex-1">
       <CorretorHeader
         corretor={corretor}
         language={language}
@@ -628,6 +589,7 @@ export default function CorretorPage() {
           )}
         </div>
       </section>
-    </div>
+      </div>
+    </StorefrontThemeProvider>
   );
 }
