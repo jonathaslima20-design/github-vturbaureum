@@ -80,12 +80,11 @@ export default function DashboardSidebar() {
     setMobileOpen(!mobileOpen);
   };
   
-  // Classes for navigation links
   const navItemClasses = ({ isActive }: { isActive: boolean }) => {
     return cn(
-      "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors",
+      "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200",
       {
-        "bg-primary/10 text-primary": isActive,
+        "bg-foreground text-background font-medium shadow-sm": isActive,
         "hover:bg-muted text-muted-foreground hover:text-foreground": !isActive,
       }
     );
@@ -169,8 +168,8 @@ export default function DashboardSidebar() {
               <button
                 onClick={() => setCatalogExpanded(!catalogExpanded)}
                 className={cn(
-                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
-                  isCatalogSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200 w-full text-left",
+                  isCatalogSection ? "bg-foreground text-background font-medium shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <BookOpen className="h-5 w-5" />
@@ -198,8 +197,8 @@ export default function DashboardSidebar() {
               <button
                 onClick={() => setStockExpanded(!stockExpanded)}
                 className={cn(
-                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
-                  isStockSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200 w-full text-left",
+                  isStockSection ? "bg-foreground text-background font-medium shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Warehouse className="h-5 w-5" />
@@ -227,8 +226,8 @@ export default function DashboardSidebar() {
               <button
                 onClick={() => setSalesExpanded(!salesExpanded)}
                 className={cn(
-                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
-                  isSalesSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200 w-full text-left",
+                  isSalesSection ? "bg-foreground text-background font-medium shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <ShoppingBag className="h-5 w-5" />
@@ -288,10 +287,10 @@ export default function DashboardSidebar() {
             <NavLink
               to="/dashboard/referral"
               className={cn(
-                "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors",
+                "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200",
                 isReferralActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-primary/80 hover:bg-primary/5 hover:text-primary"
+                  ? "bg-foreground text-background font-medium shadow-sm"
+                  : "text-foreground/80 hover:bg-muted hover:text-foreground"
               )}
             >
               <Gift className="h-5 w-5" />
@@ -385,8 +384,8 @@ export default function DashboardSidebar() {
               <button
                 onClick={() => setCatalogExpanded(!catalogExpanded)}
                 className={cn(
-                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
-                  isCatalogSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200 w-full text-left",
+                  isCatalogSection ? "bg-foreground text-background font-medium shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <BookOpen className="h-5 w-5" />
@@ -418,8 +417,8 @@ export default function DashboardSidebar() {
               <button
                 onClick={() => setStockExpanded(!stockExpanded)}
                 className={cn(
-                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
-                  isStockSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200 w-full text-left",
+                  isStockSection ? "bg-foreground text-background font-medium shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Warehouse className="h-5 w-5" />
@@ -451,8 +450,8 @@ export default function DashboardSidebar() {
               <button
                 onClick={() => setSalesExpanded(!salesExpanded)}
                 className={cn(
-                  "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors w-full text-left",
-                  isSalesSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200 w-full text-left",
+                  isSalesSection ? "bg-foreground text-background font-medium shadow-sm" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <ShoppingBag className="h-5 w-5" />
@@ -516,10 +515,10 @@ export default function DashboardSidebar() {
             <NavLink
               to="/dashboard/referral"
               className={cn(
-                "flex items-center space-x-3 py-2 px-3 rounded-md transition-colors",
+                "flex items-center space-x-3 py-2.5 px-3 rounded-xl transition-all duration-200",
                 isReferralActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-primary/80 hover:bg-primary/5 hover:text-primary"
+                  ? "bg-foreground text-background font-medium shadow-sm"
+                  : "text-foreground/80 hover:bg-muted hover:text-foreground"
               )}
             >
               <Gift className="h-5 w-5" />

@@ -293,7 +293,7 @@ export default function CreateProductPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Criar Produto</h1>
+          <h1 className="text-2xl md:text-3xl page-title">Criar Produto</h1>
           <p className="text-muted-foreground">Adicione um novo produto à sua vitrine</p>
         </div>
       </div>

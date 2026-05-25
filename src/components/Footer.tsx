@@ -31,7 +31,7 @@ export default function Footer() {
   }, [slug]);
   
   return (
-    <footer className="mt-auto py-4 bg-muted/30">
+    <footer className="mt-auto py-6 border-t border-border/50">
       <div className="container mx-auto px-4 flex flex-col items-center space-y-0.5">
         <Link to="/" className="mb-0.5" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
           <Logo size="md" showText={false} />

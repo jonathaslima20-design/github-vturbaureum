@@ -138,8 +138,9 @@ export default function LoginPage() {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      {/* Theme Toggle */}
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
+      <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />
+
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
@@ -147,24 +148,23 @@ export default function LoginPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md relative z-10"
       >
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-10">
           <div className="scale-130">
             <Logo size="lg" showText={false} />
           </div>
         </div>
 
-        <Card className="shadow-lg border">
-          <CardHeader className="space-y-1 px-6 pt-6">
-            <CardTitle className="text-2xl font-bold text-center">Entrar</CardTitle>
-            <CardDescription className="text-center">
+        <Card className="shadow-xl border-border/50 backdrop-blur-sm">
+          <CardHeader className="space-y-2 px-7 pt-7">
+            <CardTitle className="text-2xl text-center page-title">Entrar</CardTitle>
+            <CardDescription className="text-center text-[14px]">
               Entre com seu email e senha para acessar sua conta
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-6">
+          <CardContent className="px-7">
             {loginError && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
@@ -269,7 +269,7 @@ export default function LoginPage() {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="px-6 pb-6 flex flex-col space-y-4">
+          <CardFooter className="px-7 pb-7 flex flex-col space-y-4">
             <div className="text-sm text-center text-muted-foreground">
               Não tem uma conta?{' '}
             </div>

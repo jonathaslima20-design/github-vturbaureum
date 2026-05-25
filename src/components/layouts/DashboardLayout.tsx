@@ -14,7 +14,7 @@ export default function DashboardLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-muted/30">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col">
         <DashboardHeader />

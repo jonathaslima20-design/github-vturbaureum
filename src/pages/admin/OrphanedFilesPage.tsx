@@ -169,7 +169,7 @@ export function OrphanedFilesPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl page-title text-gray-900">
             Gerenciador de Arquivos Órfãos
           </h1>
           <p className="text-gray-600 mt-2">

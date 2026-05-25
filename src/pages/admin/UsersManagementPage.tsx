@@ -356,7 +356,7 @@ export default function UsersManagementPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gerenciamento de Usuários</h1>
+          <h1 className="text-2xl md:text-3xl page-title">Gerenciamento de Usuários</h1>
           <p className="text-muted-foreground">Visualize e gerencie todos os usuários do sistema</p>
         </div>
         <Button onClick={() => navigate('/admin/users/new')}>

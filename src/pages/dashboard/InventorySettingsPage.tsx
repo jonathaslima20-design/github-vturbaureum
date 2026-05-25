@@ -13,7 +13,7 @@ export default function InventorySettingsPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Configuracoes de Estoque</h1>
+          <h1 className="text-xl md:text-2xl page-title">Configuracoes de Estoque</h1>
           <p className="text-sm text-muted-foreground">Gerencie como o controle de estoque funciona na sua loja</p>
         </div>
       </div>

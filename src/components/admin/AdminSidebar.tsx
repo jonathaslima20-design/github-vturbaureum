@@ -37,12 +37,11 @@ export default function AdminSidebar({ mobileOpen = false, onMobileToggle }: Adm
     onMobileToggle?.();
   };
   
-  // Classes for navigation links
   const navItemClasses = ({ isActive }: { isActive: boolean }) => {
     return cn(
-      "flex items-center space-x-2 md:space-x-3 py-2 px-2.5 md:px-3 rounded-md transition-colors min-h-[40px] md:min-h-[44px]",
+      "flex items-center space-x-2 md:space-x-3 py-2.5 px-2.5 md:px-3 rounded-xl transition-all duration-200 min-h-[40px] md:min-h-[44px]",
       {
-        "bg-primary/10 text-primary font-medium": isActive,
+        "bg-foreground text-background font-medium shadow-sm": isActive,
         "hover:bg-muted text-muted-foreground hover:text-foreground": !isActive,
       }
     );

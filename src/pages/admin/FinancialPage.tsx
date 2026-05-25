@@ -5,7 +5,7 @@ export default function FinancialPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Financeiro</h1>
+        <h1 className="text-2xl md:text-3xl page-title">Financeiro</h1>
         <p className="text-muted-foreground">Gestão financeira e relatórios</p>
       </div>
 

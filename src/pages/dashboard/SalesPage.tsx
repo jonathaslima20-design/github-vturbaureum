@@ -10,7 +10,7 @@ export default function SalesPage() {
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-4xl">
       <div className="flex items-center gap-2 mb-6">
-        <h1 className="text-xl md:text-2xl font-bold">Vendas Online</h1>
+        <h1 className="text-xl md:text-2xl page-title">Vendas Online</h1>
         <Badge variant="outline" className="text-xs">Em breve</Badge>
       </div>
 

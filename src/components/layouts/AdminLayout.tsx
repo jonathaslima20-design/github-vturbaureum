@@ -20,7 +20,7 @@ export default function AdminLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-muted/30">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
       <AdminSidebar
         mobileOpen={mobileMenuOpen}
         onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}

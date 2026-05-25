@@ -194,7 +194,7 @@ export default function UserDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Detalhes do Usuário</h1>
+            <h1 className="text-2xl md:text-3xl page-title">Detalhes do Usuário</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Informações completas e gerenciamento
             </p>
@@ -244,7 +244,7 @@ export default function UserDetailPage() {
                 )}
 
                 <div>
-                  <h2 className="text-2xl font-bold">{user.name}</h2>
+                  <h2 className="text-xl md:text-2xl page-title">{user.name}</h2>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
 

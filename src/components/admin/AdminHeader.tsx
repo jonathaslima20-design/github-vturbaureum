@@ -14,7 +14,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const { user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 px-3 md:py-3 md:px-4 lg:px-8 flex items-center justify-between">
+    <header className="sticky top-0 z-30 glass-header py-2 px-3 md:py-3 md:px-4 lg:px-8 flex items-center justify-between">
       <div className="flex items-center gap-2 md:gap-3 min-w-0">
         <Button
           variant="ghost"
@@ -24,7 +24,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         >
           <Menu className="h-4 w-4" />
         </Button>
-        <h1 className="font-semibold text-sm md:text-lg truncate">Painel Admin</h1>
+        <h1 className="page-title text-sm md:text-lg truncate">Painel Admin</h1>
       </div>
 
       <div className="flex items-center gap-1 md:gap-3 shrink-0">

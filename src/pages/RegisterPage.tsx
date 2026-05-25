@@ -134,7 +134,9 @@ export default function RegisterPage() {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
+      <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />
+
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
@@ -142,19 +144,19 @@ export default function RegisterPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md relative z-10"
       >
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-10">
           <div className="scale-130">
             <Logo size="lg" showText={false} />
           </div>
         </div>
 
-        <Card className="shadow-lg border">
-          <CardHeader className="space-y-1 px-6 pt-6">
-            <CardTitle className="text-2xl font-bold text-center">Criar Conta</CardTitle>
-            <CardDescription className="text-center">
+        <Card className="shadow-xl border-border/50 backdrop-blur-sm">
+          <CardHeader className="space-y-2 px-7 pt-7">
+            <CardTitle className="text-2xl text-center page-title">Criar Conta</CardTitle>
+            <CardDescription className="text-center text-[14px]">
               {referralCode 
                 ? 'Você foi indicado! Cadastre-se e ganhe acesso à plataforma' 
                 : 'Cadastre-se para criar sua vitrine digital de produtos'
@@ -171,7 +173,7 @@ export default function RegisterPage() {
               </div>
             )}
           </CardHeader>
-          <CardContent className="px-6">
+          <CardContent className="px-7">
             {registerError && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
@@ -313,7 +315,7 @@ export default function RegisterPage() {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col px-6 pb-6">
+          <CardFooter className="flex flex-col px-7 pb-7">
             <div className="text-sm text-center text-muted-foreground mt-2">
               Já tem uma conta?{' '}
               <Link to="/login" className="text-primary hover:underline">

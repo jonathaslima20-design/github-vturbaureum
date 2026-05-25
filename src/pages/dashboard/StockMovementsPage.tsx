@@ -76,7 +76,7 @@ export default function StockMovementsPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Movimentações de Estoque</h1>
+          <h1 className="text-xl md:text-2xl page-title">Movimentações de Estoque</h1>
           <p className="text-sm text-muted-foreground">Histórico completo de entradas, saídas e ajustes</p>
         </div>
       </div>

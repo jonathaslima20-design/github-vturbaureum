@@ -46,8 +46,8 @@ export default function DashboardPage() {
     <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Bem-vindo de volta, {user?.name || 'Usuário'}!</p>
+          <h1 className="text-2xl md:text-3xl page-title">Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">Bem-vindo de volta, {user?.name || 'Usuário'}!</p>
         </div>
         <Button
           variant="default"
