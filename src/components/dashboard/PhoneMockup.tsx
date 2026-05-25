@@ -113,19 +113,21 @@ export function PhoneMockup({
                   }}
                 >
                   {cover_url_mobile ? (
-                    <img
-                      src={cover_url_mobile}
-                      alt="Cover"
-                      className="w-full h-full object-cover"
-                    />
+                    <>
+                      <img
+                        src={cover_url_mobile}
+                        alt="Cover"
+                        className="w-full h-full object-cover"
+                      />
+                      {appearance.cover_overlay_color && (
+                        <div
+                          className="absolute inset-0"
+                          style={{ backgroundColor: appearance.cover_overlay_color, opacity: 0.4 }}
+                        />
+                      )}
+                    </>
                   ) : (
-                    <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${appearance.accent_color}, ${appearance.button_bg_color})` }} />
-                  )}
-                  {appearance.cover_overlay_color && (
-                    <div
-                      className="absolute inset-0"
-                      style={{ backgroundColor: appearance.cover_overlay_color, opacity: 0.4 }}
-                    />
+                    <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${appearance.accent_color}40, ${appearance.button_bg_color}30)` }} />
                   )}
                 </div>
               </div>

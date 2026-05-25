@@ -54,7 +54,7 @@ export default function CorretorHeader({ corretor, language = 'pt-BR', currency 
   return (
     <div className="px-4 pt-4 pb-0">
       <div className="container mx-auto">
-        <div className={`w-full overflow-hidden rounded-[52px] bg-muted ${aspectRatioClass} will-change-auto`}>
+        <div className={`w-full overflow-hidden rounded-[52px] ${aspectRatioClass} will-change-auto`}>
           <img
             key={`cover-${aspectRatio}`}
             src={aspectRatio === 960 / 860 ? (corretor.cover_url_mobile || "https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg") : (corretor.cover_url_desktop || "https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg")}
