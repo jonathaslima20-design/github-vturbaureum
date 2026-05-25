@@ -108,7 +108,7 @@ export function PhoneMockup({
                 <div
                   className="relative w-full overflow-hidden"
                   style={{
-                    aspectRatio: '960 / 540',
+                    aspectRatio: '960 / 860',
                     borderRadius: coverRadius === '0px' ? '24px' : coverRadius,
                   }}
                 >
