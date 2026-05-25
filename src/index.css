@@ -129,6 +129,35 @@ body {
 }
 
 @layer components {
+  /* Storefront themed overrides */
+  .sf-themed .rounded-xl.border.bg-card {
+    background-color: var(--sf-card-bg);
+    border-color: var(--sf-card-border);
+    border-radius: var(--sf-radius-card);
+    box-shadow: var(--sf-shadow);
+  }
+  .sf-themed .rounded-xl.border.bg-card h3 {
+    color: var(--sf-text);
+    font-family: var(--sf-font);
+  }
+  .sf-themed .rounded-xl.border.bg-card .font-bold {
+    color: var(--sf-heading);
+  }
+  .sf-themed h2.text-xl,
+  .sf-themed h2.text-2xl {
+    color: var(--sf-heading);
+    font-family: var(--sf-font-heading);
+  }
+  .sf-themed .space-y-12 {
+    gap: var(--sf-spacing);
+  }
+  .sf-themed .grid.grid-cols-2 {
+    gap: var(--sf-gap);
+  }
+  .sf-themed .border-t.border-border\/50 {
+    border-color: var(--sf-border);
+  }
+
   .glass-header {
     background: rgba(255, 255, 255, 0.78);
     -webkit-backdrop-filter: saturate(180%) blur(16px);
