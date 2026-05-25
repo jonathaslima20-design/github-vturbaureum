@@ -293,7 +293,7 @@ function ProductCardComponent({
 
               {/* Promotional Message - Below Price */}
               {product.short_description && (
-                <p className="text-xs text-muted-foreground mt-1.5 md:mt-2 line-clamp-2 md:line-clamp-3">
+                <p className="text-xs text-muted-foreground/60 mt-1.5 md:mt-2 line-clamp-2 md:line-clamp-3">
                   {product.short_description}
                 </p>
               )}
