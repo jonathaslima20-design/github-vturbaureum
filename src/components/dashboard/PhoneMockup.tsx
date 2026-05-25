@@ -112,22 +112,16 @@ export function PhoneMockup({
                     borderRadius: coverRadius === '0px' ? '24px' : coverRadius,
                   }}
                 >
-                  {cover_url_mobile ? (
-                    <>
-                      <img
-                        src={cover_url_mobile}
-                        alt="Cover"
-                        className="w-full h-full object-cover"
-                      />
-                      {appearance.cover_overlay_color && (
-                        <div
-                          className="absolute inset-0"
-                          style={{ backgroundColor: appearance.cover_overlay_color, opacity: 0.4 }}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${appearance.accent_color}40, ${appearance.button_bg_color}30)` }} />
+                  <img
+                    src={cover_url_mobile || 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=600'}
+                    alt="Cover"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {cover_url_mobile && appearance.cover_overlay_color && (
+                    <div
+                      className="absolute inset-0"
+                      style={{ backgroundColor: appearance.cover_overlay_color, opacity: 0.3 }}
+                    />
                   )}
                 </div>
               </div>
