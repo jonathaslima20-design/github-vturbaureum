@@ -536,7 +536,7 @@ export default function ProductDetailsPage() {
                   {/* Available Sizes */}
                   {hasSizes && (
                     <div className="space-y-3">
-                      <h3 className="text-lg font-semibold">Tamanhos Disponíveis</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Tamanhos Disponíveis</h3>
 
                       {(() => {
                         // Separate apparel sizes from shoe sizes
@@ -573,7 +573,7 @@ export default function ProductDetailsPage() {
                                   {sortedApparelSizes.map((size: string) => (
                                     <div
                                       key={size}
-                                      className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/20 bg-background shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/40"
+                                      className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-border bg-card shadow-sm hover:shadow-md transition-all duration-200 hover:border-border/80"
                                     >
                                       <span className="text-sm font-semibold text-foreground">
                                         {size}
@@ -589,7 +589,7 @@ export default function ProductDetailsPage() {
                                   {sortedShoeSizes.map((size: string) => (
                                     <div
                                       key={size}
-                                      className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/20 bg-background shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/40"
+                                      className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-border bg-card shadow-sm hover:shadow-md transition-all duration-200 hover:border-border/80"
                                     >
                                       <span className="text-sm font-semibold text-foreground">
                                         {size}
