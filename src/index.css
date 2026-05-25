@@ -157,6 +157,9 @@ body {
   .sf-themed .border-t.border-border\/50 {
     border-color: var(--sf-border);
   }
+  .sf-themed .text-muted-foreground {
+    color: var(--sf-muted) !important;
+  }
 
   /* Themed default (primary) buttons: bg, text, and radius from appearance settings */
   .sf-themed button.rounded-full.bg-primary {
