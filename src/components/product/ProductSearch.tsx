@@ -482,7 +482,7 @@ export default function ProductSearch({ onFiltersChange, products = [], filterMe
               )}
             </div>
 
-            <SheetFooter className="mt-6 pt-6 border-t">
+            <SheetFooter className="mt-6 pt-6 border-t gap-3">
               <Button variant="outline" onClick={handleReset}>
                 {t('filters.clear_filters')}
               </Button>
