@@ -377,7 +377,7 @@ function ProductMockupCard({
               <span
                 className="font-bold block"
                 style={{
-                  color: appearance.accent_color,
+                  color: appearance.text_color,
                   fontSize: `${parseFloat(fontScale) * 10}px`,
                 }}
               >
@@ -388,7 +388,7 @@ function ProductMockupCard({
             <span
               className="font-bold"
               style={{
-                color: appearance.accent_color,
+                color: appearance.text_color,
                 fontSize: `${parseFloat(fontScale) * 10}px`,
               }}
             >
