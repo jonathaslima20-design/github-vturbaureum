@@ -499,15 +499,15 @@ function ColorPicker({
         />
       </div>
       {isOpen && (
-        <div className="absolute z-50 mt-2 p-3 rounded-lg border bg-popover shadow-lg">
-          <HexColorPicker color={value} onChange={onChange} />
-          <button
+        <>
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
-            className="mt-2 w-full text-xs text-center text-muted-foreground hover:text-foreground"
-          >
-            Fechar
-          </button>
-        </div>
+          />
+          <div className="absolute z-50 mt-2 p-3 rounded-lg border bg-popover shadow-lg">
+            <HexColorPicker color={value} onChange={onChange} />
+          </div>
+        </>
       )}
     </div>
   );
