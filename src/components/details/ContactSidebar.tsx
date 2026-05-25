@@ -152,7 +152,7 @@ export default function ContactSidebar({
         <h3 className="text-lg font-semibold mb-4">{t('contact.talk_now')}</h3>
 
         <div className="flex items-center mb-6">
-          <Avatar className="h-16 w-16 mr-4 border-4 border-background shadow-lg bg-muted">
+          <Avatar className="h-16 w-16 mr-4 ring-4 ring-primary/20 shadow-md bg-muted">
             <AvatarImage src={corretor.avatar_url} alt={corretor.name} />
             <AvatarFallback>{getInitials(corretor.name)}</AvatarFallback>
           </Avatar>
