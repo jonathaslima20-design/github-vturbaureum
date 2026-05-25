@@ -171,12 +171,18 @@ body {
     filter: brightness(0.9);
   }
 
+  /* Themed search input: match button radius */
+  .sf-themed input.rounded-xl.border {
+    border-radius: var(--sf-radius-btn) !important;
+  }
+
   /* Themed outline buttons: border follows --sf-border, icons follow --sf-icon */
   .sf-themed button.rounded-full.border,
   .sf-themed a.rounded-full.border {
     border-color: var(--sf-border) !important;
     color: var(--sf-icon) !important;
     background-color: transparent !important;
+    border-radius: var(--sf-radius-btn) !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .sf-themed button.rounded-full.border:hover,
