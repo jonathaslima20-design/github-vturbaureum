@@ -510,7 +510,7 @@ export default function ProductDetailsPage() {
                   {/* Available Colors */}
                   {hasColors && (
                     <div className="space-y-3">
-                      <h3 className="text-lg font-semibold">Cores Disponíveis</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Cores Disponíveis</h3>
                       <div className="flex flex-wrap gap-3">
                         {product.colors.map((color: string) => {
                           const colorValue = getColorValue(color);
@@ -519,13 +519,13 @@ export default function ProductDetailsPage() {
                           return (
                             <div
                               key={color}
-                              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 bg-background"
+                              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card"
                             >
                               <div
-                                className={`w-4 h-4 rounded-full border ${isLightColor ? 'border-gray-400' : 'border-gray-300'} shadow-sm`}
+                                className={`w-4 h-4 rounded-full border ${isLightColor ? 'border-border' : 'border-border/60'} shadow-sm`}
                                 style={{ backgroundColor: colorValue }}
                               />
-                              <span className="text-sm capitalize">{color}</span>
+                              <span className="text-sm capitalize text-foreground">{color}</span>
                             </div>
                           );
                         })}

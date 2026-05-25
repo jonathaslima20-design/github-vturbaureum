@@ -160,6 +160,12 @@ body {
   .sf-themed .text-muted-foreground {
     color: var(--sf-muted) !important;
   }
+  .sf-themed .text-foreground {
+    color: var(--sf-text) !important;
+  }
+  .sf-themed .border-border {
+    border-color: var(--sf-border) !important;
+  }
 
   /* Themed default (primary) buttons: bg, text, and radius from appearance settings */
   .sf-themed button.rounded-full.bg-primary {
