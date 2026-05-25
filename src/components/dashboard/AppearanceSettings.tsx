@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Save, RotateCcw, ChevronDown, Lock, Palette, Type, Square, Sparkles, AlignJustify } from 'lucide-react';
+import { Save, RotateCcw, ChevronDown, Lock, Palette, Type, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,10 +17,7 @@ import {
   DEFAULT_APPEARANCE,
   FONT_OPTIONS,
   HEADING_FONT_OPTIONS,
-  BORDER_RADIUS_OPTIONS,
-  SHADOW_OPTIONS,
   HOVER_EFFECT_OPTIONS,
-  SPACING_OPTIONS,
   GRADIENT_PRESETS,
   GRADIENT_DIRECTION_OPTIONS,
   loadGoogleFont,
@@ -283,56 +280,6 @@ export function AppearanceSettings() {
           </div>
         </CollapsibleSection>
 
-        {/* Borders & Shadows Section */}
-        <CollapsibleSection
-          icon={<Square size={16} />}
-          title="Bordas e Sombras"
-        >
-          <div className="space-y-4">
-            <SelectField
-              label="Arredondamento dos cards"
-              value={localAppearance.card_border_radius}
-              options={BORDER_RADIUS_OPTIONS}
-              onChange={(v) => updateField('card_border_radius', v as StorefrontAppearance['card_border_radius'])}
-              disabled={isFreePlan}
-            />
-            <SelectField
-              label="Arredondamento dos botoes"
-              value={localAppearance.button_border_radius}
-              options={BORDER_RADIUS_OPTIONS}
-              onChange={(v) => updateField('button_border_radius', v as StorefrontAppearance['button_border_radius'])}
-              disabled={isFreePlan}
-            />
-            <SelectField
-              label="Arredondamento das imagens"
-              value={localAppearance.image_border_radius}
-              options={BORDER_RADIUS_OPTIONS}
-              onChange={(v) => updateField('image_border_radius', v as StorefrontAppearance['image_border_radius'])}
-              disabled={isFreePlan}
-            />
-            <SelectField
-              label="Arredondamento da capa"
-              value={localAppearance.cover_border_radius}
-              options={[
-                { value: 'none', label: 'Quadrado' },
-                { value: 'sm', label: 'Leve' },
-                { value: 'md', label: 'Medio' },
-                { value: 'lg', label: 'Grande' },
-                { value: 'xl', label: 'Extra grande' },
-              ]}
-              onChange={(v) => updateField('cover_border_radius', v as StorefrontAppearance['cover_border_radius'])}
-              disabled={isFreePlan}
-            />
-            <SelectField
-              label="Sombra dos cards"
-              value={localAppearance.card_shadow}
-              options={SHADOW_OPTIONS}
-              onChange={(v) => updateField('card_shadow', v as StorefrontAppearance['card_shadow'])}
-              disabled={isFreePlan}
-            />
-          </div>
-        </CollapsibleSection>
-
         {/* Effects Section */}
         <CollapsibleSection
           icon={<Sparkles size={16} />}
@@ -347,28 +294,6 @@ export function AppearanceSettings() {
           />
         </CollapsibleSection>
 
-        {/* Spacing Section */}
-        <CollapsibleSection
-          icon={<AlignJustify size={16} />}
-          title="Espacamento"
-        >
-          <div className="space-y-4">
-            <SelectField
-              label="Espacamento entre secoes"
-              value={localAppearance.section_spacing}
-              options={SPACING_OPTIONS}
-              onChange={(v) => updateField('section_spacing', v as StorefrontAppearance['section_spacing'])}
-              disabled={isFreePlan}
-            />
-            <SelectField
-              label="Gap entre cards"
-              value={localAppearance.card_gap}
-              options={SPACING_OPTIONS}
-              onChange={(v) => updateField('card_gap', v as StorefrontAppearance['card_gap'])}
-              disabled={isFreePlan}
-            />
-          </div>
-        </CollapsibleSection>
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-card pb-2">
