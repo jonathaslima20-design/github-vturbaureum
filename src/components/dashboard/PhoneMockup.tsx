@@ -18,6 +18,13 @@ interface MockupProduct {
   featured_image_url: string | null;
 }
 
+const PLACEHOLDER_PRODUCTS: MockupProduct[] = [
+  { id: 'ph1', name: 'Produto exemplo 1', price: 99.90, discount_price: null, featured_image_url: null },
+  { id: 'ph2', name: 'Produto exemplo 2', price: 149.90, discount_price: 119.90, featured_image_url: null },
+  { id: 'ph3', name: 'Produto exemplo 3', price: 79.90, discount_price: null, featured_image_url: null },
+  { id: 'ph4', name: 'Produto exemplo 4', price: 199.90, discount_price: 159.90, featured_image_url: null },
+];
+
 interface PhoneMockupProps {
   appearance: StorefrontAppearance;
   name: string;
@@ -249,7 +256,7 @@ export function PhoneMockup({
               className="px-3 grid grid-cols-2"
               style={{ gap: cardGap, marginBottom: sectionGap }}
             >
-              {products.slice(0, 4).map((product) => (
+              {(products.length > 0 ? products.slice(0, 4) : PLACEHOLDER_PRODUCTS).map((product) => (
                 <ProductMockupCard
                   key={product.id}
                   product={product}

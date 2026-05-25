@@ -40,28 +40,41 @@ export function useMockupData(): MockupData {
     const fetchData = async () => {
       setLoading(true);
 
-      const [productsResult, categoriesResult] = await Promise.all([
-        supabase
-          .from('products')
-          .select('id, name, price, discount_price, featured_image_url')
-          .eq('user_id', user.id)
-          .eq('is_visible', true)
-          .order('display_order', { ascending: true })
-          .limit(6),
-        supabase
-          .from('user_product_categories')
-          .select('name')
-          .eq('user_id', user.id)
-          .order('display_order', { ascending: true })
-          .limit(1),
-      ]);
+      const categoriesResult = await supabase
+        .from('user_product_categories')
+        .select('name')
+        .eq('user_id', user.id)
+        .order('display_order', { ascending: true })
+        .limit(1);
 
-      if (productsResult.data) {
-        setProducts(productsResult.data);
+      let firstCategory = 'Produtos';
+      if (categoriesResult.data && categoriesResult.data.length > 0) {
+        firstCategory = categoriesResult.data[0].name;
+        setCategoryName(firstCategory);
       }
 
-      if (categoriesResult.data && categoriesResult.data.length > 0) {
-        setCategoryName(categoriesResult.data[0].name);
+      const productsQuery = supabase
+        .from('products')
+        .select('id, title, price, discounted_price, featured_image_url, category')
+        .eq('user_id', user.id)
+        .eq('status', 'disponivel')
+        .order('display_order', { ascending: true })
+        .limit(4);
+
+      if (firstCategory !== 'Produtos') {
+        productsQuery.contains('category', [firstCategory]);
+      }
+
+      const productsResult = await productsQuery;
+
+      if (productsResult.data) {
+        setProducts(productsResult.data.map(p => ({
+          id: p.id,
+          name: p.title,
+          price: Number(p.price),
+          discount_price: p.discounted_price ? Number(p.discounted_price) : null,
+          featured_image_url: p.featured_image_url,
+        })));
       }
 
       setLoading(false);
