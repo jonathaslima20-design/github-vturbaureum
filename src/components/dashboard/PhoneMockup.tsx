@@ -135,7 +135,7 @@ export function PhoneMockup({
                 <div
                   className="w-[110px] h-[110px] rounded-full overflow-hidden shadow-lg"
                   style={{
-                    border: `4px solid ${appearance.bg_color}`,
+                    border: `4px solid ${appearance.border_color}`,
                     backgroundColor: appearance.card_bg_color,
                   }}
                 >
