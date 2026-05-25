@@ -206,6 +206,7 @@ export function AppearanceSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <ColorPicker label="Cor do texto" value={localAppearance.text_color} onChange={(v) => updateField('text_color', v)} disabled={isFreePlan} />
               <ColorPicker label="Cor dos botoes" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={isFreePlan} />
+              <ColorPicker label="Texto dos botoes" value={localAppearance.button_text_color} onChange={(v) => updateField('button_text_color', v)} disabled={isFreePlan} />
               <ColorPicker label="Cor dos icones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={isFreePlan} />
               <ColorPicker label="Cor de destaque" value={localAppearance.accent_color} onChange={(v) => updateField('accent_color', v)} disabled={isFreePlan} />
               <ColorPicker label="Cor das bordas" value={localAppearance.border_color} onChange={(v) => updateField('border_color', v)} disabled={isFreePlan} />

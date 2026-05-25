@@ -108,7 +108,6 @@ export interface DerivedColors {
   card_border_color: string;
   badge_bg_color: string;
   badge_text_color: string;
-  button_text_color: string;
   cover_overlay_color: string;
 }
 
@@ -131,7 +130,6 @@ export function deriveColorsFromBase(
   const card_border_color = borderColor;
   const badge_bg_color = accentColor;
   const badge_text_color = getContrastTextColor(accentColor);
-  const button_text_color = getContrastTextColor(buttonBgColor);
   const cover_overlay_color = bgIsLight
     ? darkenColor(bgColor, 0.4)
     : darkenColor(bgColor, 0.2);
@@ -144,7 +142,6 @@ export function deriveColorsFromBase(
     card_border_color,
     badge_bg_color,
     badge_text_color,
-    button_text_color,
     cover_overlay_color,
   };
 }
