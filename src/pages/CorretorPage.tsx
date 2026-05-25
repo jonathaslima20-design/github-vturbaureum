@@ -578,13 +578,7 @@ export default function CorretorPage() {
                 </div>
               )}
 
-              {!isSearchActive && totalCategories > 0 && (
-                <div className="mt-8 p-4 bg-muted/50 rounded-lg text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Mostrando {currentCategoryIndex + 1} de {totalCategories} categorias
-                  </p>
-                </div>
-              )}
+
             </>
           )}
         </div>
