@@ -177,7 +177,6 @@ body {
     border-color: var(--sf-border) !important;
     color: var(--sf-icon) !important;
     background-color: transparent !important;
-    border-radius: var(--sf-radius-btn) !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .sf-themed button.rounded-full.border:hover,
@@ -190,6 +189,11 @@ body {
   .sf-themed button.rounded-full.border:active,
   .sf-themed a.rounded-full.border:active {
     transform: scale(0.95);
+  }
+
+  /* Themed outline buttons inside cards (full-width): apply custom radius */
+  .sf-themed button.w-full.rounded-full.border {
+    border-radius: var(--sf-radius-btn) !important;
   }
 
   .glass-header {
