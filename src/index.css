@@ -159,9 +159,17 @@ body {
   }
 
   /* Themed outline buttons: border follows --sf-border, icons follow --sf-icon */
-  .sf-themed button.rounded-full.border {
-    border-color: var(--sf-border);
-    color: var(--sf-icon);
+  .sf-themed button.rounded-full.border,
+  .sf-themed a.rounded-full.border {
+    border-color: var(--sf-border) !important;
+    color: var(--sf-icon) !important;
+    background-color: transparent !important;
+  }
+  .sf-themed button.rounded-full.border:hover,
+  .sf-themed a.rounded-full.border:hover {
+    border-color: var(--sf-border) !important;
+    color: var(--sf-icon) !important;
+    background-color: transparent !important;
   }
 
   .glass-header {
