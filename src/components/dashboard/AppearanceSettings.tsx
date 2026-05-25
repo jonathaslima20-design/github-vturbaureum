@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Save, RotateCcw, ChevronDown, Lock, Palette, Type, Sparkles } from 'lucide-react';
+import { Save, RotateCcw, ChevronDown, Lock, Palette, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +17,6 @@ import {
   DEFAULT_APPEARANCE,
   FONT_OPTIONS,
   HEADING_FONT_OPTIONS,
-  HOVER_EFFECT_OPTIONS,
   loadGoogleFont,
   type StorefrontAppearance,
 } from '@/lib/appearanceDefaults';
@@ -188,20 +187,6 @@ export function AppearanceSettings() {
               </div>
             </div>
           </div>
-        </CollapsibleSection>
-
-        {/* Effects Section */}
-        <CollapsibleSection
-          icon={<Sparkles size={16} />}
-          title="Efeitos"
-        >
-          <SelectField
-            label="Efeito hover nos cards"
-            value={localAppearance.hover_effect}
-            options={HOVER_EFFECT_OPTIONS}
-            onChange={(v) => updateField('hover_effect', v as StorefrontAppearance['hover_effect'])}
-            disabled={isFreePlan}
-          />
         </CollapsibleSection>
 
 
