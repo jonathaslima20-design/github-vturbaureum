@@ -158,6 +158,27 @@ body {
     border-color: var(--sf-border);
   }
 
+  /* Themed button overrides - default variant (solid buttons) */
+  .sf-themed .bg-primary {
+    background-color: var(--sf-button-bg) !important;
+    color: var(--sf-button-text) !important;
+    border-radius: var(--sf-radius-btn);
+  }
+  .sf-themed .bg-primary:hover {
+    opacity: 0.9;
+  }
+
+  /* Themed button overrides - outline variant (social & secondary buttons) */
+  .sf-themed .border.border-border.bg-background {
+    border-color: var(--sf-border) !important;
+    color: var(--sf-icon) !important;
+    border-radius: var(--sf-radius-btn);
+  }
+  .sf-themed .border.border-border.bg-background:hover {
+    background-color: color-mix(in srgb, var(--sf-button-bg) 10%, transparent) !important;
+    color: var(--sf-icon) !important;
+  }
+
   .glass-header {
     background: rgba(255, 255, 255, 0.78);
     -webkit-backdrop-filter: saturate(180%) blur(16px);
