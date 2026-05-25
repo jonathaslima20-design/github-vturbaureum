@@ -8,6 +8,7 @@ interface MockupProduct {
   price: number;
   discount_price: number | null;
   featured_image_url: string | null;
+  short_description: string | null;
 }
 
 interface MockupData {
@@ -59,7 +60,7 @@ export function useMockupData(): MockupData {
 
       const productsQuery = supabase
         .from('products')
-        .select('id, title, price, discounted_price, featured_image_url, category')
+        .select('id, title, price, discounted_price, featured_image_url, category, short_description')
         .eq('user_id', user.id)
         .eq('status', 'disponivel')
         .order('display_order', { ascending: true })
@@ -78,6 +79,7 @@ export function useMockupData(): MockupData {
           price: Number(p.price),
           discount_price: p.discounted_price ? Number(p.discounted_price) : null,
           featured_image_url: p.featured_image_url,
+          short_description: p.short_description || null,
         })));
       }
 

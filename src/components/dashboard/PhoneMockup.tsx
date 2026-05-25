@@ -15,13 +15,14 @@ interface MockupProduct {
   price: number;
   discount_price: number | null;
   featured_image_url: string | null;
+  short_description: string | null;
 }
 
 const PLACEHOLDER_PRODUCTS: MockupProduct[] = [
-  { id: 'ph1', name: 'Produto exemplo 1', price: 99.90, discount_price: null, featured_image_url: null },
-  { id: 'ph2', name: 'Produto exemplo 2', price: 149.90, discount_price: 119.90, featured_image_url: null },
-  { id: 'ph3', name: 'Produto exemplo 3', price: 79.90, discount_price: null, featured_image_url: null },
-  { id: 'ph4', name: 'Produto exemplo 4', price: 199.90, discount_price: 159.90, featured_image_url: null },
+  { id: 'ph1', name: 'Produto exemplo 1', price: 99.90, discount_price: null, featured_image_url: null, short_description: 'Frete gratis' },
+  { id: 'ph2', name: 'Produto exemplo 2', price: 149.90, discount_price: 119.90, featured_image_url: null, short_description: null },
+  { id: 'ph3', name: 'Produto exemplo 3', price: 79.90, discount_price: null, featured_image_url: null, short_description: 'Lancamento' },
+  { id: 'ph4', name: 'Produto exemplo 4', price: 199.90, discount_price: 159.90, featured_image_url: null, short_description: null },
 ];
 
 interface PhoneMockupProps {
@@ -397,7 +398,21 @@ function ProductMockupCard({
           )}
         </div>
 
-        {/* Add to Cart Button - uses button_border_radius setting */}
+        {/* Promotional phrase */}
+        {product.short_description && (
+          <p
+            className="line-clamp-2 mt-1"
+            style={{
+              color: appearance.muted_text_color,
+              fontSize: `${parseFloat(fontScale) * 7.5}px`,
+              lineHeight: 1.3,
+            }}
+          >
+            {product.short_description}
+          </p>
+        )}
+
+        {/* Add to Cart Button */}
         <div
           className="mt-2 pt-1.5"
           style={{ borderTop: `1px solid ${appearance.border_color}` }}
@@ -407,7 +422,7 @@ function ProductMockupCard({
             style={{
               backgroundColor: appearance.button_bg_color,
               color: appearance.button_text_color,
-              borderRadius: btnRadius,
+              borderRadius: `${Math.round(parseFloat(btnRadius) * 0.5)}px`,
               fontSize: `${parseFloat(fontScale) * 7.5}px`,
               height: `${parseFloat(fontScale) * 20}px`,
             }}
