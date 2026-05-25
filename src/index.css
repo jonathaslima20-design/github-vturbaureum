@@ -584,6 +584,23 @@ body {
   }
 }
 
+.mockup-scrollbar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.mockup-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mockup-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.08);
+  border-radius: 1px;
+}
+
+.mockup-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.15);
+}
+
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;

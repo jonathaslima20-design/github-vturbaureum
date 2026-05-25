@@ -92,7 +92,7 @@ export function PhoneMockup({
         >
           {/* Scrollable content */}
           <div
-            className="absolute inset-0 overflow-y-auto overflow-x-hidden"
+            className="absolute inset-0 overflow-y-auto overflow-x-hidden mockup-scrollbar"
             style={{
               fontFamily: `'${appearance.font_family}', sans-serif`,
               color: appearance.text_color,
