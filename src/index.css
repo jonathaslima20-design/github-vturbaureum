@@ -157,6 +157,9 @@ body {
   .sf-themed .border-t.border-border\/50 {
     border-color: var(--sf-border);
   }
+  .sf-themed footer {
+    background-color: var(--sf-bg) !important;
+  }
   .sf-themed .text-muted-foreground {
     color: var(--sf-muted) !important;
   }

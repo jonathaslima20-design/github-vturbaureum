@@ -1,42 +1,29 @@
 import { Link } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import Logo from '@/components/Logo';
 
 export default function Footer() {
-  const { slug } = useParams();
   const [bgColor, setBgColor] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const fetchStorefrontAppearance = async () => {
-      if (slug) {
-        try {
-          const { data: corretorData } = await supabase
-            .from('users')
-            .select('id, theme')
-            .eq('slug', slug)
-            .maybeSingle();
+    const root = document.documentElement;
 
-          if (corretorData?.id) {
-            const { data: appearance } = await supabase
-              .from('storefront_appearance')
-              .select('bg_color, is_active')
-              .eq('user_id', corretorData.id)
-              .maybeSingle();
-
-            if (appearance?.is_active && appearance.bg_color) {
-              setBgColor(appearance.bg_color);
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching storefront appearance:', error);
-        }
+    const readBgColor = () => {
+      if (root.classList.contains('sf-themed')) {
+        const sfBg = getComputedStyle(root).getPropertyValue('--sf-bg').trim();
+        setBgColor(sfBg || undefined);
+      } else {
+        setBgColor(undefined);
       }
     };
 
-    fetchStorefrontAppearance();
-  }, [slug]);
+    readBgColor();
+
+    const observer = new MutationObserver(readBgColor);
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'style'] });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <footer className="mt-auto py-6 border-t border-border/50">
