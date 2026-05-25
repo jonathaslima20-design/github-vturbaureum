@@ -12,6 +12,7 @@ import { useMockupData } from '@/hooks/useMockupData';
 import { PhoneMockup } from '@/components/dashboard/PhoneMockup';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { deriveColorsFromBase } from '@/utils/colorUtils';
 import {
   DEFAULT_APPEARANCE,
   FONT_OPTIONS,
@@ -20,6 +21,8 @@ import {
   SHADOW_OPTIONS,
   HOVER_EFFECT_OPTIONS,
   SPACING_OPTIONS,
+  GRADIENT_PRESETS,
+  GRADIENT_DIRECTION_OPTIONS,
   loadGoogleFont,
   type StorefrontAppearance,
 } from '@/lib/appearanceDefaults';
@@ -41,7 +44,21 @@ export function AppearanceSettings() {
   }, [loading, appearance]);
 
   const updateField = <K extends keyof StorefrontAppearance>(field: K, value: StorefrontAppearance[K]) => {
-    setLocalAppearance(prev => ({ ...prev, [field]: value }));
+    setLocalAppearance(prev => {
+      const next = { ...prev, [field]: value };
+      const colorFields: (keyof StorefrontAppearance)[] = ['bg_color', 'text_color', 'button_bg_color', 'accent_color', 'border_color'];
+      if (colorFields.includes(field as keyof StorefrontAppearance)) {
+        const derived = deriveColorsFromBase(
+          next.bg_color,
+          next.text_color,
+          next.button_bg_color,
+          next.accent_color,
+          next.border_color,
+        );
+        return { ...next, ...derived };
+      }
+      return next;
+    });
     setHasChanges(true);
   };
 
@@ -69,6 +86,24 @@ export function AppearanceSettings() {
     updateField(field, value);
   };
 
+  const applyGradientPreset = (preset: typeof GRADIENT_PRESETS[number]) => {
+    setLocalAppearance(prev => ({
+      ...prev,
+      bg_color: preset.colorStart,
+      bg_gradient_enabled: true,
+      bg_gradient_color_end: preset.colorEnd,
+      bg_gradient_direction: preset.direction,
+      ...deriveColorsFromBase(
+        preset.colorStart,
+        prev.text_color,
+        prev.button_bg_color,
+        prev.accent_color,
+        prev.border_color,
+      ),
+    }));
+    setHasChanges(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -87,21 +122,97 @@ export function AppearanceSettings() {
           title="Cores"
           defaultOpen
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <ColorPicker label="Fundo da pagina" value={localAppearance.bg_color} onChange={(v) => updateField('bg_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Texto principal" value={localAppearance.text_color} onChange={(v) => updateField('text_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Titulos" value={localAppearance.heading_color} onChange={(v) => updateField('heading_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Texto secundario" value={localAppearance.muted_text_color} onChange={(v) => updateField('muted_text_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Bordas" value={localAppearance.border_color} onChange={(v) => updateField('border_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Fundo dos cards" value={localAppearance.card_bg_color} onChange={(v) => updateField('card_bg_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Borda dos cards" value={localAppearance.card_border_color} onChange={(v) => updateField('card_border_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Botoes (fundo)" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Botoes (texto)" value={localAppearance.button_text_color} onChange={(v) => updateField('button_text_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Badges (fundo)" value={localAppearance.badge_bg_color} onChange={(v) => updateField('badge_bg_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Badges (texto)" value={localAppearance.badge_text_color} onChange={(v) => updateField('badge_text_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Icones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Cor de destaque" value={localAppearance.accent_color} onChange={(v) => updateField('accent_color', v)} disabled={isFreePlan} />
-            <ColorPicker label="Overlay da capa" value={localAppearance.cover_overlay_color || '#000000'} onChange={(v) => updateField('cover_overlay_color', v)} disabled={isFreePlan} />
+          <div className="space-y-5">
+            {/* Background color */}
+            <div>
+              <ColorPicker
+                label="Cor do fundo"
+                value={localAppearance.bg_color}
+                onChange={(v) => updateField('bg_color', v)}
+                disabled={isFreePlan}
+              />
+
+              {/* Gradient toggle */}
+              <div className="mt-3 ml-1">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={localAppearance.bg_gradient_enabled}
+                    onChange={(e) => {
+                      updateField('bg_gradient_enabled', e.target.checked);
+                      if (e.target.checked && !localAppearance.bg_gradient_color_end) {
+                        updateField('bg_gradient_color_end', '#e0e0e0');
+                      }
+                    }}
+                    disabled={isFreePlan}
+                    className="rounded border-border"
+                  />
+                  <span className="text-xs text-muted-foreground">Fundo com degrade</span>
+                </label>
+              </div>
+
+              {/* Gradient options */}
+              {localAppearance.bg_gradient_enabled && (
+                <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
+                  <ColorPicker
+                    label="Cor final do degrade"
+                    value={localAppearance.bg_gradient_color_end || '#e0e0e0'}
+                    onChange={(v) => updateField('bg_gradient_color_end', v)}
+                    disabled={isFreePlan}
+                  />
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1.5 block">Direcao</Label>
+                    <Select
+                      value={localAppearance.bg_gradient_direction}
+                      onValueChange={(v) => updateField('bg_gradient_direction', v)}
+                      disabled={isFreePlan}
+                    >
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GRADIENT_DIRECTION_OPTIONS.map(o => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Presets */}
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-2 block">Presets</Label>
+                    <div className="flex gap-2 flex-wrap">
+                      {GRADIENT_PRESETS.map((preset) => (
+                        <button
+                          key={preset.name}
+                          onClick={() => applyGradientPreset(preset)}
+                          disabled={isFreePlan}
+                          className="flex flex-col items-center gap-1 group"
+                          title={preset.name}
+                        >
+                          <div
+                            className="w-10 h-10 rounded-lg border border-border shadow-sm transition-transform group-hover:scale-110"
+                            style={{
+                              background: `linear-gradient(${preset.direction}, ${preset.colorStart}, ${preset.colorEnd})`,
+                            }}
+                          />
+                          <span className="text-[10px] text-muted-foreground">{preset.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Core colors grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <ColorPicker label="Cor do texto" value={localAppearance.text_color} onChange={(v) => updateField('text_color', v)} disabled={isFreePlan} />
+              <ColorPicker label="Cor dos botoes" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={isFreePlan} />
+              <ColorPicker label="Cor dos icones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={isFreePlan} />
+              <ColorPicker label="Cor de destaque" value={localAppearance.accent_color} onChange={(v) => updateField('accent_color', v)} disabled={isFreePlan} />
+              <ColorPicker label="Cor das bordas" value={localAppearance.border_color} onChange={(v) => updateField('border_color', v)} disabled={isFreePlan} />
+            </div>
           </div>
         </CollapsibleSection>
 

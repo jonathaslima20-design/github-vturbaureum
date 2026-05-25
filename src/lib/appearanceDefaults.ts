@@ -15,6 +15,9 @@ export interface StorefrontAppearance {
   muted_text_color: string;
   border_color: string;
   cover_overlay_color: string | null;
+  bg_gradient_enabled: boolean;
+  bg_gradient_color_end: string | null;
+  bg_gradient_direction: string;
   font_family: string;
   heading_font_family: string;
   font_size_base: 'sm' | 'md' | 'lg';
@@ -44,6 +47,9 @@ export const DEFAULT_APPEARANCE: StorefrontAppearance = {
   muted_text_color: '#71717a',
   border_color: '#e4e4e7',
   cover_overlay_color: null,
+  bg_gradient_enabled: false,
+  bg_gradient_color_end: null,
+  bg_gradient_direction: 'to bottom',
   font_family: 'Inter',
   heading_font_family: 'Inter Tight',
   font_size_base: 'md',
@@ -105,6 +111,29 @@ export const SPACING_OPTIONS = [
   { value: 'normal', label: 'Normal' },
   { value: 'relaxed', label: 'Relaxado' },
 ];
+
+export const GRADIENT_PRESETS = [
+  { name: 'Oceano', colorStart: '#e0f7fa', colorEnd: '#0288d1', direction: 'to bottom' },
+  { name: 'Sunset', colorStart: '#fff3e0', colorEnd: '#e65100', direction: 'to bottom right' },
+  { name: 'Noite', colorStart: '#1a237e', colorEnd: '#0d1117', direction: 'to bottom' },
+  { name: 'Floresta', colorStart: '#e8f5e9', colorEnd: '#2e7d32', direction: 'to bottom' },
+  { name: 'Neutro', colorStart: '#fafafa', colorEnd: '#e0e0e0', direction: 'to bottom' },
+];
+
+export const GRADIENT_DIRECTION_OPTIONS = [
+  { value: 'to bottom', label: 'Vertical' },
+  { value: 'to right', label: 'Horizontal' },
+  { value: 'to bottom right', label: 'Diagonal' },
+];
+
+export function getBackgroundStyle(appearance: StorefrontAppearance): Record<string, string> {
+  if (appearance.bg_gradient_enabled && appearance.bg_gradient_color_end) {
+    return {
+      background: `linear-gradient(${appearance.bg_gradient_direction}, ${appearance.bg_color}, ${appearance.bg_gradient_color_end})`,
+    };
+  }
+  return { backgroundColor: appearance.bg_color };
+}
 
 export function getRadiusPx(value: string): string {
   const found = BORDER_RADIUS_OPTIONS.find(o => o.value === value);
