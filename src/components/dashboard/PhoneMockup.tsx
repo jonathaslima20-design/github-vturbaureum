@@ -130,10 +130,10 @@ export function PhoneMockup({
                 </div>
               </div>
 
-              {/* Avatar - large with visible ring */}
+              {/* Avatar */}
               <div className="flex justify-center -mt-14 relative z-10">
                 <div
-                  className="rounded-full shadow-xl"
+                  className="rounded-full shadow-lg"
                   style={{
                     padding: '4px',
                     background: appearance.bg_color,
