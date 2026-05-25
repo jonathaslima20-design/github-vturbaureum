@@ -7,7 +7,6 @@ import {
   getFontSizeScale,
   getBackgroundStyle,
 } from '@/lib/appearanceDefaults';
-import { shouldUseLightLogo } from '@/utils/colorUtils';
 import { formatCurrencyI18n } from '@/lib/i18n';
 
 interface MockupProduct {
@@ -54,10 +53,6 @@ export function PhoneMockup({
   products,
   categoryName,
 }: PhoneMockupProps) {
-  const useLightLogo = shouldUseLightLogo(appearance.bg_color);
-  const logoSrc = useLightLogo
-    ? '/logos/vitrinelogo-white.png'
-    : '/logos/vitrinelogo-black.png';
 
   const cardRadius = getRadiusPx(appearance.card_border_radius);
   const imgRadius = getRadiusPx(appearance.image_border_radius);
@@ -269,16 +264,6 @@ export function PhoneMockup({
               ))}
             </div>
 
-            {/* Footer */}
-            <div
-              className="px-4 py-4 flex flex-col items-center border-t"
-              style={{ borderColor: appearance.border_color }}
-            >
-              <img src={logoSrc} alt="VitrineTurbo" className="h-6 w-auto mb-1" />
-              <span style={{ color: appearance.muted_text_color, fontSize: '8px' }}>
-                Crie sua Vitrine Digital
-              </span>
-            </div>
           </div>
         </div>
       </div>
