@@ -365,6 +365,26 @@ function ProductMockupCard({
             {formatCurrencyI18n(hasDiscount ? product.discount_price! : product.price, 'BRL', 'pt-BR')}
           </span>
         </div>
+
+        {/* Add to Cart Button */}
+        <div
+          className="mt-1.5 pt-1.5"
+          style={{ borderTop: `1px solid ${appearance.border_color}` }}
+        >
+          <button
+            className="w-full flex items-center justify-center gap-0.5 font-medium"
+            style={{
+              backgroundColor: appearance.button_bg_color,
+              color: appearance.button_text_color,
+              borderRadius: getRadiusPx(appearance.button_border_radius),
+              fontSize: `${parseFloat(fontScale) * 7.5}px`,
+              height: `${parseFloat(fontScale) * 18}px`,
+            }}
+          >
+            <ShoppingCart style={{ width: `${parseFloat(fontScale) * 8}px`, height: `${parseFloat(fontScale) * 8}px` }} />
+            Adicionar
+          </button>
+        </div>
       </div>
     </div>
   );
