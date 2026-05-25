@@ -130,27 +130,22 @@ export function PhoneMockup({
                 </div>
               </div>
 
-              {/* Avatar */}
-              <div className="flex justify-center -mt-14 relative z-10">
+              {/* Avatar - matches CorretorPage: border-4 border-background */}
+              <div className="flex justify-center -mt-16 relative z-10">
                 <div
-                  className="rounded-full shadow-lg"
+                  className="w-[110px] h-[110px] rounded-full overflow-hidden shadow-lg"
                   style={{
-                    padding: '4px',
-                    background: appearance.bg_color,
+                    border: `4px solid ${appearance.bg_color}`,
+                    backgroundColor: appearance.card_bg_color,
                   }}
                 >
-                  <div
-                    className="w-[88px] h-[88px] rounded-full overflow-hidden"
-                    style={{ backgroundColor: appearance.card_bg_color }}
-                  >
-                    {avatar_url ? (
-                      <img src={avatar_url} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xl font-bold" style={{ color: appearance.muted_text_color }}>
-                        {name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
+                  {avatar_url ? (
+                    <img src={avatar_url} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xl font-bold" style={{ color: appearance.muted_text_color }}>
+                      {name.charAt(0)}
+                    </div>
+                  )}
                 </div>
               </div>
 
