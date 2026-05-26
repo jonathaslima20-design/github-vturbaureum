@@ -11,14 +11,14 @@ export default function PlanStatusBadge({ status, className }: PlanStatusBadgePr
   switch (status) {
     case 'active':
       return (
-        <Badge className={`bg-green-500 hover:bg-green-600 text-white ${className}`}>
+        <Badge variant="secondary" className={className}>
           <Crown className="h-3 w-3 mr-1" />
           Plano Ativo
         </Badge>
       );
     case 'free':
       return (
-        <Badge variant="outline" className={`border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 ${className}`}>
+        <Badge variant="outline" className={className}>
           <Sparkles className="h-3 w-3 mr-1" />
           Plano Free
         </Badge>
@@ -32,7 +32,7 @@ export default function PlanStatusBadge({ status, className }: PlanStatusBadgePr
       );
     default:
       return (
-        <Badge variant="secondary" className={className}>
+        <Badge variant="outline" className={className}>
           <AlertCircle className="h-3 w-3 mr-1" />
           Plano Inativo
         </Badge>

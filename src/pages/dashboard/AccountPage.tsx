@@ -9,8 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import {
   Form,
   FormControl,
@@ -80,16 +80,6 @@ export default function AccountPage() {
     }
   };
 
-  const getPlanVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    switch (status) {
-      case 'active': return 'default';
-      case 'free': return 'secondary';
-      case 'inactive': return 'outline';
-      case 'suspended': return 'destructive';
-      default: return 'secondary';
-    }
-  };
-
   const getBillingLabel = (cycle?: string) => {
     switch (cycle) {
       case 'monthly': return 'Mensal';
@@ -130,13 +120,8 @@ export default function AccountPage() {
                 {user?.owner_name || user?.name || 'Usuário'}
               </h2>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
-              <div className="flex flex-wrap items-center gap-2 mt-2 justify-center sm:justify-start">
-                <Badge variant={getPlanVariant(user?.plan_status)}>
-                  {getPlanLabel(user?.plan_status)}
-                </Badge>
-                {user?.billing_cycle && user.plan_status === 'active' && (
-                  <Badge variant="outline">{getBillingLabel(user.billing_cycle)}</Badge>
-                )}
+              <div className="mt-2 flex justify-center sm:justify-start">
+                <PlanStatusBadge status={user?.plan_status} />
               </div>
             </div>
           </div>
@@ -210,11 +195,12 @@ export default function AccountPage() {
             <Separator />
 
             <div className="flex items-center gap-3">
-              <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
+              <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">WhatsApp</p>
+                <p className="text-xs text-muted-foreground">Plano</p>
                 <p className="text-sm font-medium">
-                  {user?.whatsapp ? `+${user.country_code || '55'} ${user.whatsapp}` : '-'}
+                  {getPlanLabel(user?.plan_status)}
+                  {user?.billing_cycle && user.plan_status === 'active' && ` - ${getBillingLabel(user.billing_cycle)}`}
                 </p>
               </div>
             </div>
@@ -222,12 +208,11 @@ export default function AccountPage() {
             <Separator />
 
             <div className="flex items-center gap-3">
-              <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
+              <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">Plano</p>
+                <p className="text-xs text-muted-foreground">WhatsApp</p>
                 <p className="text-sm font-medium">
-                  {getPlanLabel(user?.plan_status)}
-                  {user?.billing_cycle && user.plan_status === 'active' && ` - ${getBillingLabel(user.billing_cycle)}`}
+                  {user?.whatsapp ? `+${user.country_code || '55'} ${user.whatsapp}` : '-'}
                 </p>
               </div>
             </div>

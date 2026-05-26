@@ -163,7 +163,7 @@ export default function DashboardSidebar() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.owner_name || user?.name}</p>
+                <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
                 <div className="mt-0.5">
                   <PlanStatusBadge status={user?.plan_status} />
                 </div>
