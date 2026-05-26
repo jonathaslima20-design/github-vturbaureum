@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { ProfileSettings } from '@/components/dashboard/ProfileSettings';
 import { StorefrontSettings } from '@/components/dashboard/StorefrontSettings';
 import { AppearanceSettings } from '@/components/dashboard/AppearanceSettings';
+import TrackingSettingsContent from '@/components/dashboard/TrackingSettingsContent';
 import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
@@ -26,48 +27,31 @@ export default function SettingsPage() {
 
             {/* Tabs */}
             <div className="flex gap-1 sm:gap-4 border-b mb-6 sm:mb-8 -mx-4 sm:mx-0 px-4 sm:px-0">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={cn(
-                  'flex-1 sm:flex-none px-3 sm:px-4 py-3 text-sm font-medium transition-all relative whitespace-nowrap',
-                  activeTab === 'profile'
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                Perfil
-                {activeTab === 'profile' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('appearance')}
-                className={cn(
-                  'flex-1 sm:flex-none px-3 sm:px-4 py-3 text-sm font-medium transition-all relative whitespace-nowrap',
-                  activeTab === 'appearance'
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                Aparência
-                {activeTab === 'appearance' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('storefront')}
-                className={cn(
-                  'flex-1 sm:flex-none px-3 sm:px-4 py-3 text-sm font-medium transition-all relative whitespace-nowrap',
-                  activeTab === 'storefront'
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                Vitrine
-                {activeTab === 'storefront' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-                )}
-              </button>
+              {(['profile', 'appearance', 'storefront', 'tracking'] as const).map((tab) => {
+                const labels: Record<string, string> = {
+                  profile: 'Perfil',
+                  appearance: 'Aparência',
+                  storefront: 'Vitrine',
+                  tracking: 'Rastreamento',
+                };
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={cn(
+                      'flex-1 sm:flex-none px-3 sm:px-4 py-3 text-sm font-medium transition-all relative whitespace-nowrap',
+                      activeTab === tab
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {labels[tab]}
+                    {activeTab === tab && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Content */}
@@ -75,6 +59,7 @@ export default function SettingsPage() {
               {activeTab === 'profile' && <ProfileSettings />}
               {activeTab === 'appearance' && <AppearanceSettings />}
               {activeTab === 'storefront' && <StorefrontSettings />}
+              {activeTab === 'tracking' && <TrackingSettingsContent />}
             </div>
           </div>
         </Card>
