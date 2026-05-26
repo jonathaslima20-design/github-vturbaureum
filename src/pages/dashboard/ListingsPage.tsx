@@ -401,6 +401,8 @@ export default function ListingsPage() {
                 onSelectProduct={handleSelectProduct}
                 onToggleVisibility={toggleProductVisibility}
                 onDragEnd={handleDragEnd}
+                onSaveOrder={() => { setIsReorderModeActive(false); return Promise.resolve(); }}
+                onCancelReorder={() => setIsReorderModeActive(false)}
                 onQuickEdit={setQuickEditProduct}
                 onDuplicate={handleDuplicate}
                 onDelete={setDeleteProduct}
