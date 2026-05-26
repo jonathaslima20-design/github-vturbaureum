@@ -1,18 +1,25 @@
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { Loader as Loader2, GripVertical, ArrowUpDown, SquareCheck as CheckSquare, Square, Move } from 'lucide-react';
+import { Loader as Loader2, GripVertical, SquareCheck as CheckSquare, Square, Eye, MessageCircle, TrendingUp, MoveVertical as MoreVertical, Pencil, Copy, Trash2, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { formatCurrencyI18n } from '@/lib/i18n';
 import type { Product } from '@/types';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { fetchProductPriceTiers, getMinimumPriceFromTiers, getFirstTierPrices } from '@/lib/tieredPricingUtils';
 import { StockEditPopover } from './StockEditPopover';
-
 import { EnhancedProductGrid } from './EnhancedProductGrid';
+import type { ProductAnalytics } from '@/hooks/useProductAnalytics';
+import type { ProductTag } from '@/hooks/useProductTags';
 
 interface ProductGridProps {
   products: Product[];
@@ -29,7 +36,344 @@ interface ProductGridProps {
   onSaveOrder?: () => Promise<void>;
   onCancelReorder?: () => void;
   onStockUpdated?: (productId: string, newQuantity: number) => void;
+  onQuickEdit?: (product: Product) => void;
+  onDuplicate?: (product: Product) => void;
+  onDelete?: (product: Product) => void;
+  getProductAnalytics?: (productId: string) => ProductAnalytics | null;
+  getProductTags?: (productId: string) => ProductTag[];
 }
+
+function MiniSparkline({ data }: { data: number[] }) {
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1);
+  const width = 48;
+  const height = 16;
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - (v / max) * height;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <svg width={width} height={height} className="inline-block ml-1 opacity-70">
+      <polyline
+        points={points}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+const ProductCardComponent = memo(function ProductCardComponent({
+  product,
+  isDragMode,
+  isSelected,
+  updatingProductId,
+  user,
+  analytics,
+  productTags,
+  onSelectProduct,
+  onToggleVisibility,
+  onQuickEdit,
+  onDuplicate,
+  onDelete,
+}: {
+  product: Product;
+  isDragMode: boolean;
+  isSelected: boolean;
+  updatingProductId: string | null;
+  user: any;
+  analytics: ProductAnalytics | null;
+  productTags: ProductTag[];
+  onSelectProduct: (productId: string, checked: boolean) => void;
+  onToggleVisibility: (productId: string, currentVisibility: boolean) => Promise<void>;
+  onQuickEdit?: (product: Product) => void;
+  onDuplicate?: (product: Product) => void;
+  onDelete?: (product: Product) => void;
+}) {
+  const [minimumTieredPrice, setMinimumTieredPrice] = useState<number | null>(null);
+  const [firstTierPrices, setFirstTierPrices] = useState<any>(null);
+  const [loadingTiers, setLoadingTiers] = useState(false);
+
+  useEffect(() => {
+    if (product.has_tiered_pricing) {
+      setLoadingTiers(true);
+      fetchProductPriceTiers(product.id)
+        .then(tiers => {
+          setMinimumTieredPrice(getMinimumPriceFromTiers(tiers));
+          setFirstTierPrices(getFirstTierPrices(tiers));
+        })
+        .catch(err => console.error('Error loading price tiers:', err))
+        .finally(() => setLoadingTiers(false));
+    }
+  }, [product.id, product.has_tiered_pricing]);
+
+  const effectiveMinPrice = product.has_tiered_pricing && minimumTieredPrice && minimumTieredPrice > 0 ? minimumTieredPrice : null;
+  const hasDiscount = product.discounted_price && product.discounted_price < product.price;
+  const baseDisplayPrice = hasDiscount ? product.discounted_price : product.price;
+  const displayPrice = effectiveMinPrice !== null ? effectiveMinPrice : baseDisplayPrice;
+  const originalPrice = hasDiscount ? product.price : null;
+  const discountPercentage = hasDiscount
+    ? Math.round(((product.price - product.discounted_price!) / product.price) * 100)
+    : null;
+  const isTieredPricing = product.has_tiered_pricing && effectiveMinPrice !== null && effectiveMinPrice > 0;
+
+  const stockLevel = product.track_inventory
+    ? product.stock_quantity === 0
+      ? 'out'
+      : product.stock_quantity !== null && product.stock_quantity <= (product.low_stock_threshold ?? 5)
+        ? 'low'
+        : 'ok'
+    : null;
+
+  const stockBorderColor = stockLevel === 'out'
+    ? 'border-l-red-500'
+    : stockLevel === 'low'
+      ? 'border-l-amber-500'
+      : '';
+
+  return (
+    <Card className={`
+      h-full relative group overflow-hidden
+      transition-all duration-300 ease-out
+      hover:shadow-xl hover:-translate-y-1
+      border border-border/60
+      ${isDragMode ? 'cursor-grab active:cursor-grabbing' : ''}
+      ${isSelected ? 'ring-2 ring-primary shadow-lg shadow-primary/10' : ''}
+      ${stockBorderColor ? `border-l-[3px] ${stockBorderColor}` : ''}
+    `}>
+      <CardContent className="p-0 relative">
+        {/* Selection Checkbox */}
+        {!isDragMode && (
+          <div className="absolute top-2 left-2 z-20">
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={(checked) => onSelectProduct(product.id, checked as boolean)}
+              className="bg-background/95 backdrop-blur-sm border-2 shadow-sm h-4 w-4 md:h-5 md:w-5"
+            />
+          </div>
+        )}
+
+        {/* Drag Handle */}
+        {isDragMode && (
+          <div className="absolute top-2 right-2 z-20 bg-primary/90 backdrop-blur-sm rounded-md p-1 opacity-80 group-hover:opacity-100 transition-opacity">
+            <GripVertical className="h-3.5 w-3.5 text-primary-foreground" />
+          </div>
+        )}
+
+        {/* Context Menu */}
+        {!isDragMode && (
+          <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 bg-background/90 backdrop-blur-sm shadow-sm hover:bg-background">
+                  <MoreVertical className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem asChild>
+                  <Link to={`/dashboard/products/${product.id}/edit`} className="flex items-center gap-2">
+                    <Pencil className="h-3.5 w-3.5" />
+                    Editar
+                  </Link>
+                </DropdownMenuItem>
+                {onQuickEdit && (
+                  <DropdownMenuItem onClick={() => onQuickEdit(product)} className="flex items-center gap-2">
+                    <Zap className="h-3.5 w-3.5" />
+                    Edicao Rapida
+                  </DropdownMenuItem>
+                )}
+                {onDuplicate && (
+                  <DropdownMenuItem onClick={() => onDuplicate(product)} className="flex items-center gap-2">
+                    <Copy className="h-3.5 w-3.5" />
+                    Duplicar
+                  </DropdownMenuItem>
+                )}
+                {onDelete && (
+                  <DropdownMenuItem onClick={() => onDelete(product)} className="flex items-center gap-2 text-destructive focus:text-destructive">
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Excluir
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {/* Image */}
+        <Link to={`/dashboard/products/${product.id}/edit`} className={isDragMode ? 'pointer-events-none' : ''}>
+          <div className="aspect-square relative overflow-hidden bg-white">
+            {product.featured_image_url ? (
+              <img
+                src={product.featured_image_url}
+                alt={product.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                <span className="text-muted-foreground text-xs">Sem imagem</span>
+              </div>
+            )}
+
+            {/* Overlay badges - top */}
+            <div className="absolute top-2 left-8 md:left-9 flex flex-wrap gap-1">
+              {(hasDiscount && discountPercentage || (isTieredPricing && firstTierPrices?.discountPercentage)) && (
+                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 text-[10px] px-1.5 py-0 font-semibold shadow-sm">
+                  -{firstTierPrices?.discountPercentage || discountPercentage}%
+                </Badge>
+              )}
+              {product.status === 'vendido' && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shadow-sm">Vendido</Badge>
+              )}
+              {product.status === 'reservado' && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shadow-sm">Reservado</Badge>
+              )}
+            </div>
+
+            {/* Trending badge */}
+            {analytics?.trending && (
+              <div className="absolute bottom-2 left-2">
+                <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-[10px] px-1.5 py-0 font-medium shadow-sm gap-0.5">
+                  <TrendingUp className="h-2.5 w-2.5" />
+                  Tendencia
+                </Badge>
+              </div>
+            )}
+
+            {/* Stock badge */}
+            {product.track_inventory && (
+              <div className="absolute bottom-2 right-2">
+                <StockEditPopover
+                  productId={product.id}
+                  stockQuantity={product.stock_quantity ?? null}
+                  lowStockThreshold={product.low_stock_threshold ?? 5}
+                  trackInventory={product.track_inventory}
+                  onStockUpdated={() => {}}
+                />
+              </div>
+            )}
+          </div>
+        </Link>
+
+        {/* Content */}
+        <div className="p-2.5 md:p-3 space-y-1.5">
+          {/* Tags */}
+          {productTags.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {productTags.slice(0, 2).map(tag => (
+                <span
+                  key={tag.id}
+                  className="inline-flex items-center px-1.5 py-0 rounded-full text-[9px] md:text-[10px] font-medium text-white leading-relaxed"
+                  style={{ backgroundColor: tag.color }}
+                >
+                  {tag.name}
+                </span>
+              ))}
+              {productTags.length > 2 && (
+                <span className="text-[9px] text-muted-foreground">+{productTags.length - 2}</span>
+              )}
+            </div>
+          )}
+
+          {/* Title */}
+          <Link to={`/dashboard/products/${product.id}/edit`} className={isDragMode ? 'pointer-events-none' : ''}>
+            <h3 className="font-semibold text-[11px] md:text-xs leading-tight line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+              {product.title}
+            </h3>
+          </Link>
+
+          {/* Price */}
+          <div className="space-y-0.5">
+            {loadingTiers && product.has_tiered_pricing ? (
+              <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+            ) : isTieredPricing && firstTierPrices?.hasPromotionalPricing ? (
+              <>
+                <div className="text-[10px] text-muted-foreground line-through">
+                  {formatCurrencyI18n(firstTierPrices.unitPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
+                </div>
+                <div className="text-xs md:text-sm font-bold text-primary">
+                  {formatCurrencyI18n(firstTierPrices.discountedPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
+                </div>
+              </>
+            ) : isTieredPricing ? (
+              <>
+                {hasDiscount && originalPrice && originalPrice > 0 && (
+                  <div className="text-[10px] text-muted-foreground line-through">
+                    {formatCurrencyI18n(originalPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
+                  </div>
+                )}
+                <div className="text-xs md:text-sm font-bold text-primary">
+                  a partir de {formatCurrencyI18n(minimumTieredPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
+                </div>
+              </>
+            ) : hasDiscount ? (
+              <>
+                <div className="text-[10px] text-muted-foreground line-through">
+                  {product.is_starting_price ? 'A partir de ' : ''}
+                  {formatCurrencyI18n(originalPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
+                </div>
+                <div className="text-xs md:text-sm font-bold text-primary">
+                  {product.is_starting_price ? 'A partir de ' : ''}
+                  {formatCurrencyI18n(displayPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
+                </div>
+              </>
+            ) : displayPrice && displayPrice > 0 ? (
+              <div className="text-xs md:text-sm font-bold text-primary">
+                {product.is_starting_price ? 'A partir de ' : ''}
+                {formatCurrencyI18n(displayPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
+              </div>
+            ) : null}
+          </div>
+
+          {/* Analytics bar */}
+          {analytics && (analytics.views_count > 0 || analytics.leads_count > 0) && (
+            <div className="flex items-center gap-2.5 pt-1 text-muted-foreground">
+              <span className="flex items-center gap-0.5 text-[10px]">
+                <Eye className="h-3 w-3" />
+                {analytics.views_count}
+              </span>
+              {analytics.leads_count > 0 && (
+                <span className="flex items-center gap-0.5 text-[10px]">
+                  <MessageCircle className="h-3 w-3" />
+                  {analytics.leads_count}
+                </span>
+              )}
+              <MiniSparkline data={analytics.weekly_views} />
+            </div>
+          )}
+
+          {/* Footer with visibility toggle */}
+          <div className={`flex items-center justify-between pt-1.5 border-t border-border/50 ${isDragMode ? 'pointer-events-none opacity-50' : ''}`}>
+            <div className="flex items-center gap-1">
+              {product.is_visible_on_storefront ? (
+                <Badge variant="default" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-[9px] md:text-[10px] px-1.5 py-0 font-medium">
+                  <CheckSquare className="h-2.5 w-2.5 mr-0.5" />
+                  Visivel
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-[9px] md:text-[10px] px-1.5 py-0 font-medium border-0 bg-muted">
+                  <Square className="h-2.5 w-2.5 mr-0.5" />
+                  Oculto
+                </Badge>
+              )}
+            </div>
+            <Switch
+              checked={product.is_visible_on_storefront ?? true}
+              onCheckedChange={() => onToggleVisibility(product.id, product.is_visible_on_storefront ?? true)}
+              disabled={updatingProductId === product.id || isDragMode}
+              size="sm"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
 
 export function ProductGrid({
   products,
@@ -46,19 +390,12 @@ export function ProductGrid({
   onSaveOrder,
   onCancelReorder,
   onStockUpdated,
+  onQuickEdit,
+  onDuplicate,
+  onDelete,
+  getProductAnalytics,
+  getProductTags,
 }: ProductGridProps) {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'vendido':
-        return <Badge variant="destructive">Vendido</Badge>;
-      case 'reservado':
-        return <Badge variant="secondary">Reservado</Badge>;
-      default:
-        return null;
-    }
-  };
-
-  // Use enhanced grid for drag mode
   if (isDragMode) {
     return (
       <EnhancedProductGrid
@@ -73,334 +410,71 @@ export function ProductGrid({
     );
   }
 
-  const ProductCard = ({ product, index, isDragMode }: {
-    product: Product;
-    index: number;
-    isDragMode: boolean;
-  }) => {
-    const isSelected = selectedProducts.has(product.id);
-    const [minimumTieredPrice, setMinimumTieredPrice] = useState<number | null>(null);
-    const [firstTierPrices, setFirstTierPrices] = useState<any>(null);
-    const [loadingTiers, setLoadingTiers] = useState(false);
-
-    useEffect(() => {
-      if (product.has_tiered_pricing) {
-        setLoadingTiers(true);
-        fetchProductPriceTiers(product.id)
-          .then(tiers => {
-            const minPrice = getMinimumPriceFromTiers(tiers);
-            const firstTierData = getFirstTierPrices(tiers);
-            setMinimumTieredPrice(minPrice);
-            setFirstTierPrices(firstTierData);
-          })
-          .catch(err => console.error('Error loading price tiers:', err))
-          .finally(() => setLoadingTiers(false));
-      }
-    }, [product.id, product.has_tiered_pricing]);
-
-    // Calculate discount information
-    const effectiveMinPrice = product.has_tiered_pricing && minimumTieredPrice && minimumTieredPrice > 0 ? minimumTieredPrice : null;
-    const hasDiscount = product.discounted_price && product.discounted_price < product.price;
-    const baseDisplayPrice = hasDiscount ? product.discounted_price : product.price;
-    const displayPrice = effectiveMinPrice !== null ? effectiveMinPrice : baseDisplayPrice;
-    const originalPrice = hasDiscount ? product.price : null;
-    const discountPercentage = hasDiscount
-      ? Math.round(((product.price - product.discounted_price!) / product.price) * 100)
-      : null;
-    const isTieredPricing = product.has_tiered_pricing && effectiveMinPrice !== null && effectiveMinPrice > 0;
-
-    return (
-      <Card className={`h-full hover:shadow-lg transition-all duration-200 group ${isDragMode ? 'cursor-grab active:cursor-grabbing' : ''} ${isSelected ? 'ring-2 ring-primary' : ''}`}>
-        <CardContent className="p-2 md:p-3 relative">
-          {/* Selection Checkbox - Only show when not in drag mode */}
-          {!isDragMode && (
-            <div className="absolute top-1 left-1 md:top-2 md:left-2 z-10">
-              <Checkbox
-                checked={isSelected}
-                onCheckedChange={(checked) => onSelectProduct(product.id, checked as boolean)}
-                className="bg-background/90 backdrop-blur-sm border-2 scale-75 md:scale-100"
-              />
-            </div>
-          )}
-          
-          {/* Drag Handle - Only show when in drag mode */}
-          {isDragMode && (
-            <div className="absolute top-1 right-1 md:top-2 md:right-2 z-10 bg-primary/90 backdrop-blur-sm rounded-md p-1 md:p-1.5 opacity-80 group-hover:opacity-100 transition-all duration-200 border border-primary/30">
-              <GripVertical className="h-3 w-3 md:h-4 md:w-4 text-primary" />
-            </div>
-          )}
-
-          <Link to={`/dashboard/products/${product.id}/edit`} className={isDragMode ? 'pointer-events-none' : ''}>
-            {/* Container da imagem EXATAMENTE como na imagem de referência */}
-            <div className="aspect-square relative mb-2 md:mb-3">
-              <div className="w-full h-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                {product.featured_image_url ? (
-                  <img
-                    src={product.featured_image_url}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-white flex items-center justify-center">
-                    <span className="text-muted-foreground text-xs">Sem imagem</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Badges - Top Right */}
-              <div className="absolute top-1 right-1 flex flex-col gap-1">
-                {(hasDiscount && discountPercentage || (isTieredPricing && firstTierPrices?.discountPercentage)) && (
-                  <Badge className="bg-green-600 hover:bg-green-700 text-white border-transparent text-xs px-1 py-0">
-                    -{firstTierPrices?.discountPercentage || discountPercentage}%
-                  </Badge>
-                )}
-                {getStatusBadge(product.status)}
-                {product.track_inventory && onStockUpdated && (
-                  <StockEditPopover
-                    productId={product.id}
-                    stockQuantity={product.stock_quantity ?? null}
-                    lowStockThreshold={product.low_stock_threshold ?? 5}
-                    trackInventory={product.track_inventory}
-                    onStockUpdated={onStockUpdated}
-                  />
-                )}
-              </div>
-
-              {/* Visibility Indicator */}
-              <div className="absolute top-1 left-1">
-                {product.is_visible_on_storefront ? (
-                  <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-[10px] md:text-xs px-1 py-0">
-                    <CheckSquare className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />
-                    <span className="hidden md:inline">Visível</span>
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="text-[10px] md:text-xs px-1 py-0">
-                    <Square className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />
-                    <span className="hidden md:inline">Oculto</span>
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            <h2 className="font-semibold mb-1 md:mb-2 line-clamp-2 text-[10px] md:text-xs leading-tight">{product.title}</h2>
-
-            {/* Price Display with Discount Support */}
-            <div className="mb-2 md:mb-3">
-              {loadingTiers && product.has_tiered_pricing ? (
-                <div className="text-xs md:text-sm font-bold text-muted-foreground animate-pulse">
-                  Carregando preços...
-                </div>
-              ) : isTieredPricing && firstTierPrices && firstTierPrices.hasPromotionalPricing ? (
-                <div className="space-y-0.5 md:space-y-1">
-                  <div className="text-[10px] md:text-xs text-muted-foreground line-through">
-                    De {formatCurrencyI18n(firstTierPrices.unitPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                  </div>
-                  <div className="text-xs md:text-sm font-bold text-primary">
-                    por {formatCurrencyI18n(firstTierPrices.discountedPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                  </div>
-                </div>
-              ) : isTieredPricing ? (
-                <div className="space-y-0.5 md:space-y-1">
-                  {firstTierPrices && firstTierPrices.hasPromotionalPricing ? (
-                    <div className="text-[10px] md:text-xs text-muted-foreground line-through">
-                      De {formatCurrencyI18n(firstTierPrices.unitPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                    </div>
-                  ) : hasDiscount && originalPrice && originalPrice > 0 ? (
-                    <div className="text-[10px] md:text-xs text-muted-foreground line-through">
-                      {formatCurrencyI18n(originalPrice, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                    </div>
-                  ) : null}
-                  <div className="text-xs md:text-sm font-bold text-primary">
-                    a partir de {formatCurrencyI18n(minimumTieredPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                  </div>
-                </div>
-              ) : hasDiscount ? (
-                <div className="space-y-0.5 md:space-y-1">
-                  {/* Original price with strikethrough */}
-                  <div className="text-[10px] md:text-xs text-muted-foreground line-through">
-                    {product.is_starting_price ? 'A partir de ' : ''}
-                    {formatCurrencyI18n(originalPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                  </div>
-                  {/* Discounted price */}
-                  <div className="text-xs md:text-sm font-bold text-primary">
-                    {product.is_starting_price ? 'A partir de ' : ''}
-                    {formatCurrencyI18n(displayPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                  </div>
-                </div>
-              ) : displayPrice && displayPrice > 0 ? (
-                <div className="text-xs md:text-sm font-bold text-primary">
-                  {product.is_starting_price ? 'A partir de ' : ''}
-                  {formatCurrencyI18n(displayPrice!, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                </div>
-              ) : null}
-
-              {/* Short Description (Promotional phrase) */}
-              {product.short_description && (
-                <p className="text-xs text-muted-foreground mt-2 line-clamp-1 md:line-clamp-2">
-                  {product.short_description}
-                </p>
-              )}
-            </div>
-          </Link>
-
-          {/* Quick Visibility Toggle */}
-          <div className={`flex items-center justify-between pt-1.5 md:pt-2 border-t ${isDragMode ? 'pointer-events-none opacity-50' : ''}`}>
-            <span className="text-[10px] md:text-xs text-muted-foreground">
-              Vitrine
-            </span>
-            <Switch
-              checked={product.is_visible_on_storefront ?? true}
-              onCheckedChange={() => onToggleVisibility(
-                product.id, 
-                product.is_visible_on_storefront ?? true
-              )}
-              disabled={updatingProductId === product.id || isDragMode}
-              size="sm"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  // Determine if we're using category pagination
-  const displayedProducts = Object.keys(productsByCategory).length > 0 ?
-    Object.values(productsByCategory).flat() :
-    products;
+  const displayedProducts = Object.keys(productsByCategory).length > 0
+    ? Object.values(productsByCategory).flat()
+    : products;
 
   if (displayedProducts.length === 0) {
     return (
       <Card className="text-center py-12">
         <CardContent>
           <h2 className="text-xl font-semibold mb-2">Nenhum produto encontrado</h2>
-          <p className="text-muted-foreground mb-4">
-            Tente ajustar os filtros ou termo de busca
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              // This would need to be passed as props or handled by parent
-              console.log('Clear filters clicked');
-            }}
-          >
-            Limpar Filtros
-          </Button>
+          <p className="text-muted-foreground mb-4">Tente ajustar os filtros ou termo de busca</p>
         </CardContent>
       </Card>
     );
   }
 
+  const renderProductCard = (product: Product) => (
+    <ProductCardComponent
+      key={product.id}
+      product={product}
+      isDragMode={false}
+      isSelected={selectedProducts.has(product.id)}
+      updatingProductId={updatingProductId}
+      user={user}
+      analytics={getProductAnalytics ? getProductAnalytics(product.id) : null}
+      productTags={getProductTags ? getProductTags(product.id) : []}
+      onSelectProduct={onSelectProduct}
+      onToggleVisibility={onToggleVisibility}
+      onQuickEdit={onQuickEdit}
+      onDuplicate={onDuplicate}
+      onDelete={onDelete}
+    />
+  );
+
   return (
     <>
-      {isDragMode ? (
-        // Drag and Drop enabled grid with improved drop zones
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="sliding-puzzle-grid">
-            {(provided, snapshot) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-2 md:gap-4 lg:gap-5 xl:gap-6 p-2 md:p-6 min-h-[400px] transition-all duration-500 ease-in-out ${
-                  snapshot.isDraggingOver
-                    ? 'bg-gradient-to-br from-primary/5 to-blue-500/5 border-2 border-dashed border-primary/30 rounded-xl shadow-inner scale-[1.02]'
-                    : 'border-2 border-transparent rounded-xl scale-100'
-                } ${reordering ? 'pointer-events-none opacity-70' : ''}`}
-              >
-                {displayedProducts.map((product, index) => (
-                  <Draggable
-                    key={product.id}
-                    draggableId={product.id}
-                    index={index}
-                    isDragDisabled={reordering}
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className={`h-full transition-all duration-500 ease-out transform-gpu ${
-                          snapshot.isDragging
-                            ? 'z-50 scale-110 shadow-2xl opacity-95 cursor-grabbing rotate-2 ring-2 ring-primary/50 brightness-110'
-                            : 'cursor-grab hover:scale-[1.02] hover:shadow-lg hover:z-10 hover:-translate-y-0.5'
-                        }`}
-                        style={provided.draggableProps.style}
-                      >
-                        <div className={`relative ${snapshot.isDragging ? 'animate-bounce' : ''}`}>
-                          <ProductCard product={product} index={index} isDragMode={true} />
-                          {snapshot.isDragging && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl border-2 border-primary/40 pointer-events-none animate-pulse" />
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-
-                {/* Sliding Puzzle Drop Zone Indicator */}
-                {snapshot.isDraggingOver && (
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg animate-bounce">
-                      Solte para reorganizar
-                    </div>
-                  </div>
-                )}
-
-                <div className={`transition-all duration-500 ${
-                  snapshot.isDraggingOver ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                }`}>
-                  {provided.placeholder}
-                </div>
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      ) : Object.keys(productsByCategory).length > 0 ? (
-        // Render by category groups
+      {Object.keys(productsByCategory).length > 0 ? (
         <div className="space-y-8">
           {Object.entries(productsByCategory).map(([categoryName, categoryProducts]) => (
             <div key={categoryName} className="space-y-3">
-              <div className="px-2 md:px-6">
-                <h2 className="text-lg font-semibold text-foreground">
+              <div className="px-1">
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
                   {categoryName}
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    ({categoryProducts.length})
+                  <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    {categoryProducts.length}
                   </span>
                 </h2>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-2 md:gap-4 lg:gap-5 xl:gap-6 px-2 md:px-6">
-                {categoryProducts.map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    index={index}
-                    isDragMode={false}
-                  />
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">
+                {categoryProducts.map(renderProductCard)}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        // Regular grid without drag and drop
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-2 md:gap-4 lg:gap-5 xl:gap-6">
-          {displayedProducts.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              index={index}
-              isDragMode={false}
-            />
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">
+          {displayedProducts.map(renderProductCard)}
         </div>
       )}
 
-      {/* Loading overlay during reordering */}
       {(reordering || bulkActionLoading) && (
         <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-          <div className="bg-background rounded-lg p-4 flex items-center gap-3 shadow-lg">
+          <div className="bg-background rounded-xl p-4 flex items-center gap-3 shadow-2xl border">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span>
-              {reordering ? 'Atualizando ordem dos produtos...' : 'Processando ação em massa...'}
+            <span className="text-sm font-medium">
+              {reordering ? 'Atualizando ordem...' : 'Processando...'}
             </span>
           </div>
         </div>

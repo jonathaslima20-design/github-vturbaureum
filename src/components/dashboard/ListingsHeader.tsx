@@ -1,64 +1,114 @@
 import { Link } from 'react-router-dom';
-import { Plus, ArrowUpDown, SquareCheck as CheckSquare, Square } from 'lucide-react';
+import {
+  Plus,
+  ArrowUpDown,
+  LayoutGrid,
+  List,
+  Download,
+  Upload,
+  Tags,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+
+export type ViewMode = 'grid' | 'list';
+export type SortOption = 'recent' | 'oldest' | 'price_high' | 'price_low' | 'most_viewed' | 'low_stock' | 'alpha';
 
 interface ListingsHeaderProps {
   canReorder: boolean;
   isReorderModeActive: boolean;
   reordering: boolean;
-  allSelected: boolean;
-  filteredProductsLength: number;
+  totalProducts: number;
+  viewMode: ViewMode;
   onToggleReorderMode: () => void;
-  onSelectAll: (checked: boolean) => void;
+  onViewModeChange: (mode: ViewMode) => void;
+  onExport: () => void;
+  onImport: () => void;
+  onManageTags: () => void;
 }
 
 export function ListingsHeader({
   canReorder,
   isReorderModeActive,
   reordering,
-  allSelected,
-  filteredProductsLength,
+  totalProducts,
+  viewMode,
   onToggleReorderMode,
-  onSelectAll,
+  onViewModeChange,
+  onExport,
+  onImport,
+  onManageTags,
 }: ListingsHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-      <h1 className="text-2xl md:text-3xl page-title">Meus Produtos</h1>
-      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-        {/* Reorder Mode Toggle Button - Only show when reordering is possible */}
+    <div className="space-y-4">
+      {/* Top row: Title + Main actions */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            Meus Produtos
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {totalProducts} {totalProducts === 1 ? 'produto cadastrado' : 'produtos cadastrados'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link to="/dashboard/products/new">
+            <Button size="sm" className="shadow-sm">
+              <Plus className="w-4 h-4 mr-1.5" />
+              Novo Produto
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Toolbar row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* View mode toggle */}
+        <div className="flex items-center bg-muted/60 rounded-lg p-0.5 border border-border/50">
+          <button
+            onClick={() => onViewModeChange('grid')}
+            className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => onViewModeChange('list')}
+            className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Reorder toggle */}
         {canReorder && (
           <Button
-            variant={isReorderModeActive ? "default" : "outline"}
+            variant={isReorderModeActive ? 'default' : 'outline'}
+            size="sm"
             onClick={onToggleReorderMode}
             disabled={reordering}
-            className={`w-full sm:w-auto text-sm px-4 transition-all duration-300 ${
-              isReorderModeActive 
-                ? 'bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 shadow-xl' 
-                : 'hover:bg-primary/5 hover:border-primary/50'
-            }`}
+            className={`text-xs h-8 ${isReorderModeActive ? 'shadow-md' : ''}`}
           >
-            <ArrowUpDown className="w-4 h-4 mr-2" />
-            {isReorderModeActive ? (
-              <>
-                <span className="hidden sm:inline">Sair da Reordenação</span>
-                <span className="sm:hidden">Sair</span>
-              </>
-            ) : (
-              <>
-                <span className="hidden sm:inline">Reordenação</span>
-                <span className="sm:hidden">Reordenar</span>
-              </>
-            )}
+            <ArrowUpDown className="w-3.5 h-3.5 mr-1.5" />
+            <span className="hidden sm:inline">{isReorderModeActive ? 'Sair da Reordenacao' : 'Reordenar'}</span>
+            <span className="sm:hidden">{isReorderModeActive ? 'Sair' : 'Reordenar'}</span>
           </Button>
         )}
-        
-        <Link to="/dashboard/products/new" className="w-full sm:w-auto">
-          <Button className="w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Produto
-          </Button>
-        </Link>
+
+        {/* Tags */}
+        <Button variant="outline" size="sm" className="text-xs h-8" onClick={onManageTags}>
+          <Tags className="w-3.5 h-3.5 mr-1.5" />
+          <span className="hidden sm:inline">Tags</span>
+        </Button>
+
+        {/* Export/Import */}
+        <Button variant="outline" size="sm" className="text-xs h-8" onClick={onExport}>
+          <Download className="w-3.5 h-3.5 mr-1.5" />
+          <span className="hidden sm:inline">Exportar</span>
+        </Button>
+        <Button variant="outline" size="sm" className="text-xs h-8" onClick={onImport}>
+          <Upload className="w-3.5 h-3.5 mr-1.5" />
+          <span className="hidden sm:inline">Importar</span>
+        </Button>
       </div>
     </div>
   );
