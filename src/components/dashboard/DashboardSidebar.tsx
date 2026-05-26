@@ -288,7 +288,7 @@ function CardNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: CardN
             className={({ isActive }) => cn(
               "flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl text-[13px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
               isActive
-                ? "bg-foreground text-background font-medium shadow-md border-foreground/10 scale-[1.02] translate-x-0.5"
+                ? "bg-foreground text-background font-medium shadow-md border-foreground/10"
                 : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:shadow-sm hover:border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             )}
           >
@@ -327,7 +327,7 @@ function CardGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isE
               className={cn(
                 "flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl text-[13px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] w-full text-left",
                 isGroupActive
-                  ? "bg-foreground text-background font-medium shadow-md border-foreground/10 scale-[1.02] translate-x-0.5"
+                  ? "bg-foreground text-background font-medium shadow-md border-foreground/10"
                   : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:shadow-sm hover:border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
               )}
             >
