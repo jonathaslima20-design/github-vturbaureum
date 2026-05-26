@@ -47,6 +47,7 @@ import InventoryOverviewPage from '@/pages/dashboard/InventoryOverviewPage.tsx';
 import InventorySettingsPage from '@/pages/dashboard/InventorySettingsPage.tsx';
 import CheckoutPage from '@/pages/dashboard/CheckoutPage.tsx';
 import AccountPage from '@/pages/dashboard/AccountPage.tsx';
+import CouponsPage from '@/pages/dashboard/CouponsPage.tsx';
 
 // Admin Pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.tsx';
@@ -181,6 +182,7 @@ function AppContent() {
             <Route path="/dashboard/categories" element={<CategoriesPage />} />
             <Route path="/dashboard/referral" element={<ReferralPage />} />
             <Route path="/dashboard/orders" element={<OrdersPage />} />
+            <Route path="/dashboard/coupons" element={<CouponsPage />} />
             <Route path="/dashboard/sales" element={<SalesPage />} />
             <Route path="/dashboard/inventory" element={<InventoryOverviewPage />} />
             <Route path="/dashboard/inventory/settings" element={<InventorySettingsPage />} />

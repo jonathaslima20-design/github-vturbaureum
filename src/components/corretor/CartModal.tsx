@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, User } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, User, Ticket, Loader as Loader2, CircleCheck as CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -37,6 +37,7 @@ import {
 import TieredPricingIndicator from '@/components/product/TieredPricingIndicator';
 import { PhoneInputWithCountry } from '@/components/ui/phone-input-with-country';
 import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
+import { useCouponValidation } from '@/hooks/useCouponValidation';
 
 interface CartModalProps {
   open: boolean;
@@ -53,9 +54,10 @@ export default function CartModal({
   currency = 'BRL',
   language = 'pt-BR'
 }: CartModalProps) {
-  const { cart, updateVariantQuantity, removeCartVariant, clearCart, updateVariantNotes, updateVariantOptions, removeDistribution } = useCart();
+  const { cart, updateVariantQuantity, removeCartVariant, clearCart, updateVariantNotes, updateVariantOptions, removeDistribution, appliedCoupon, setAppliedCoupon, clearAppliedCoupon } = useCart();
   const { t } = useTranslation(language);
   const { autoDeductStock, inventoryEnabled } = useInventoryEnabledForStore(corretor?.id);
+  const { loading: couponLoading, error: couponError, validateCoupon, clearCoupon, setError: setCouponError } = useCouponValidation();
   const [sendingOrder, setSendingOrder] = useState(false);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [editingVariant, setEditingVariant] = useState<string | null>(null);
@@ -67,6 +69,10 @@ export default function CartModal({
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerCountryCode, setCustomerCountryCode] = useState('55');
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
+  const [couponCode, setCouponCode] = useState('');
+
+  const discountAmount = appliedCoupon?.calculatedDiscount || 0;
+  const finalTotal = Math.max(0, cart.total - discountAmount);
 
   useEffect(() => {
     const loadTieredPricing = async () => {
@@ -98,14 +104,31 @@ export default function CartModal({
   const generateOrderMessage = (customer?: { name: string; whatsapp: string; countryCode: string }) => {
     return generateCartOrderMessage(
       cart.items,
-      cart.total,
+      finalTotal,
       corretor.name,
       corretor.slug || '',
       currency,
       language,
       cart.distributions,
-      customer
+      customer,
+      appliedCoupon
     );
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    const cleanPhone = customerPhone.replace(/\D/g, '');
+    const productIds = cart.items.map(item => item.id);
+    const result = await validateCoupon(corretor.id, couponCode, cleanPhone, cart.total, productIds);
+    if (result) {
+      setAppliedCoupon(result);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    clearCoupon();
+    clearAppliedCoupon();
+    setCouponCode('');
   };
 
   const handleGoToCheckout = () => {
@@ -172,9 +195,12 @@ export default function CartModal({
             customer_country_code: customerCountryCode,
             order_type: 'whatsapp',
             subtotal: cart.total,
-            total: cart.total,
+            total: finalTotal,
             whatsapp_message: orderMessage,
             source: 'cart',
+            coupon_id: appliedCoupon?.couponId || null,
+            coupon_code: appliedCoupon?.code || null,
+            discount_amount: discountAmount,
           },
           orderItems,
           inventoryEnabled && autoDeductStock
@@ -190,6 +216,8 @@ export default function CartModal({
       window.open(whatsappUrl, '_blank');
 
       clearCart();
+      clearCoupon();
+      setCouponCode('');
       setStep('cart');
       setCustomerName('');
       setCustomerPhone('');
@@ -712,15 +740,6 @@ export default function CartModal({
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-3 flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    {cart.itemCount} {cart.itemCount === 1 ? 'item' : 'itens'}
-                  </span>
-                  <span className="text-lg font-bold text-primary">
-                    {formatCurrencyI18n(cart.total, currency, language)}
-                  </span>
-                </div>
-
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label htmlFor="checkout-name" className="flex items-center gap-1.5">
@@ -759,6 +778,93 @@ export default function CartModal({
                     {formErrors.phone && (
                       <p className="text-xs text-destructive">{formErrors.phone}</p>
                     )}
+                  </div>
+
+                  {/* Coupon Section */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1.5">
+                      <Ticket className="h-3.5 w-3.5" />
+                      Cupom de desconto
+                    </Label>
+                    {appliedCoupon ? (
+                      <div className="flex items-center gap-2 p-2.5 rounded-md border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                        <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                            {appliedCoupon.code}
+                          </p>
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            -{formatCurrencyI18n(appliedCoupon.calculatedDiscount, currency, language)}
+                            {appliedCoupon.discountType === 'percentage' && ` (${appliedCoupon.discountValue}%)`}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-green-600 hover:text-red-600 dark:text-green-400"
+                          onClick={handleRemoveCoupon}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Codigo do cupom"
+                          value={couponCode}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value.toUpperCase());
+                            if (couponError) setCouponError(null);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleApplyCoupon();
+                            }
+                          }}
+                          className="flex-1 uppercase"
+                          disabled={couponLoading}
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !couponCode.trim()}
+                          className="shrink-0"
+                        >
+                          {couponLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            'Aplicar'
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    {couponError && !appliedCoupon && (
+                      <p className="text-xs text-destructive">{couponError}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Order Summary */}
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">
+                      {cart.itemCount} {cart.itemCount === 1 ? 'item' : 'itens'}
+                    </span>
+                    <span>{formatCurrencyI18n(cart.total, currency, language)}</span>
+                  </div>
+                  {appliedCoupon && discountAmount > 0 && (
+                    <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
+                      <span>Cupom {appliedCoupon.code}</span>
+                      <span>-{formatCurrencyI18n(discountAmount, currency, language)}</span>
+                    </div>
+                  )}
+                  <Separator className="my-1" />
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Total</span>
+                    <span className="text-lg font-bold text-primary">
+                      {formatCurrencyI18n(finalTotal, currency, language)}
+                    </span>
                   </div>
                 </div>
 

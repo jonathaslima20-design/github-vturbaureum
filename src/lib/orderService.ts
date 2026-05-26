@@ -13,6 +13,9 @@ interface CreateOrderData {
   notes?: string;
   whatsapp_message?: string;
   source: 'cart' | 'product_page';
+  coupon_id?: string | null;
+  coupon_code?: string | null;
+  discount_amount?: number;
 }
 
 interface CreateOrderItemData {
@@ -39,20 +42,28 @@ export async function createOrder(
   items: CreateOrderItemData[],
   autoDeduct?: AutoDeductConfig
 ): Promise<Order | null> {
+  const insertPayload: Record<string, unknown> = {
+    store_owner_id: orderData.store_owner_id,
+    customer_name: orderData.customer_name,
+    customer_whatsapp: orderData.customer_whatsapp,
+    customer_country_code: orderData.customer_country_code,
+    order_type: orderData.order_type,
+    subtotal: orderData.subtotal,
+    total: orderData.total,
+    notes: orderData.notes || '',
+    whatsapp_message: orderData.whatsapp_message || '',
+    source: orderData.source,
+  };
+
+  if (orderData.coupon_id) {
+    insertPayload.coupon_id = orderData.coupon_id;
+    insertPayload.coupon_code = orderData.coupon_code;
+    insertPayload.discount_amount = orderData.discount_amount || 0;
+  }
+
   const { data: order, error: orderError } = await supabase
     .from('orders')
-    .insert({
-      store_owner_id: orderData.store_owner_id,
-      customer_name: orderData.customer_name,
-      customer_whatsapp: orderData.customer_whatsapp,
-      customer_country_code: orderData.customer_country_code,
-      order_type: orderData.order_type,
-      subtotal: orderData.subtotal,
-      total: orderData.total,
-      notes: orderData.notes || '',
-      whatsapp_message: orderData.whatsapp_message || '',
-      source: orderData.source,
-    })
+    .insert(insertPayload)
     .select()
     .maybeSingle();
 
@@ -94,6 +105,20 @@ export async function createOrder(
       selected_variant_label: item.selected_variant_label,
     }));
     await deductStockForOrder(order.id, autoDeduct.storeOwnerId, deductionItems);
+  }
+
+  if (orderData.coupon_id && orderData.discount_amount) {
+    try {
+      await supabase.rpc('apply_coupon_usage', {
+        p_coupon_id: orderData.coupon_id,
+        p_order_id: order.id,
+        p_customer_whatsapp: orderData.customer_whatsapp,
+        p_discount_applied: orderData.discount_amount,
+        p_order_type: orderData.order_type,
+      });
+    } catch (err) {
+      console.error('Error applying coupon usage:', err);
+    }
   }
 
   return order as Order;

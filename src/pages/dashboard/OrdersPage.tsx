@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Package, Search, Filter, Loader as Loader2, ShoppingBag, Clock, CircleCheck as CheckCircle, DollarSign, MessageCircle } from 'lucide-react';
+import { Package, Search, Filter, Loader as Loader2, ShoppingBag, Clock, CircleCheck as CheckCircle, DollarSign, MessageCircle, Ticket } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchOrders, getOrderStats, type OrderStats } from '@/lib/orderService';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
@@ -253,6 +253,12 @@ export default function OrdersPage() {
                         <Badge variant="outline" className="text-xs">
                           {order.source === 'cart' ? 'Carrinho' : 'Produto'}
                         </Badge>
+                        {order.coupon_code && (
+                          <Badge variant="outline" className="text-xs text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">
+                            <Ticket className="h-3 w-3 mr-1" />
+                            {order.coupon_code}
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                         <span>{itemCount} {itemCount === 1 ? 'item' : 'itens'}</span>

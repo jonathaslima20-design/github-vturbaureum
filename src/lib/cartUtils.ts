@@ -1,9 +1,6 @@
-import type { CartItem, CartDistribution } from '@/types';
+import type { CartItem, CartDistribution, AppliedCoupon } from '@/types';
 import { formatCurrencyI18n, generateWhatsAppMessage, type SupportedLanguage, type SupportedCurrency } from '@/lib/i18n';
 
-/**
- * Generate a formatted WhatsApp message for a cart order
- */
 interface CustomerData {
   name: string;
   whatsapp: string;
@@ -18,7 +15,8 @@ export function generateCartOrderMessage(
   currency: SupportedCurrency = 'BRL',
   language: SupportedLanguage = 'pt-BR',
   distributions: CartDistribution[] = [],
-  customer?: CustomerData
+  customer?: CustomerData,
+  coupon?: AppliedCoupon | null
 ): string {
   if (cartItems.length === 0 && distributions.length === 0) return '';
 
@@ -213,13 +211,29 @@ export function generateCartOrderMessage(
 
   // Order footer
   orderMessage += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  
+
+  if (coupon && coupon.calculatedDiscount > 0) {
+    const subtotalLabelsFooter = {
+      'pt-BR': 'Subtotal',
+      'en-US': 'Subtotal',
+      'es-ES': 'Subtotal',
+    };
+    const couponLabels = {
+      'pt-BR': 'Cupom',
+      'en-US': 'Coupon',
+      'es-ES': 'Cupón',
+    };
+    const subtotalBeforeDiscount = total + coupon.calculatedDiscount;
+    orderMessage += `*${subtotalLabelsFooter[language] || subtotalLabelsFooter['pt-BR']}: ${formatCurrencyI18n(subtotalBeforeDiscount, currency, language)}*\n`;
+    orderMessage += `*${couponLabels[language] || couponLabels['pt-BR']}:* ${coupon.code} (-${formatCurrencyI18n(coupon.calculatedDiscount, currency, language)})\n`;
+  }
+
   const totalLabels = {
     'pt-BR': 'TOTAL',
     'en-US': 'TOTAL',
     'es-ES': 'TOTAL',
   };
-  
+
   orderMessage += `*${totalLabels[language] || totalLabels['pt-BR']}: ${formatCurrencyI18n(total, currency, language)}*\n\n`;
   
   const footerMessages = {

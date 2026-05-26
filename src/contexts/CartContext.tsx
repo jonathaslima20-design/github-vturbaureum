@@ -1,12 +1,15 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { toast } from 'sonner';
-import type { CartItem, CartState, Product, PriceTier, VariantDistribution, DistributionItem, CartDistribution } from '@/types';
+import type { CartItem, CartState, Product, PriceTier, VariantDistribution, DistributionItem, CartDistribution, AppliedCoupon } from '@/types';
 import { fetchProductPriceTiers, calculateApplicablePrice } from '@/lib/tieredPricingUtils';
 import { createDistribution, updateDistribution, deleteDistribution, fetchUserDistributions } from '@/lib/distributionUtils';
 import { supabase } from '@/lib/supabase';
 
 interface CartContextType {
   cart: CartState;
+  appliedCoupon: AppliedCoupon | null;
+  setAppliedCoupon: (coupon: AppliedCoupon | null) => void;
+  clearAppliedCoupon: () => void;
   addToCart: (product: Product, selectedColor?: string, selectedSize?: string, quantity?: number, appliedTierPrice?: number, selectedFlavor?: string, selectedWeightVariant?: { id: string; label: string; price: number }) => void;
   removeFromCart: (productId: string) => void;
   removeCartVariant: (variantId: string) => void;
@@ -31,6 +34,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'vitrineturbo_cart';
+const COUPON_STORAGE_KEY = 'vitrineturbo_coupon';
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartState>({
@@ -39,6 +43,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     total: 0,
     itemCount: 0,
   });
+  const [appliedCoupon, setAppliedCouponState] = useState<AppliedCoupon | null>(null);
   const [tiersCache, setTiersCache] = useState<Map<string, PriceTier[]>>(new Map());
   const [productsCache, setProductsCache] = useState<Map<string, Product>>(new Map());
 
@@ -48,7 +53,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const savedCart = localStorage.getItem(STORAGE_KEY);
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
-        // Ensure cart has required fields with defaults
         setCart({
           items: parsedCart.items || [],
           distributions: parsedCart.distributions || [],
@@ -56,9 +60,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
           itemCount: parsedCart.itemCount || 0,
         });
       }
+      const savedCoupon = localStorage.getItem(COUPON_STORAGE_KEY);
+      if (savedCoupon) {
+        setAppliedCouponState(JSON.parse(savedCoupon));
+      }
     } catch (error) {
       console.error('Error loading cart from localStorage:', error);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(COUPON_STORAGE_KEY);
     }
   }, []);
 
@@ -70,6 +79,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.error('Error saving cart to localStorage:', error);
     }
   }, [cart]);
+
+  // Persist coupon to localStorage
+  useEffect(() => {
+    try {
+      if (appliedCoupon) {
+        localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem(COUPON_STORAGE_KEY);
+      }
+    } catch (error) {
+      console.error('Error saving coupon to localStorage:', error);
+    }
+  }, [appliedCoupon]);
+
+  const setAppliedCoupon = (coupon: AppliedCoupon | null) => {
+    setAppliedCouponState(coupon);
+  };
+
+  const clearAppliedCoupon = () => {
+    setAppliedCouponState(null);
+  };
 
   // Calculate totals whenever items or distributions change
   useEffect(() => {
@@ -241,6 +271,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       total: 0,
       itemCount: 0,
     });
+    setAppliedCouponState(null);
     toast.success('Carrinho limpo');
   };
 
@@ -514,6 +545,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = {
     cart,
+    appliedCoupon,
+    setAppliedCoupon,
+    clearAppliedCoupon,
     addToCart,
     removeFromCart,
     removeCartVariant,

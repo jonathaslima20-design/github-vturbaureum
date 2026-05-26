@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, MessageCircle, Package, Clock, ShoppingCart, MapPin } from 'lucide-react';
+import { X, MessageCircle, Package, Clock, ShoppingCart, MapPin, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -274,6 +274,26 @@ export default function OrderDetailsPanel({
             </div>
 
             <Separator />
+
+            {/* Coupon Info */}
+            {order.coupon_code && (
+              <>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Subtotal</span>
+                    <span className="text-sm">{formatCurrency(order.subtotal)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-green-600 dark:text-green-400">
+                    <span className="text-sm flex items-center gap-1.5">
+                      <Ticket className="h-3.5 w-3.5" />
+                      Cupom {order.coupon_code}
+                    </span>
+                    <span className="text-sm font-medium">-{formatCurrency(order.discount_amount || 0)}</span>
+                  </div>
+                </div>
+                <Separator />
+              </>
+            )}
 
             {/* Order Total */}
             <div className="flex justify-between items-center">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,7 +22,7 @@ export default function DashboardSidebar() {
 
   const isCatalogSection = location.pathname.startsWith('/dashboard/listings') || location.pathname.startsWith('/dashboard/categories');
   const isStockSection = location.pathname.startsWith('/dashboard/inventory') || location.pathname.startsWith('/dashboard/stock-movements');
-  const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales');
+  const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales') || location.pathname.startsWith('/dashboard/coupons');
 
   useEffect(() => {
     if (isCatalogSection) setCatalogExpanded(true);
@@ -54,6 +54,7 @@ export default function DashboardSidebar() {
 
   const salesSubItems = [
     { name: 'Pedidos', href: '/dashboard/orders', icon: ClipboardList, badge: pendingOrders },
+    { name: 'Cupons', href: '/dashboard/coupons', icon: Ticket },
     { name: 'Vendas Online', href: '/dashboard/sales', icon: CreditCard, comingSoon: true },
   ];
 

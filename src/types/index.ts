@@ -369,6 +369,9 @@ export interface Order {
   updated_at: string;
   order_items?: OrderItem[];
   inventory_deducted?: boolean;
+  coupon_id?: string | null;
+  coupon_code?: string | null;
+  discount_amount?: number;
 }
 
 export interface OrderItem {
@@ -457,4 +460,59 @@ export interface AppNotification {
   related_entity_type?: string | null;
   is_read: boolean;
   created_at: string;
+}
+
+// Coupon System Types
+export type CouponDiscountType = 'percentage' | 'fixed_amount';
+export type CouponAppliesTo = 'all_products' | 'specific_products' | 'specific_categories';
+
+export interface Coupon {
+  id: string;
+  user_id: string;
+  code: string;
+  name: string;
+  discount_type: CouponDiscountType;
+  discount_value: number;
+  min_order_value: number;
+  max_discount_amount?: number | null;
+  max_uses?: number | null;
+  max_uses_per_customer?: number | null;
+  current_uses: number;
+  valid_from: string;
+  valid_until?: string | null;
+  is_active: boolean;
+  applies_to: CouponAppliesTo;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CouponProduct {
+  id: string;
+  coupon_id: string;
+  product_id: string;
+}
+
+export interface CouponCategory {
+  id: string;
+  coupon_id: string;
+  category_id: string;
+}
+
+export interface CouponUsage {
+  id: string;
+  coupon_id: string;
+  order_id: string;
+  customer_whatsapp: string;
+  discount_applied: number;
+  order_type: string;
+  used_at: string;
+}
+
+export interface AppliedCoupon {
+  couponId: string;
+  code: string;
+  name: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  calculatedDiscount: number;
 }
