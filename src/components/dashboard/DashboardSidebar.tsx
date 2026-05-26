@@ -165,15 +165,15 @@ export default function DashboardSidebar() {
               className="flex items-center gap-3 w-full p-2.5 hover:bg-foreground/[0.03] transition-colors duration-150 text-left group"
               onClick={() => setShowSubscriptionModal(true)}
             >
-              <Avatar className="h-8 w-8 shrink-0 ring-1 ring-foreground/10">
+              <Avatar className="h-9 w-9 shrink-0 ring-1 ring-foreground/10">
                 <AvatarImage src={user?.avatar_url} alt={user?.name} />
-                <AvatarFallback className="text-[11px] font-bold bg-foreground text-background tracking-tight">
+                <AvatarFallback className="text-xs font-bold bg-foreground text-background tracking-tight">
                   {getInitials(user?.name || '')}
                 </AvatarFallback>
               </Avatar>
               {isExpanded && (
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[13px] truncate leading-tight tracking-tight">{user?.name}</p>
+                  <p className="font-semibold text-sm truncate leading-tight tracking-tight">{user?.name}</p>
                   <div className="mt-0.5">
                     <PlanStatusBadge status={user?.plan_status} />
                   </div>
@@ -183,7 +183,7 @@ export default function DashboardSidebar() {
             <button
               onClick={() => signOut()}
               className={cn(
-                "flex items-center gap-2.5 py-2 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-[13px] tracking-tight",
+                "flex items-center gap-2.5 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-sm tracking-tight",
                 !isExpanded && "justify-center"
               )}
             >
@@ -266,16 +266,16 @@ function InkNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: InkNav
       end={end}
       onClick={onClick}
       className={cn(
-        "flex flex-row items-center gap-3 py-2 px-3 text-[13px] tracking-tight transition-colors duration-150 relative",
+        "flex flex-row items-center gap-3 py-2.5 px-3 text-sm tracking-tight transition-colors duration-150 relative",
         isActive
           ? "text-foreground font-semibold bg-foreground/[0.04]"
           : "text-muted-foreground hover:text-foreground"
       )}
     >
       {isActive && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-foreground" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
       )}
-      <Icon className="h-[16px] w-[16px] shrink-0" />
+      <Icon className="h-[18px] w-[18px] shrink-0" />
       {isExpanded && <span className="whitespace-nowrap">{name}</span>}
     </NavLink>
   );
@@ -311,21 +311,21 @@ function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isEx
     <button
       onClick={onToggle}
       className={cn(
-        "flex flex-row items-center gap-3 py-2 px-3 text-[13px] tracking-tight transition-colors duration-150 w-full text-left relative",
+        "flex flex-row items-center gap-3 py-2.5 px-3 text-sm tracking-tight transition-colors duration-150 w-full text-left relative",
         isGroupActive
           ? "text-foreground font-semibold bg-foreground/[0.04]"
           : "text-muted-foreground hover:text-foreground"
       )}
     >
       {isGroupActive && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-foreground" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
       )}
-      <Icon className="h-[16px] w-[16px] shrink-0" />
+      <Icon className="h-[18px] w-[18px] shrink-0" />
       {isExpanded && (
         <>
           <span className="flex-1 whitespace-nowrap">{label}</span>
           {badge !== undefined && badge > 0 && (
-            <span className="text-[10px] font-bold tabular-nums text-foreground">
+            <span className="text-[11px] font-bold tabular-nums text-foreground">
               {badge > 99 ? '99+' : badge}
             </span>
           )}
@@ -357,21 +357,21 @@ function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isEx
               to={item.href}
               onClick={onItemClick}
               className={({ isActive }) => cn(
-                "flex flex-row items-center gap-2.5 py-1.5 pl-4 pr-3 text-[12px] tracking-tight transition-colors duration-150",
+                "flex flex-row items-center gap-2.5 py-2 pl-4 pr-3 text-[13px] tracking-tight transition-colors duration-150",
                 isActive
                   ? "text-foreground font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <item.icon className="h-3 w-3 shrink-0" />
+              <item.icon className="h-3.5 w-3.5 shrink-0" />
               <span className="flex-1 whitespace-nowrap">{item.name}</span>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="text-[9px] font-bold tabular-nums bg-foreground text-background px-1.5 py-0.5">
+                <span className="text-[10px] font-bold tabular-nums bg-foreground text-background px-1.5 py-0.5">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               )}
               {item.comingSoon && (
-                <span className="text-[9px] uppercase tracking-widest text-muted-foreground/50">breve</span>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">breve</span>
               )}
             </NavLink>
           ))}
