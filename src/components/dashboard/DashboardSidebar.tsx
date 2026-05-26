@@ -146,6 +146,13 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
+          </nav>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-auto px-3 pb-4 pt-2">
+          <PlanUsageIndicator expanded={isExpanded} />
+          <div className="py-2">
             <InkNavItem
               name="Indique e Ganhe"
               href="/dashboard/referral"
@@ -154,13 +161,8 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-          </nav>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-auto px-3 pb-4 pt-2">
-          <PlanUsageIndicator expanded={isExpanded} />
-          <div className="border-t border-foreground/[0.06] pt-3 mt-3">
+          </div>
+          <div className="border-t border-foreground/[0.06] pt-3 mt-1">
             <button
               className="flex items-center gap-3 w-full p-2.5 hover:bg-foreground/[0.03] transition-colors duration-150 text-left group"
               onClick={() => setShowSubscriptionModal(true)}
