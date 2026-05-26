@@ -14,7 +14,7 @@ export interface SalesFunnelData {
   loading: boolean;
 }
 
-export function useSalesFunnel() {
+export function useSalesFunnel(periodDays: number = 30) {
   const { user } = useAuth();
   const [data, setData] = useState<SalesFunnelData>({
     stages: [],
@@ -27,7 +27,7 @@ export function useSalesFunnel() {
       return;
     }
     fetchFunnelData();
-  }, [user?.id]);
+  }, [user?.id, periodDays]);
 
   const fetchFunnelData = async () => {
     if (!user?.id) return;
@@ -35,10 +35,10 @@ export function useSalesFunnel() {
     try {
       setData(prev => ({ ...prev, loading: true }));
 
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const sixtyDaysAgo = new Date();
-      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - periodDays);
+      const previousStartDate = new Date();
+      previousStartDate.setDate(previousStartDate.getDate() - periodDays * 2);
 
       const { data: products } = await supabase
         .from('products')
@@ -64,60 +64,60 @@ export function useSalesFunnel() {
           .from('property_views')
           .select('viewer_id')
           .in('property_id', safeIds)
-          .gte('viewed_at', thirtyDaysAgo.toISOString()),
+          .gte('viewed_at', startDate.toISOString()),
         supabase
           .from('property_views')
           .select('id', { count: 'exact', head: true })
           .in('property_id', safeIds)
-          .gte('viewed_at', thirtyDaysAgo.toISOString()),
+          .gte('viewed_at', startDate.toISOString()),
         supabase
           .from('leads')
           .select('id', { count: 'exact', head: true })
           .in('property_id', safeIds)
-          .gte('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', startDate.toISOString()),
         supabase
           .from('orders')
           .select('id', { count: 'exact', head: true })
           .eq('store_owner_id', user.id)
-          .gte('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', startDate.toISOString()),
         supabase
           .from('orders')
           .select('id', { count: 'exact', head: true })
           .eq('store_owner_id', user.id)
           .eq('status', 'delivered')
-          .gte('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', startDate.toISOString()),
         // Previous period
         supabase
           .from('property_views')
           .select('viewer_id')
           .in('property_id', safeIds)
-          .gte('viewed_at', sixtyDaysAgo.toISOString())
-          .lt('viewed_at', thirtyDaysAgo.toISOString()),
+          .gte('viewed_at', previousStartDate.toISOString())
+          .lt('viewed_at', startDate.toISOString()),
         supabase
           .from('property_views')
           .select('id', { count: 'exact', head: true })
           .in('property_id', safeIds)
-          .gte('viewed_at', sixtyDaysAgo.toISOString())
-          .lt('viewed_at', thirtyDaysAgo.toISOString()),
+          .gte('viewed_at', previousStartDate.toISOString())
+          .lt('viewed_at', startDate.toISOString()),
         supabase
           .from('leads')
           .select('id', { count: 'exact', head: true })
           .in('property_id', safeIds)
-          .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', previousStartDate.toISOString())
+          .lt('created_at', startDate.toISOString()),
         supabase
           .from('orders')
           .select('id', { count: 'exact', head: true })
           .eq('store_owner_id', user.id)
-          .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', previousStartDate.toISOString())
+          .lt('created_at', startDate.toISOString()),
         supabase
           .from('orders')
           .select('id', { count: 'exact', head: true })
           .eq('store_owner_id', user.id)
           .eq('status', 'delivered')
-          .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', previousStartDate.toISOString())
+          .lt('created_at', startDate.toISOString()),
       ]);
 
       const uniqueVisitors = new Set(currentVisitors.data?.map(v => v.viewer_id) || []).size;

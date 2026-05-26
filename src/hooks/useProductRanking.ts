@@ -13,7 +13,7 @@ export interface RankedProduct {
   weeklyViews: number[];
 }
 
-export function useProductRanking() {
+export function useProductRanking(periodDays: number = 30) {
   const { user } = useAuth();
   const [topProducts, setTopProducts] = useState<RankedProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ export function useProductRanking() {
       return;
     }
     fetchRanking();
-  }, [user?.id]);
+  }, [user?.id, periodDays]);
 
   const fetchRanking = async () => {
     if (!user?.id) return;
@@ -32,12 +32,11 @@ export function useProductRanking() {
     try {
       setLoading(true);
 
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - periodDays);
+      const halfPeriod = Math.floor(periodDays / 2);
+      const midDate = new Date();
+      midDate.setDate(midDate.getDate() - halfPeriod);
 
       const { data: products } = await supabase
         .from('products')
@@ -57,26 +56,26 @@ export function useProductRanking() {
           .from('property_views')
           .select('property_id, viewed_at')
           .in('property_id', productIds)
-          .gte('viewed_at', thirtyDaysAgo.toISOString()),
+          .gte('viewed_at', startDate.toISOString()),
 
         supabase
           .from('leads')
           .select('property_id')
           .in('property_id', productIds)
-          .gte('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', startDate.toISOString()),
 
         supabase
           .from('property_views')
           .select('property_id')
           .in('property_id', productIds)
-          .gte('viewed_at', sevenDaysAgo.toISOString()),
+          .gte('viewed_at', midDate.toISOString()),
 
         supabase
           .from('property_views')
           .select('property_id')
           .in('property_id', productIds)
-          .gte('viewed_at', fourteenDaysAgo.toISOString())
-          .lt('viewed_at', sevenDaysAgo.toISOString()),
+          .gte('viewed_at', startDate.toISOString())
+          .lt('viewed_at', midDate.toISOString()),
       ]);
 
       const viewsByProduct = new Map<string, number>();
@@ -100,7 +99,7 @@ export function useProductRanking() {
         leadsByProduct.set(l.property_id, (leadsByProduct.get(l.property_id) || 0) + 1);
       });
 
-      // Build weekly sparkline data for each product
+      // Build weekly sparkline data for each product (always last 7 days)
       const viewsByProductAndDay = new Map<string, Map<string, number>>();
       (viewsRes.data || []).forEach(v => {
         const dayKey = v.viewed_at.split('T')[0];
@@ -118,7 +117,6 @@ export function useProductRanking() {
         const prevViews = previousViewsByProduct.get(p.id) || 0;
         const trending = prevViews > 0 ? recentViews > prevViews * 1.3 : recentViews >= 5;
 
-        // Last 7 days sparkline
         const weeklyViews: number[] = [];
         for (let i = 6; i >= 0; i--) {
           const day = new Date();

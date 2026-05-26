@@ -2,8 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, TrendingUp, TrendingDown, Loader as Loader2, Receipt } from 'lucide-react';
 import { useDashboardRevenue } from '@/hooks/useDashboardRevenue';
 
-export function RevenueCard() {
-  const { totalRevenue, revenueChange, averageTicket, totalDelivered, loading } = useDashboardRevenue();
+interface RevenueCardProps {
+  periodDays?: number;
+}
+
+export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
+  const { totalRevenue, revenueChange, averageTicket, totalDelivered, loading } = useDashboardRevenue(periodDays);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -13,7 +17,7 @@ export function RevenueCard() {
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Faturamento (30d)</CardTitle>
+          <CardTitle className="text-sm font-medium">Faturamento ({periodDays}d)</CardTitle>
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -66,7 +70,7 @@ export function RevenueCard() {
           ) : (
             <>
               <div className="text-2xl font-bold">{totalDelivered}</div>
-              <p className="text-xs text-muted-foreground">nos ultimos 30 dias</p>
+              <p className="text-xs text-muted-foreground">nos ultimos {periodDays} dias</p>
             </>
           )}
         </CardContent>

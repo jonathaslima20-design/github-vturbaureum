@@ -3,8 +3,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Loader as Loader2 } from 'lucide-react';
 import { useDashboardRevenue } from '@/hooks/useDashboardRevenue';
 
-export function RevenueChart() {
-  const { weeklyRevenue, loading } = useDashboardRevenue();
+interface RevenueChartProps {
+  periodDays?: number;
+}
+
+export function RevenueChart({ periodDays = 30 }: RevenueChartProps) {
+  const { weeklyRevenue, loading } = useDashboardRevenue(periodDays);
 
   const formatCurrency = (value: number) => {
     if (value >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
@@ -14,8 +18,8 @@ export function RevenueChart() {
   return (
     <Card className="flex-1">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Receita Semanal</CardTitle>
-        <p className="text-sm text-muted-foreground">Ultimos 7 dias</p>
+        <CardTitle className="text-lg font-semibold">Receita</CardTitle>
+        <p className="text-sm text-muted-foreground">Ultimos {periodDays} dias</p>
       </CardHeader>
       <CardContent>
         {loading ? (

@@ -14,7 +14,7 @@ interface DashboardStats {
   error: string | null;
 }
 
-export function useDashboardStats() {
+export function useDashboardStats(periodDays: number = 30) {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
@@ -45,7 +45,7 @@ export function useDashboardStats() {
     }
 
     fetchDashboardStats();
-  }, [user?.id]);
+  }, [user?.id, periodDays]);
 
   const fetchDashboardStats = async () => {
     if (!user?.id) return;
@@ -53,8 +53,8 @@ export function useDashboardStats() {
     try {
       setStats(prev => ({ ...prev, loading: true, error: null }));
 
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - periodDays);
 
       const { data: products, error: productsError } = await supabase
         .from('products')
@@ -64,31 +64,32 @@ export function useDashboardStats() {
       if (productsError) throw productsError;
 
       const productIds = products?.map(p => p.id) || [];
+      const safeIds = productIds.length > 0 ? productIds : ['00000000-0000-0000-0000-000000000000'];
 
       const [viewsResponse, uniqueVisitorsResponse, leadsResponse, ordersResponse, lowStockResponse, outOfStockResponse] = await Promise.all([
         supabase
           .from('property_views')
           .select('id', { count: 'exact', head: true })
-          .in('property_id', productIds.length > 0 ? productIds : ['00000000-0000-0000-0000-000000000000'])
-          .gte('viewed_at', thirtyDaysAgo.toISOString()),
+          .in('property_id', safeIds)
+          .gte('viewed_at', startDate.toISOString()),
 
         supabase
           .from('property_views')
           .select('viewer_id')
-          .in('property_id', productIds.length > 0 ? productIds : ['00000000-0000-0000-0000-000000000000'])
-          .gte('viewed_at', thirtyDaysAgo.toISOString()),
+          .in('property_id', safeIds)
+          .gte('viewed_at', startDate.toISOString()),
 
         supabase
           .from('leads')
           .select('id', { count: 'exact', head: true })
-          .in('property_id', productIds.length > 0 ? productIds : ['00000000-0000-0000-0000-000000000000'])
-          .gte('created_at', thirtyDaysAgo.toISOString()),
+          .in('property_id', safeIds)
+          .gte('created_at', startDate.toISOString()),
 
         supabase
           .from('orders')
           .select('id', { count: 'exact', head: true })
           .eq('store_owner_id', user.id)
-          .gte('created_at', thirtyDaysAgo.toISOString()),
+          .gte('created_at', startDate.toISOString()),
 
         supabase
           .from('products')

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, TrendingUp, Users, DollarSign, Loader as Loader2, ExternalLink, ShoppingBag, TriangleAlert as AlertTriangle } from 'lucide-react';
@@ -13,14 +14,31 @@ import { TopProductsList } from '@/components/dashboard/TopProductsList';
 import { SalesFunnel } from '@/components/dashboard/SalesFunnel';
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { StoreScoreCard } from '@/components/dashboard/StoreScoreCard';
+import { DashboardPeriodFilter, PeriodOption } from '@/components/dashboard/DashboardPeriodFilter';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+
+const PERIOD_STORAGE_KEY = 'vitrineturbo_dashboard_period';
+
+function getStoredPeriod(): PeriodOption {
+  const stored = localStorage.getItem(PERIOD_STORAGE_KEY);
+  if (stored && [7, 15, 30, 90].includes(Number(stored))) {
+    return Number(stored) as PeriodOption;
+  }
+  return 30;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { totalProducts, totalViews, uniqueVisitors, totalLeads, totalOrders, lowStockCount, outOfStockCount, loading, error } = useDashboardStats();
+  const [periodDays, setPeriodDays] = useState<PeriodOption>(getStoredPeriod);
+  const { totalProducts, totalViews, uniqueVisitors, totalLeads, totalOrders, lowStockCount, outOfStockCount, loading, error } = useDashboardStats(periodDays);
   const { inventoryEnabled } = useInventoryEnabled();
+
+  const handlePeriodChange = (period: PeriodOption) => {
+    setPeriodDays(period);
+    localStorage.setItem(PERIOD_STORAGE_KEY, String(period));
+  };
 
   const getMissingProfileFields = () => {
     const missing: string[] = [];
@@ -49,22 +67,28 @@ export default function DashboardPage() {
     window.open(`https://vitrineturbo.com/${user!.slug}`, '_blank');
   };
 
+  const periodLabel = `nos últimos ${periodDays} dias`;
+
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl page-title">Dashboard</h1>
           <p className="text-muted-foreground text-sm mt-1">Bem-vindo de volta, {user?.name || 'Usuário'}!</p>
         </div>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={handleViewStorefront}
-          className="gap-2"
-        >
-          <ExternalLink className="h-4 w-4" />
-          Ver Minha Vitrine
-        </Button>
+        <div className="flex items-center gap-3">
+          <DashboardPeriodFilter value={periodDays} onChange={handlePeriodChange} />
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleViewStorefront}
+            className="gap-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            <span className="hidden sm:inline">Ver Minha Vitrine</span>
+            <span className="sm:hidden">Vitrine</span>
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -103,7 +127,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">{totalViews}</div>
-                <p className="text-xs text-muted-foreground">nos últimos 30 dias</p>
+                <p className="text-xs text-muted-foreground">{periodLabel}</p>
               </>
             )}
           </CardContent>
@@ -154,7 +178,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">{totalOrders}</div>
-                <p className="text-xs text-muted-foreground">nos ultimos 30 dias</p>
+                <p className="text-xs text-muted-foreground">{periodLabel}</p>
               </>
             )}
           </CardContent>
@@ -186,23 +210,23 @@ export default function DashboardPage() {
       </div>
 
       {/* Revenue Cards */}
-      <RevenueCard />
+      <RevenueCard periodDays={periodDays} />
 
       {/* Charts Row: Revenue Chart + Sales Funnel */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <RevenueChart />
-        <SalesFunnel />
+        <RevenueChart periodDays={periodDays} />
+        <SalesFunnel periodDays={periodDays} />
       </div>
 
       {/* Views & Leads Chart */}
-      <ViewsAndLeadsChart days={7} />
+      <ViewsAndLeadsChart days={periodDays} />
 
       {/* Insights */}
       <InsightsSection />
 
       {/* Top Products + Recent Activity */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <TopProductsList />
+        <TopProductsList periodDays={periodDays} />
         <RecentActivityFeed />
       </div>
 

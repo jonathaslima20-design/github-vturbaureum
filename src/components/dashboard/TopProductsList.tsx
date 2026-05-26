@@ -72,8 +72,12 @@ function ProductRankItem({ product, rank }: { product: RankedProduct; rank: numb
   );
 }
 
-export function TopProductsList() {
-  const { topProducts, loading } = useProductRanking();
+interface TopProductsListProps {
+  periodDays?: number;
+}
+
+export function TopProductsList({ periodDays = 30 }: TopProductsListProps) {
+  const { topProducts, loading } = useProductRanking(periodDays);
 
   if (!loading && topProducts.length === 0) return null;
 
@@ -84,7 +88,7 @@ export function TopProductsList() {
           <Trophy className="h-5 w-5 text-amber-500" />
           Top Produtos
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Mais visualizados nos ultimos 30 dias</p>
+        <p className="text-sm text-muted-foreground">Mais visualizados nos ultimos {periodDays} dias</p>
       </CardHeader>
       <CardContent>
         {loading ? (

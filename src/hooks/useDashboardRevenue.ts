@@ -12,7 +12,7 @@ interface RevenueStats {
   loading: boolean;
 }
 
-export function useDashboardRevenue() {
+export function useDashboardRevenue(periodDays: number = 30) {
   const { user } = useAuth();
   const [stats, setStats] = useState<RevenueStats>({
     totalRevenue: 0,
@@ -30,7 +30,7 @@ export function useDashboardRevenue() {
       return;
     }
     fetchRevenue();
-  }, [user?.id]);
+  }, [user?.id, periodDays]);
 
   const fetchRevenue = async () => {
     if (!user?.id) return;
@@ -39,25 +39,25 @@ export function useDashboardRevenue() {
       setStats(prev => ({ ...prev, loading: true }));
 
       const now = new Date();
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(now.getDate() - 30);
-      const sixtyDaysAgo = new Date();
-      sixtyDaysAgo.setDate(now.getDate() - 60);
+      const startDate = new Date();
+      startDate.setDate(now.getDate() - periodDays);
+      const previousStartDate = new Date();
+      previousStartDate.setDate(now.getDate() - periodDays * 2);
 
       const [currentResponse, previousResponse] = await Promise.all([
         supabase
           .from('orders')
           .select('total, created_at, status')
           .eq('store_owner_id', user.id)
-          .gte('created_at', thirtyDaysAgo.toISOString())
+          .gte('created_at', startDate.toISOString())
           .in('status', ['delivered', 'confirmed', 'preparing', 'shipped']),
 
         supabase
           .from('orders')
           .select('total')
           .eq('store_owner_id', user.id)
-          .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString())
+          .gte('created_at', previousStartDate.toISOString())
+          .lt('created_at', startDate.toISOString())
           .in('status', ['delivered', 'confirmed', 'preparing', 'shipped']),
       ]);
 
@@ -72,18 +72,36 @@ export function useDashboardRevenue() {
       const totalDelivered = currentOrders.filter(o => o.status === 'delivered').length;
       const averageTicket = currentOrders.length > 0 ? totalRevenue / currentOrders.length : 0;
 
+      // Chart data: show last 7 data points regardless of period
+      const chartDays = Math.min(periodDays, 7);
       const weeklyRevenue: { date: string; revenue: number }[] = [];
+      const dayStep = Math.max(Math.floor(periodDays / 7), 1);
+
       for (let i = 6; i >= 0; i--) {
+        const dayOffset = i * dayStep;
         const day = new Date();
-        day.setDate(now.getDate() - i);
+        day.setDate(now.getDate() - dayOffset);
         const dayStr = day.toISOString().split('T')[0];
         const label = `${String(day.getDate()).padStart(2, '0')}/${String(day.getMonth() + 1).padStart(2, '0')}`;
 
-        const dayRevenue = currentOrders
-          .filter(o => o.created_at.startsWith(dayStr))
-          .reduce((sum, o) => sum + (o.total || 0), 0);
+        if (dayStep === 1) {
+          const dayRevenue = currentOrders
+            .filter(o => o.created_at.startsWith(dayStr))
+            .reduce((sum, o) => sum + (o.total || 0), 0);
+          weeklyRevenue.push({ date: label, revenue: dayRevenue });
+        } else {
+          const rangeStart = new Date(day);
+          rangeStart.setDate(rangeStart.getDate() - dayStep + 1);
+          const rangeStartStr = rangeStart.toISOString().split('T')[0];
 
-        weeklyRevenue.push({ date: label, revenue: dayRevenue });
+          const rangeRevenue = currentOrders
+            .filter(o => {
+              const orderDate = o.created_at.split('T')[0];
+              return orderDate >= rangeStartStr && orderDate <= dayStr;
+            })
+            .reduce((sum, o) => sum + (o.total || 0), 0);
+          weeklyRevenue.push({ date: label, revenue: rangeRevenue });
+        }
       }
 
       setStats({

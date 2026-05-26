@@ -60,8 +60,12 @@ function ConversionRate({ from, to }: { from: FunnelStage; to: FunnelStage }) {
   );
 }
 
-export function SalesFunnel() {
-  const { stages, loading } = useSalesFunnel();
+interface SalesFunnelProps {
+  periodDays?: number;
+}
+
+export function SalesFunnel({ periodDays = 30 }: SalesFunnelProps) {
+  const { stages, loading } = useSalesFunnel(periodDays);
 
   const maxValue = stages.length > 0 ? Math.max(...stages.map(s => s.value), 1) : 1;
 
@@ -85,7 +89,7 @@ export function SalesFunnel() {
           <Filter className="h-5 w-5 text-sky-500" />
           Funil de Vendas
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Ultimos 30 dias vs periodo anterior</p>
+        <p className="text-sm text-muted-foreground">Ultimos {periodDays} dias vs periodo anterior</p>
       </CardHeader>
       <CardContent>
         {loading ? (
