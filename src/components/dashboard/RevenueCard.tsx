@@ -14,7 +14,7 @@ export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
   };
 
   return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Faturamento ({periodDays}d)</CardTitle>
@@ -25,7 +25,7 @@ export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           ) : (
             <>
-              <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
+              <div className="text-lg sm:text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
               <div className="flex items-center gap-1 mt-1">
                 {revenueChange >= 0 ? (
                   <TrendingUp className="h-3 w-3 text-emerald-600" />
@@ -52,7 +52,7 @@ export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           ) : (
             <>
-              <div className="text-2xl font-bold">{formatCurrency(averageTicket)}</div>
+              <div className="text-lg sm:text-2xl font-bold">{formatCurrency(averageTicket)}</div>
               <p className="text-xs text-muted-foreground">por pedido</p>
             </>
           )}

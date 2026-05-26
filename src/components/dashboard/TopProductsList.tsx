@@ -67,7 +67,9 @@ function ProductRankItem({ product, rank }: { product: RankedProduct; rank: numb
         </div>
       </div>
 
-      <Sparkline data={product.weeklyViews} />
+      <div className="hidden sm:block">
+        <Sparkline data={product.weeklyViews} />
+      </div>
     </div>
   );
 }

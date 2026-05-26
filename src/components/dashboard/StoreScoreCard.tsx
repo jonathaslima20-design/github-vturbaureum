@@ -15,8 +15,8 @@ function ScoreCircle({ score }: { score: number }) {
   };
 
   return (
-    <div className="relative h-24 w-24 shrink-0">
-      <svg className="h-24 w-24 -rotate-90" viewBox="0 0 80 80">
+    <div className="relative h-20 w-20 sm:h-24 sm:w-24 shrink-0">
+      <svg className="h-20 w-20 sm:h-24 sm:w-24 -rotate-90" viewBox="0 0 80 80">
         <circle
           cx="40"
           cy="40"
@@ -75,7 +75,7 @@ export function StoreScoreCard() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row gap-6">
+          <div className="flex flex-row gap-4 sm:gap-6">
             <div className="flex flex-col items-center gap-2">
               <ScoreCircle score={score} />
               <p className="text-xs text-muted-foreground text-center">

@@ -16,13 +16,13 @@ const options: { label: string; value: PeriodOption }[] = [
 
 export function DashboardPeriodFilter({ value, onChange }: DashboardPeriodFilterProps) {
   return (
-    <div className="flex items-center gap-1.5 bg-muted/60 rounded-lg p-1">
-      <Calendar className="h-3.5 w-3.5 text-muted-foreground ml-2" />
+    <div className="flex items-center gap-1 sm:gap-1.5 bg-muted/60 rounded-lg p-0.5 sm:p-1 w-full sm:w-auto">
+      <Calendar className="h-3.5 w-3.5 text-muted-foreground ml-1.5 sm:ml-2 hidden sm:block" />
       {options.map(opt => (
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+          className={`flex-1 sm:flex-initial px-2 sm:px-2.5 py-1.5 sm:py-1 text-xs font-medium rounded-md transition-all ${
             value === opt.value
               ? 'bg-background text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'

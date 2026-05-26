@@ -71,13 +71,12 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl page-title">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">Bem-vindo de volta, {user?.name || 'Usuário'}!</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <DashboardPeriodFilter value={periodDays} onChange={handlePeriodChange} />
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl page-title">Dashboard</h1>
+            <p className="text-muted-foreground text-sm mt-1 hidden sm:block">Bem-vindo de volta, {user?.name || 'Usuário'}!</p>
+          </div>
           <Button
             variant="default"
             size="sm"
@@ -89,6 +88,7 @@ export default function DashboardPage() {
             <span className="sm:hidden">Vitrine</span>
           </Button>
         </div>
+        <DashboardPeriodFilter value={periodDays} onChange={handlePeriodChange} />
       </div>
 
       {error && (

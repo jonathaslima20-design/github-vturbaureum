@@ -14,23 +14,23 @@ function FunnelBar({ stage, maxValue, index }: { stage: FunnelStage; maxValue: n
   ];
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-24 shrink-0">
-        <p className="text-xs font-medium text-foreground">{stage.label}</p>
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="w-16 sm:w-24 shrink-0">
+        <p className="text-[11px] sm:text-xs font-medium text-foreground">{stage.label}</p>
       </div>
       <div className="flex-1">
-        <div className="relative h-7 bg-muted/50 rounded-md overflow-hidden">
+        <div className="relative h-6 sm:h-7 bg-muted/50 rounded-md overflow-hidden">
           <div
             className={`absolute left-0 top-0 h-full ${colors[index]} rounded-md transition-all duration-700 ease-out flex items-center justify-end pr-2`}
             style={{ width: `${widthPercent}%` }}
           >
-            <span className="text-xs font-bold text-white">
+            <span className="text-[11px] sm:text-xs font-bold text-white">
               {stage.value}
             </span>
           </div>
         </div>
       </div>
-      <div className="w-16 shrink-0 text-right">
+      <div className="hidden sm:block w-16 shrink-0 text-right">
         {stage.change !== 0 && (
           <div className="flex items-center justify-end gap-0.5">
             {stage.change > 0 ? (
@@ -52,7 +52,7 @@ function ConversionRate({ from, to }: { from: FunnelStage; to: FunnelStage }) {
   const rate = from.value > 0 ? ((to.value / from.value) * 100).toFixed(1) : '0.0';
 
   return (
-    <div className="flex items-center justify-center pl-24 ml-3">
+    <div className="flex items-center justify-center pl-16 sm:pl-24 ml-2 sm:ml-3">
       <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/80">
         <span className="text-[10px] text-muted-foreground">{rate}%</span>
       </div>
