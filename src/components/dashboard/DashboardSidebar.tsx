@@ -87,8 +87,8 @@ export default function DashboardSidebar() {
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
-          <nav className="space-y-0.5">
-            <GlassNavItem
+          <nav className="space-y-1">
+            <NeonNavItem
               name="Dashboard"
               href="/dashboard"
               icon={LayoutDashboard}
@@ -96,7 +96,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <GlassGroupItem
+            <NeonGroupItem
               label="Catalogo"
               icon={BookOpen}
               isGroupActive={isCatalogSection}
@@ -106,7 +106,7 @@ export default function DashboardSidebar() {
               items={catalogSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-            <GlassGroupItem
+            <NeonGroupItem
               label="Estoque"
               icon={Warehouse}
               isGroupActive={isStockSection}
@@ -116,7 +116,7 @@ export default function DashboardSidebar() {
               items={stockSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-            <GlassGroupItem
+            <NeonGroupItem
               label="Vendas"
               icon={ShoppingBag}
               isGroupActive={isSalesSection}
@@ -127,7 +127,7 @@ export default function DashboardSidebar() {
               onItemClick={() => isMobile && toggleMobileSidebar()}
               badge={pendingOrders}
             />
-            <GlassNavItem
+            <NeonNavItem
               name="Configuracoes"
               href="/dashboard/settings"
               icon={Settings}
@@ -135,7 +135,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <GlassNavItem
+            <NeonNavItem
               name="Central de Ajuda"
               href="/help"
               icon={HelpCircle}
@@ -143,7 +143,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <GlassNavItem
+            <NeonNavItem
               name="Indique e Ganhe"
               href="/dashboard/referral"
               icon={Gift}
@@ -159,12 +159,12 @@ export default function DashboardSidebar() {
           <PlanUsageIndicator expanded={isExpanded} />
           <div className="pt-3 mt-3">
             <button
-              className="flex items-center gap-3 w-full rounded-xl p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200 text-left"
+              className="flex items-center gap-3 w-full rounded-xl p-2.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] hover:border-emerald-500/20 transition-all duration-300 text-left group"
               onClick={() => setShowSubscriptionModal(true)}
             >
-              <Avatar className="h-8 w-8 shrink-0">
+              <Avatar className="h-8 w-8 shrink-0 ring-1 ring-emerald-500/20 group-hover:ring-emerald-500/40 transition-all duration-300">
                 <AvatarImage src={user?.avatar_url} alt={user?.name} />
-                <AvatarFallback className="text-[11px] font-semibold bg-foreground text-background">
+                <AvatarFallback className="text-[11px] font-semibold bg-emerald-500/10 text-emerald-400">
                   {getInitials(user?.name || '')}
                 </AvatarFallback>
               </Avatar>
@@ -199,7 +199,7 @@ export default function DashboardSidebar() {
       <Button
         variant="outline"
         size="icon"
-        className="fixed top-3 left-4 z-50 md:hidden rounded-xl backdrop-blur-md bg-background/80 border-white/10"
+        className="fixed top-3 left-4 z-50 md:hidden rounded-xl bg-zinc-900/90 backdrop-blur-md border-white/10 hover:border-emerald-500/30"
         onClick={toggleMobileSidebar}
       >
         <Menu className="h-5 w-5" />
@@ -208,7 +208,7 @@ export default function DashboardSidebar() {
       {/* Mobile overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
+          "fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
           mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={toggleMobileSidebar}
@@ -218,25 +218,22 @@ export default function DashboardSidebar() {
       <div
         className={cn(
           "fixed inset-y-0 left-0 w-[272px] z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden flex flex-col",
-          "bg-background/80 backdrop-blur-xl border-r border-white/10 shadow-2xl shadow-black/20",
+          "bg-zinc-950/95 backdrop-blur-xl border-r border-white/[0.06] shadow-2xl shadow-emerald-500/5",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {sidebarContent(true)}
       </div>
 
-      {/* Desktop sidebar - Glass Floating */}
-      <div className="hidden md:flex h-screen p-3">
-        <div
-          className={cn(
-            "flex flex-col h-full rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-            "bg-background/60 backdrop-blur-xl border border-white/[0.08] shadow-xl shadow-black/5",
-            "dark:bg-background/40 dark:border-white/[0.06] dark:shadow-black/20",
-            expanded ? "w-[240px]" : "w-[64px]"
-          )}
-        >
-          {sidebarContent(false)}
-        </div>
+      {/* Desktop sidebar - Neon Accent */}
+      <div
+        className={cn(
+          "hidden md:flex flex-col h-screen transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "bg-zinc-950/80 backdrop-blur-xl border-r border-white/[0.06]",
+          expanded ? "w-[248px]" : "w-[64px]"
+        )}
+      >
+        {sidebarContent(false)}
       </div>
 
       <SubscriptionModal
@@ -247,7 +244,7 @@ export default function DashboardSidebar() {
   );
 }
 
-interface GlassNavItemProps {
+interface NeonNavItemProps {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -256,21 +253,28 @@ interface GlassNavItemProps {
   onClick?: () => void;
 }
 
-function GlassNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: GlassNavItemProps) {
+function NeonNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: NeonNavItemProps) {
   const link = (
     <NavLink
       to={href}
       end={end}
       onClick={onClick}
       className={({ isActive }) => cn(
-        "flex flex-row items-center gap-3 py-2.5 px-3 rounded-xl text-[13px] transition-all duration-200 ease-out",
+        "group relative flex flex-row items-center gap-3 py-2.5 px-3 rounded-xl text-[13px] transition-all duration-200 ease-out overflow-hidden",
         isActive
-          ? "bg-foreground/10 text-foreground font-medium backdrop-blur-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+          ? "text-emerald-400 font-medium bg-emerald-500/[0.08] shadow-[inset_0_0_12px_rgba(16,185,129,0.06)]"
+          : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
       )}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" />
-      {isExpanded && <span className="whitespace-nowrap">{name}</span>}
+      {({ isActive }) => (
+        <>
+          {isActive && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+          )}
+          <Icon className={cn("h-[18px] w-[18px] shrink-0 transition-colors duration-200", isActive && "drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]")} />
+          {isExpanded && <span className="whitespace-nowrap">{name}</span>}
+        </>
+      )}
     </NavLink>
   );
 
@@ -279,7 +283,7 @@ function GlassNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: Glas
       <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" className="text-xs">{name}</TooltipContent>
+          <TooltipContent side="right" className="text-xs bg-zinc-900 border-white/10">{name}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );
@@ -288,7 +292,7 @@ function GlassNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: Glas
   return link;
 }
 
-interface GlassGroupItemProps {
+interface NeonGroupItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isGroupActive: boolean;
@@ -300,23 +304,26 @@ interface GlassGroupItemProps {
   badge?: number;
 }
 
-function GlassGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: GlassGroupItemProps) {
+function NeonGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: NeonGroupItemProps) {
   const trigger = (
     <button
       onClick={onToggle}
       className={cn(
-        "flex flex-row items-center gap-3 py-2.5 px-3 rounded-xl text-[13px] transition-all duration-200 ease-out w-full text-left",
+        "group relative flex flex-row items-center gap-3 py-2.5 px-3 rounded-xl text-[13px] transition-all duration-200 ease-out w-full text-left overflow-hidden",
         isGroupActive
-          ? "bg-foreground/10 text-foreground font-medium backdrop-blur-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+          ? "text-emerald-400 font-medium bg-emerald-500/[0.08] shadow-[inset_0_0_12px_rgba(16,185,129,0.06)]"
+          : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
       )}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" />
+      {isGroupActive && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+      )}
+      <Icon className={cn("h-[18px] w-[18px] shrink-0 transition-colors duration-200", isGroupActive && "drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]")} />
       {isExpanded && (
         <>
           <span className="flex-1 whitespace-nowrap">{label}</span>
           {badge !== undefined && badge > 0 && (
-            <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold bg-red-500 text-white">
+            <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold bg-emerald-500 text-white shadow-[0_0_6px_rgba(16,185,129,0.4)]">
               {badge > 99 ? '99+' : badge}
             </span>
           )}
@@ -335,13 +342,13 @@ function GlassGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, is
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-            <TooltipContent side="right" className="text-xs">{label}</TooltipContent>
+            <TooltipContent side="right" className="text-xs bg-zinc-900 border-white/10">{label}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ) : trigger}
 
       {isOpen && isExpanded && (
-        <div className="mt-0.5 ml-4 pl-3 border-l border-foreground/10 space-y-0.5 py-1">
+        <div className="mt-0.5 ml-4 pl-3 border-l border-emerald-500/20 space-y-0.5 py-1">
           {items.map((item) => (
             <NavLink
               key={item.name}
@@ -350,19 +357,19 @@ function GlassGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, is
               className={({ isActive }) => cn(
                 "flex flex-row items-center gap-2.5 py-2 px-2.5 rounded-lg text-[12px] transition-all duration-200 ease-out",
                 isActive
-                  ? "text-foreground font-medium bg-foreground/[0.07]"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                  ? "text-emerald-300 font-medium bg-emerald-500/[0.06]"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]"
               )}
             >
               <item.icon className="h-3.5 w-3.5 shrink-0" />
               <span className="flex-1 whitespace-nowrap">{item.name}</span>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white shadow-[0_0_6px_rgba(16,185,129,0.4)]">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               )}
               {item.comingSoon && (
-                <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 opacity-50 font-normal">Breve</Badge>
+                <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 opacity-40 font-normal border-zinc-700 text-zinc-500">Breve</Badge>
               )}
             </NavLink>
           ))}
