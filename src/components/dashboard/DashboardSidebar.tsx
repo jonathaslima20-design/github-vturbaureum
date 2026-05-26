@@ -4,6 +4,7 @@ import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, S
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn, getInitials } from '@/lib/utils';
@@ -75,76 +76,97 @@ export default function DashboardSidebar() {
   const toggleSidebar = () => setExpanded(!expanded);
   const toggleMobileSidebar = () => setMobileOpen(!mobileOpen);
 
-  const sidebarExpanded = (isDesktop: boolean) => isDesktop ? expanded : true;
+  const navItemClasses = ({ isActive }: { isActive: boolean }) => cn(
+    "flex items-center space-x-2 md:space-x-3 py-2.5 px-2.5 md:px-3 rounded-xl transition-all duration-200 min-h-[40px] md:min-h-[44px]",
+    {
+      "bg-foreground text-background font-medium shadow-sm": isActive,
+      "hover:bg-muted text-muted-foreground hover:text-foreground": !isActive,
+    }
+  );
 
-  const renderNavContent = (isDesktop: boolean) => {
-    const isExpanded = sidebarExpanded(isDesktop);
+  const sidebarContent = (isDesktop: boolean) => {
+    const isExpanded = isDesktop ? expanded : true;
 
     return (
       <>
         {/* Header */}
-        <div className={cn(
-          "flex items-center px-4 py-5",
-          isExpanded ? "justify-between" : "justify-center"
-        )}>
-          {isExpanded && (
-            <NavLink to="/" className="flex items-center">
-              <Logo size="md" showText={false} />
-            </NavLink>
-          )}
+        <div className="flex items-center justify-between p-3 md:p-4">
+          <div className="flex items-center space-x-2">
+            <Logo showText={false} size="sm" className="md:w-8 md:h-8" />
+            {isExpanded && (
+              <span className="font-bold text-sm md:text-base">Painel</span>
+            )}
+          </div>
 
-          {isDesktop ? (
-            <button
-              onClick={toggleSidebar}
-              className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-            >
-              {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </button>
-          ) : (
+          {!isDesktop && (
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleMobileSidebar}
               className="h-8 w-8"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+
+          {isDesktop && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="hidden md:flex"
+            >
+              {expanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
             </Button>
           )}
         </div>
 
         {/* Navigation */}
-        <div className="px-3 py-2 flex-1 overflow-y-auto">
-          <nav className="space-y-1 flex flex-col">
+        <div className="px-2 py-2 flex-1 overflow-y-auto">
+          <nav className="space-y-0.5 flex flex-col">
             {navigation.map((item) => (
-              <SidebarNavItem
-                key={item.name}
-                name={item.name}
-                href={item.href}
-                icon={item.icon}
-                isExpanded={isExpanded}
-              />
+              <TooltipProvider key={item.name} delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <NavLink
+                      to={item.href}
+                      end={item.href === '/dashboard'}
+                      className={navItemClasses}
+                      onClick={() => !isDesktop && toggleMobileSidebar()}
+                    >
+                      <item.icon className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                      {isExpanded && <span className="text-sm md:text-base">{item.name}</span>}
+                    </NavLink>
+                  </TooltipTrigger>
+                  {!isExpanded && (
+                    <TooltipContent side="right">{item.name}</TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             ))}
 
             {/* Catalog Group */}
-            <SidebarGroup
+            <GroupItem
               label="Catálogo"
               icon={BookOpen}
-              isActive={isCatalogSection}
+              isGroupActive={isCatalogSection}
               isOpen={catalogExpanded}
               onToggle={() => setCatalogExpanded(!catalogExpanded)}
               isExpanded={isExpanded}
               items={catalogSubItems}
+              onItemClick={() => !isDesktop && toggleMobileSidebar()}
             />
 
             {/* Stock Group */}
-            <SidebarGroup
+            <GroupItem
               label="Estoque"
               icon={Warehouse}
-              isActive={isStockSection}
+              isGroupActive={isStockSection}
               isOpen={stockExpanded}
               onToggle={() => setStockExpanded(!stockExpanded)}
               isExpanded={isExpanded}
               items={stockSubItems}
+              onItemClick={() => !isDesktop && toggleMobileSidebar()}
             />
 
             {/* Sales Group */}
@@ -155,18 +177,21 @@ export default function DashboardSidebar() {
                     <button
                       onClick={() => setSalesExpanded(!salesExpanded)}
                       className={cn(
-                        "flex items-center gap-3 py-3 px-4 rounded-lg w-full text-left transition-all duration-200",
+                        "flex items-center space-x-2 md:space-x-3 py-2.5 px-2.5 md:px-3 rounded-xl transition-all duration-200 min-h-[40px] md:min-h-[44px] w-full text-left",
                         isSalesSection
-                          ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          ? "bg-foreground text-background font-medium shadow-sm"
+                          : "hover:bg-muted text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      <ShoppingBag className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isSalesSection && "opacity-70")} />
+                      <ShoppingBag className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
                       {isExpanded && (
                         <>
-                          <span className="flex-1 text-sm">Vendas</span>
+                          <span className="text-sm md:text-base flex-1">Vendas</span>
                           {pendingOrders > 0 && (
-                            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white animate-pulse">
+                            <span className={cn(
+                              "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold animate-pulse",
+                              isSalesSection ? "bg-background text-foreground" : "bg-red-500 text-white"
+                            )}>
                               {pendingOrders > 99 ? '99+' : pendingOrders}
                             </span>
                           )}
@@ -176,34 +201,33 @@ export default function DashboardSidebar() {
                     </button>
                   </TooltipTrigger>
                   {!isExpanded && (
-                    <TooltipContent side="right" className="font-medium">
-                      Vendas
-                    </TooltipContent>
+                    <TooltipContent side="right">Vendas</TooltipContent>
                   )}
                 </Tooltip>
               </TooltipProvider>
               {salesExpanded && isExpanded && (
-                <div className="mt-1 ml-4 pl-4 space-y-0.5">
+                <div className="mt-1 ml-3 pl-3 space-y-0.5 border-l border-border">
                   {salesSubItems.map((item) => (
                     <NavLink
                       key={item.name}
                       to={item.href}
+                      onClick={() => !isDesktop && toggleMobileSidebar()}
                       className={({ isActive }) => cn(
-                        "flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm transition-all duration-200",
+                        "flex items-center space-x-2 py-2 px-2.5 rounded-lg text-sm transition-all duration-200",
                         isActive
-                          ? "text-foreground font-medium bg-muted/60"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                          ? "bg-muted font-medium text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                       )}
                     >
-                      <item.icon className={cn("h-4 w-4")} />
+                      <item.icon className="h-4 w-4 shrink-0" />
                       <span className="flex-1">{item.name}</span>
                       {'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
-                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
                           {item.badge > 99 ? '99+' : item.badge}
                         </span>
                       )}
                       {'comingSoon' in item && item.comingSoon && (
-                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 ml-auto opacity-60">Breve</Badge>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 opacity-60">Breve</Badge>
                       )}
                     </NavLink>
                   ))}
@@ -212,96 +236,84 @@ export default function DashboardSidebar() {
             </div>
 
             {navigationAfterSales.map((item) => (
-              <SidebarNavItem
-                key={item.name}
-                name={item.name}
-                href={item.href}
-                icon={item.icon}
-                isExpanded={isExpanded}
-              />
+              <TooltipProvider key={item.name} delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <NavLink
+                      to={item.href}
+                      className={navItemClasses}
+                      onClick={() => !isDesktop && toggleMobileSidebar()}
+                    >
+                      <item.icon className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                      {isExpanded && <span className="text-sm md:text-base">{item.name}</span>}
+                    </NavLink>
+                  </TooltipTrigger>
+                  {!isExpanded && (
+                    <TooltipContent side="right">{item.name}</TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             ))}
           </nav>
         </div>
 
         {/* Footer */}
-        <div className="mt-auto flex-shrink-0">
-          {/* Referral link */}
-          <div className="px-3 mb-2">
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <NavLink
-                    to="/dashboard/referral"
-                    className={cn(
-                      "flex items-center gap-3 py-3 px-4 rounded-lg text-sm transition-all duration-200",
-                      isReferralActive
-                        ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    )}
-                  >
-                    <Gift className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isReferralActive && "opacity-70")} />
-                    {isExpanded && <span className="flex-1">Indique e Ganhe</span>}
-                  </NavLink>
-                </TooltipTrigger>
-                {!isExpanded && (
-                  <TooltipContent side="right" className="font-medium">
-                    Indique e Ganhe
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+        <div className="mt-auto p-3 md:p-4">
+          {/* Referral */}
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <NavLink
+                  to="/dashboard/referral"
+                  onClick={() => !isDesktop && toggleMobileSidebar()}
+                  className={cn(
+                    "flex items-center space-x-2 md:space-x-3 py-2.5 px-2.5 md:px-3 rounded-xl transition-all duration-200 min-h-[40px] md:min-h-[44px]",
+                    isReferralActive
+                      ? "bg-foreground text-background font-medium shadow-sm"
+                      : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Gift className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                  {isExpanded && <span className="text-sm md:text-base">Indique e Ganhe</span>}
+                </NavLink>
+              </TooltipTrigger>
+              {!isExpanded && (
+                <TooltipContent side="right">Indique e Ganhe</TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
 
           <PlanUsageIndicator expanded={isExpanded} />
 
-          {/* User card */}
-          <div className="px-3 pb-4">
-            <div
-              className={cn(
-                "flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200",
-                "bg-card border border-border shadow-sm hover:shadow-md hover:border-border/80"
-              )}
-              onClick={() => setShowSubscriptionModal(true)}
-            >
-              <Avatar className="h-9 w-9 flex-shrink-0">
-                <AvatarImage src={user?.avatar_url} alt={user?.name} />
-                <AvatarFallback className="text-xs">{getInitials(user?.name || '')}</AvatarFallback>
-              </Avatar>
-              {isExpanded && (
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{user?.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                  <div className="mt-1">
-                    <PlanStatusBadge status={user?.plan_status} />
-                  </div>
-                </div>
-              )}
-            </div>
+          <Separator className="my-3" />
 
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    onClick={() => signOut()}
-                    className={cn(
-                      "w-full mt-2 transition-colors duration-200",
-                      isExpanded ? "justify-start" : "justify-center",
-                      "text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                    )}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    {isExpanded && <span className="ml-3 text-sm">Sair</span>}
-                  </Button>
-                </TooltipTrigger>
-                {!isExpanded && (
-                  <TooltipContent side="right" className="font-medium">
-                    Sair
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          {/* User card */}
+          <button
+            className="flex items-center space-x-3 w-full rounded-xl p-2 hover:bg-muted transition-colors text-left"
+            onClick={() => setShowSubscriptionModal(true)}
+          >
+            <Avatar className="h-9 w-9 shrink-0">
+              <AvatarImage src={user?.avatar_url} alt={user?.name} />
+              <AvatarFallback className="text-xs">{getInitials(user?.name || '')}</AvatarFallback>
+            </Avatar>
+            {isExpanded && (
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm truncate">{user?.name}</p>
+                <div className="mt-0.5">
+                  <PlanStatusBadge status={user?.plan_status} />
+                </div>
+              </div>
+            )}
+          </button>
+
+          {/* Logout */}
+          <button
+            onClick={() => signOut()}
+            className="flex items-center space-x-3 py-2 px-2.5 w-full text-left text-muted-foreground hover:text-destructive transition-colors mt-1 rounded-lg"
+          >
+            <LogOut className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+            {isExpanded && <span className="text-sm md:text-base">Sair</span>}
+          </button>
         </div>
       </>
     );
@@ -322,7 +334,7 @@ export default function DashboardSidebar() {
       {/* Mobile overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
+          "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity",
           mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={toggleMobileSidebar}
@@ -331,22 +343,21 @@ export default function DashboardSidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 w-72 z-50 transition-transform duration-300 md:hidden flex flex-col",
-          "bg-background shadow-2xl",
+          "fixed inset-y-0 left-0 w-[260px] bg-background border-r z-50 transition-transform duration-300 md:hidden flex flex-col",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {renderNavContent(false)}
+        {sidebarContent(false)}
       </div>
 
       {/* Desktop sidebar */}
       <div
         className={cn(
-          "hidden md:flex flex-col h-screen bg-background shadow-lg transition-all duration-300",
-          expanded ? "w-64" : "w-[68px]"
+          "hidden md:flex flex-col h-screen border-r bg-background transition-all duration-300",
+          expanded ? "w-64" : "w-16"
         )}
       >
-        {renderNavContent(true)}
+        {sidebarContent(true)}
       </div>
 
       <SubscriptionModal
@@ -357,60 +368,18 @@ export default function DashboardSidebar() {
   );
 }
 
-interface SidebarNavItemProps {
-  name: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  isExpanded: boolean;
-}
-
-function SidebarNavItem({ name, href, icon: Icon, isExpanded }: SidebarNavItemProps) {
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <NavLink
-            to={href}
-            end={href === '/dashboard'}
-            className={({ isActive }) => cn(
-              "flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 relative",
-              isActive
-                ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
-          >
-            {({ isActive }) => (
-              <>
-                {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
-                )}
-                <Icon className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isActive && "opacity-70")} />
-                {isExpanded && <span className="text-sm flex-1">{name}</span>}
-              </>
-            )}
-          </NavLink>
-        </TooltipTrigger>
-        {!isExpanded && (
-          <TooltipContent side="right" className="font-medium">
-            {name}
-          </TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
-interface SidebarGroupProps {
+interface GroupItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  isActive: boolean;
+  isGroupActive: boolean;
   isOpen: boolean;
   onToggle: () => void;
   isExpanded: boolean;
   items: Array<{ name: string; href: string; icon: React.ComponentType<{ className?: string }> }>;
+  onItemClick: () => void;
 }
 
-function SidebarGroup({ label, icon: Icon, isActive, isOpen, onToggle, isExpanded, items }: SidebarGroupProps) {
+function GroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick }: GroupItemProps) {
   return (
     <div>
       <TooltipProvider delayDuration={0}>
@@ -419,42 +388,41 @@ function SidebarGroup({ label, icon: Icon, isActive, isOpen, onToggle, isExpande
             <button
               onClick={onToggle}
               className={cn(
-                "flex items-center gap-3 py-3 px-4 rounded-lg w-full text-left transition-all duration-200",
-                isActive
-                  ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                "flex items-center space-x-2 md:space-x-3 py-2.5 px-2.5 md:px-3 rounded-xl transition-all duration-200 min-h-[40px] md:min-h-[44px] w-full text-left",
+                isGroupActive
+                  ? "bg-foreground text-background font-medium shadow-sm"
+                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isActive && "opacity-70")} />
+              <Icon className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
               {isExpanded && (
                 <>
-                  <span className="flex-1 text-sm">{label}</span>
+                  <span className="text-sm md:text-base flex-1">{label}</span>
                   <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen && "rotate-180")} />
                 </>
               )}
             </button>
           </TooltipTrigger>
           {!isExpanded && (
-            <TooltipContent side="right" className="font-medium">
-              {label}
-            </TooltipContent>
+            <TooltipContent side="right">{label}</TooltipContent>
           )}
         </Tooltip>
       </TooltipProvider>
       {isOpen && isExpanded && (
-        <div className="mt-1 ml-4 pl-4 space-y-0.5">
+        <div className="mt-1 ml-3 pl-3 space-y-0.5 border-l border-border">
           {items.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
-              className={({ isActive: active }) => cn(
-                "flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm transition-all duration-200",
-                active
-                  ? "text-foreground font-medium bg-muted/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              onClick={onItemClick}
+              className={({ isActive }) => cn(
+                "flex items-center space-x-2 py-2 px-2.5 rounded-lg text-sm transition-all duration-200",
+                isActive
+                  ? "bg-muted font-medium text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
               )}
             >
-              <item.icon className="h-4 w-4" />
+              <item.icon className="h-4 w-4 shrink-0" />
               <span className="flex-1">{item.name}</span>
             </NavLink>
           ))}
