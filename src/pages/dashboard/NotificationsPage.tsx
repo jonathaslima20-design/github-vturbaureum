@@ -141,7 +141,7 @@ export default function NotificationsPage() {
     <div className="container mx-auto p-4 md:p-6 max-w-4xl space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl page-title">Notificações</h1>
+          <h1 className="text-2xl md:text-3xl page-title">Notificações</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {unreadCount > 0
               ? `Você tem ${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}`

@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn, getInitials } from '@/lib/utils';
 import Logo from '@/components/Logo';
@@ -14,7 +12,6 @@ import PlanUsageIndicator from '@/components/dashboard/PlanUsageIndicator';
 import { getPendingOrderCount } from '@/lib/orderService';
 
 export default function DashboardSidebar() {
-  const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [catalogExpanded, setCatalogExpanded] = useState(false);
@@ -61,26 +58,19 @@ export default function DashboardSidebar() {
     { name: 'Vendas Online', href: '/dashboard/sales', icon: CreditCard, comingSoon: true },
   ];
 
-  const toggleSidebar = () => setExpanded(!expanded);
   const toggleMobileSidebar = () => setMobileOpen(!mobileOpen);
 
   const sidebarContent = (isMobile: boolean) => {
-    const isExpanded = isMobile ? true : expanded;
-
     return (
       <>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-5">
           <div className="flex items-center gap-3">
-            <Logo showText={isExpanded} size="sm" />
+            <Logo showText size="md" />
           </div>
-          {isMobile ? (
+          {isMobile && (
             <button onClick={toggleMobileSidebar} className="h-8 w-8 flex items-center justify-center hover:bg-foreground/5 transition-colors">
               <X className="h-4 w-4" />
-            </button>
-          ) : (
-            <button onClick={toggleSidebar} className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors duration-150">
-              {expanded ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </button>
           )}
         </div>
@@ -93,7 +83,7 @@ export default function DashboardSidebar() {
               href="/dashboard"
               icon={LayoutDashboard}
               end
-              isExpanded={isExpanded}
+              isExpanded
               onClick={() => isMobile && toggleMobileSidebar()}
             />
             <InkGroupItem
@@ -102,7 +92,7 @@ export default function DashboardSidebar() {
               isGroupActive={isCatalogSection}
               isOpen={catalogExpanded}
               onToggle={() => setCatalogExpanded(!catalogExpanded)}
-              isExpanded={isExpanded}
+              isExpanded
               items={catalogSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
@@ -112,7 +102,7 @@ export default function DashboardSidebar() {
               isGroupActive={isStockSection}
               isOpen={stockExpanded}
               onToggle={() => setStockExpanded(!stockExpanded)}
-              isExpanded={isExpanded}
+              isExpanded
               items={stockSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
@@ -122,7 +112,7 @@ export default function DashboardSidebar() {
               isGroupActive={isSalesSection}
               isOpen={salesExpanded}
               onToggle={() => setSalesExpanded(!salesExpanded)}
-              isExpanded={isExpanded}
+              isExpanded
               items={salesSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
               badge={pendingOrders}
@@ -135,7 +125,7 @@ export default function DashboardSidebar() {
               href="/dashboard/settings"
               icon={Settings}
               end
-              isExpanded={isExpanded}
+              isExpanded
               onClick={() => isMobile && toggleMobileSidebar()}
             />
             <InkNavItem
@@ -143,7 +133,7 @@ export default function DashboardSidebar() {
               href="/help"
               icon={HelpCircle}
               end
-              isExpanded={isExpanded}
+              isExpanded
               onClick={() => isMobile && toggleMobileSidebar()}
             />
           </nav>
@@ -151,14 +141,14 @@ export default function DashboardSidebar() {
 
         {/* Footer */}
         <div className="mt-auto px-3 pb-4 pt-2">
-          <PlanUsageIndicator expanded={isExpanded} />
+          <PlanUsageIndicator expanded />
           <div className="py-2">
             <InkNavItem
               name="Indique e Ganhe"
               href="/dashboard/referral"
               icon={Gift}
               end
-              isExpanded={isExpanded}
+              isExpanded
               onClick={() => isMobile && toggleMobileSidebar()}
             />
           </div>
@@ -173,24 +163,19 @@ export default function DashboardSidebar() {
                   {getInitials(user?.name || '')}
                 </AvatarFallback>
               </Avatar>
-              {isExpanded && (
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
-                  <div className="mt-0.5">
-                    <PlanStatusBadge status={user?.plan_status} />
-                  </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
+                <div className="mt-0.5">
+                  <PlanStatusBadge status={user?.plan_status} />
                 </div>
-              )}
+              </div>
             </button>
             <button
               onClick={() => signOut()}
-              className={cn(
-                "flex items-center gap-2.5 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-[15px] tracking-tight",
-                !isExpanded && "justify-center"
-              )}
+              className="flex items-center gap-2.5 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-[15px] tracking-tight"
             >
               <LogOut className="h-4 w-4 shrink-0" />
-              {isExpanded && <span>Sair</span>}
+              <span>Sair</span>
             </button>
           </div>
         </div>
@@ -230,12 +215,7 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Desktop sidebar - Ink Mono */}
-      <div
-        className={cn(
-          "hidden md:flex flex-col h-screen bg-background border-r border-foreground/[0.08] transition-all duration-250 ease-out",
-          expanded ? "w-[256px]" : "w-[60px]"
-        )}
-      >
+      <div className="hidden md:flex flex-col h-screen w-[256px] bg-background border-r border-foreground/[0.08]">
         {sidebarContent(false)}
       </div>
 
@@ -251,18 +231,18 @@ interface InkNavItemProps {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  isExpanded: boolean;
+  isExpanded?: boolean;
   end?: boolean;
   onClick?: () => void;
 }
 
-function InkNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: InkNavItemProps) {
+function InkNavItem({ name, href, icon: Icon, end, onClick }: InkNavItemProps) {
   const location = useLocation();
   const isActive = end
     ? location.pathname === href
     : location.pathname.startsWith(href);
 
-  const link = (
+  return (
     <NavLink
       to={href}
       end={end}
@@ -278,22 +258,9 @@ function InkNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: InkNav
         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
       )}
       <Icon className="h-[19px] w-[19px] shrink-0" />
-      {isExpanded && <span className="whitespace-nowrap">{name}</span>}
+      <span className="whitespace-nowrap">{name}</span>
     </NavLink>
   );
-
-  if (!isExpanded) {
-    return (
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" className="text-xs font-mono tracking-tight rounded-none border-foreground/20">{name}</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-
-  return link;
 }
 
 interface InkGroupItemProps {
@@ -302,56 +269,41 @@ interface InkGroupItemProps {
   isGroupActive: boolean;
   isOpen: boolean;
   onToggle: () => void;
-  isExpanded: boolean;
+  isExpanded?: boolean;
   items: Array<{ name: string; href: string; icon: React.ComponentType<{ className?: string }>; badge?: number; comingSoon?: boolean }>;
   onItemClick: () => void;
   badge?: number;
 }
 
-function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: InkGroupItemProps) {
-  const trigger = (
-    <button
-      onClick={onToggle}
-      className={cn(
-        "flex flex-row items-center gap-3 py-2.5 px-3 text-[15px] tracking-tight transition-colors duration-150 w-full text-left relative",
-        isGroupActive
-          ? "text-foreground font-semibold bg-foreground/[0.04]"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {isGroupActive && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
-      )}
-      <Icon className="h-[19px] w-[19px] shrink-0" />
-      {isExpanded && (
-        <>
-          <span className="flex-1 whitespace-nowrap">{label}</span>
-          {badge !== undefined && badge > 0 && (
-            <span className="text-[11px] font-bold tabular-nums text-foreground">
-              {badge > 99 ? '99+' : badge}
-            </span>
-          )}
-          <ChevronDown className={cn(
-            "h-3 w-3 transition-transform duration-150 opacity-40",
-            isOpen && "rotate-180"
-          )} />
-        </>
-      )}
-    </button>
-  );
-
+function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, items, onItemClick, badge }: InkGroupItemProps) {
   return (
     <div>
-      {!isExpanded ? (
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-            <TooltipContent side="right" className="text-xs font-mono tracking-tight rounded-none border-foreground/20">{label}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ) : trigger}
+      <button
+        onClick={onToggle}
+        className={cn(
+          "flex flex-row items-center gap-3 py-2.5 px-3 text-[15px] tracking-tight transition-colors duration-150 w-full text-left relative",
+          isGroupActive
+            ? "text-foreground font-semibold bg-foreground/[0.04]"
+            : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        {isGroupActive && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
+        )}
+        <Icon className="h-[19px] w-[19px] shrink-0" />
+        <span className="flex-1 whitespace-nowrap">{label}</span>
+        {badge !== undefined && badge > 0 && (
+          <span className="text-[11px] font-bold tabular-nums text-foreground">
+            {badge > 99 ? '99+' : badge}
+          </span>
+        )}
+        <ChevronDown className={cn(
+          "h-3 w-3 transition-transform duration-150 opacity-40",
+          isOpen && "rotate-180"
+        )} />
+      </button>
 
-      {isOpen && isExpanded && (
+      {isOpen && (
         <div className="ml-[22px] border-l border-foreground/[0.08] space-y-0 py-0.5">
           {items.map((item) => (
             <NavLink

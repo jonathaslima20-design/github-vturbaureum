@@ -244,7 +244,7 @@ export default function UserDetailPage() {
                 )}
 
                 <div>
-                  <h2 className="text-xl md:text-2xl page-title">{user.name}</h2>
+                  <h2 className="text-2xl md:text-3xl page-title">{user.name}</h2>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
 

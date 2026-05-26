@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plus, ArrowUpDown, CheckSquare, Square } from 'lucide-react';
+import { Plus, ArrowUpDown, SquareCheck as CheckSquare, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -24,7 +24,7 @@ export function ListingsHeader({
 }: ListingsHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-      <h1 className="text-3xl font-bold">Meus Produtos</h1>
+      <h1 className="text-2xl md:text-3xl page-title">Meus Produtos</h1>
       <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
         {/* Reorder Mode Toggle Button - Only show when reordering is possible */}
         {canReorder && (
