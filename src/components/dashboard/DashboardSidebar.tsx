@@ -87,7 +87,6 @@ export default function DashboardSidebar() {
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
-          {isExpanded && <CardSectionLabel>Menu</CardSectionLabel>}
           <nav className="space-y-1.5">
             <CardNavItem
               name="Dashboard"
@@ -97,11 +96,6 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-          </nav>
-
-          {isExpanded && <CardSectionLabel className="mt-6">Catalogo</CardSectionLabel>}
-          {!isExpanded && <div className="my-4" />}
-          <nav className="space-y-1.5">
             <CardGroupItem
               label="Catalogo"
               icon={BookOpen}
@@ -122,11 +116,6 @@ export default function DashboardSidebar() {
               items={stockSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-          </nav>
-
-          {isExpanded && <CardSectionLabel className="mt-6">Vendas</CardSectionLabel>}
-          {!isExpanded && <div className="my-4" />}
-          <nav className="space-y-1.5">
             <CardGroupItem
               label="Vendas"
               icon={ShoppingBag}
@@ -138,11 +127,6 @@ export default function DashboardSidebar() {
               onItemClick={() => isMobile && toggleMobileSidebar()}
               badge={pendingOrders}
             />
-          </nav>
-
-          {isExpanded && <CardSectionLabel className="mt-6">Outros</CardSectionLabel>}
-          {!isExpanded && <div className="my-4" />}
-          <nav className="space-y-1.5">
             <CardNavItem
               name="Configuracoes"
               href="/dashboard/settings"
@@ -258,14 +242,6 @@ export default function DashboardSidebar() {
   );
 }
 
-function CardSectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn("flex items-center gap-2 px-1 mb-2", className)}>
-      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60 whitespace-nowrap">{children}</span>
-      <div className="flex-1 h-px bg-border/40" />
-    </div>
-  );
-}
 
 interface CardNavItemProps {
   name: string;
