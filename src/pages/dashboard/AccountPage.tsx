@@ -117,8 +117,11 @@ export default function AccountPage() {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-lg font-semibold">
-                {user?.owner_name || user?.name || 'Usuário'}
+                {user?.name || 'Usuário'}
               </h2>
+              {user?.owner_name && (
+                <p className="text-sm text-muted-foreground">{user.owner_name}</p>
+              )}
               <p className="text-sm text-muted-foreground">{user?.email}</p>
               <div className="mt-2 flex justify-center sm:justify-start">
                 <PlanStatusBadge status={user?.plan_status} />
@@ -265,3 +268,6 @@ export default function AccountPage() {
     </div>
   );
 }
+
+
+export default AccountPage
