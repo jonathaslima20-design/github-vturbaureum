@@ -225,7 +225,7 @@ export default function DashboardPage() {
       <InsightsSection />
 
       {/* Top Products + Recent Activity */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         <TopProductsList periodDays={periodDays} />
         <RecentActivityFeed />
       </div>

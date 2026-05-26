@@ -48,7 +48,7 @@ function ProductRankItem({ product, rank }: { product: RankedProduct; rank: numb
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 min-w-0">
           <p className="text-sm font-medium truncate">{product.title}</p>
           {product.trending && (
             <Flame className="h-3.5 w-3.5 text-orange-500 shrink-0" />
@@ -84,7 +84,7 @@ export function TopProductsList({ periodDays = 30 }: TopProductsListProps) {
   if (!loading && topProducts.length === 0) return null;
 
   return (
-    <Card className="flex-1">
+    <Card className="flex-1 overflow-hidden min-w-0">
       <CardHeader>
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Trophy className="h-5 w-5 text-amber-500" />
