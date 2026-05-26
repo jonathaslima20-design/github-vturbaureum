@@ -6,6 +6,13 @@ import { useInventoryEnabled } from '@/hooks/useInventoryEnabled';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ViewsAndLeadsChart } from '@/components/dashboard/ViewsAndLeadsChart';
+import { RevenueCard } from '@/components/dashboard/RevenueCard';
+import { RevenueChart } from '@/components/dashboard/RevenueChart';
+import { InsightsSection } from '@/components/dashboard/InsightsSection';
+import { TopProductsList } from '@/components/dashboard/TopProductsList';
+import { SalesFunnel } from '@/components/dashboard/SalesFunnel';
+import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
+import { StoreScoreCard } from '@/components/dashboard/StoreScoreCard';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -66,6 +73,7 @@ export default function DashboardPage() {
         </Alert>
       )}
 
+      {/* Stats Cards */}
       <div className={`grid gap-4 grid-cols-2 ${inventoryEnabled ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -177,9 +185,29 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="grid gap-4">
-        <ViewsAndLeadsChart days={7} />
+      {/* Revenue Cards */}
+      <RevenueCard />
+
+      {/* Charts Row: Revenue Chart + Sales Funnel */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <RevenueChart />
+        <SalesFunnel />
       </div>
+
+      {/* Views & Leads Chart */}
+      <ViewsAndLeadsChart days={7} />
+
+      {/* Insights */}
+      <InsightsSection />
+
+      {/* Top Products + Recent Activity */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <TopProductsList />
+        <RecentActivityFeed />
+      </div>
+
+      {/* Store Score */}
+      <StoreScoreCard />
     </div>
   );
 }
