@@ -76,11 +76,10 @@ export default function DashboardSidebar() {
   const toggleMobileSidebar = () => setMobileOpen(!mobileOpen);
 
   const navItemClasses = ({ isActive }: { isActive: boolean }) => cn(
-    "relative flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200",
-    {
-      "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm": isActive,
-      "text-muted-foreground hover:text-foreground hover:bg-muted/50": !isActive,
-    }
+    "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200",
+    isActive
+      ? "bg-muted text-foreground font-medium"
+      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
   );
 
   const sidebarContent = (isMobile: boolean) => {
@@ -123,11 +122,8 @@ export default function DashboardSidebar() {
                       className={navItemClasses}
                       onClick={() => isMobile && toggleMobileSidebar()}
                     >
-                      {({ isActive }) => (
+                      {() => (
                         <>
-                          {isActive && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
-                          )}
                           <item.icon className="h-5 w-5 shrink-0" />
                           {isExpanded && <span className="text-sm">{item.name}</span>}
                         </>
@@ -176,22 +172,18 @@ export default function DashboardSidebar() {
               badge={pendingOrders}
             />
 
-            <Separator className="my-2" />
-
             {bottomNavigation.map((item) => (
               <TooltipProvider key={item.name} delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <NavLink
                       to={item.href}
+                      end
                       className={navItemClasses}
                       onClick={() => isMobile && toggleMobileSidebar()}
                     >
-                      {({ isActive }) => (
+                      {() => (
                         <>
-                          {isActive && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
-                          )}
                           <item.icon className="h-5 w-5 shrink-0" />
                           {isExpanded && <span className="text-sm">{item.name}</span>}
                         </>
@@ -309,15 +301,12 @@ function CollapsibleGroup({ label, icon: Icon, isGroupActive, isOpen, onToggle, 
             <button
               onClick={onToggle}
               className={cn(
-                "relative flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 w-full text-left",
+                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 w-full text-left",
                 isGroupActive
-                  ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
+                  ? "bg-muted text-foreground font-medium"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
-              {isGroupActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
-              )}
               <Icon className="h-5 w-5 shrink-0" />
               {isExpanded && (
                 <>
