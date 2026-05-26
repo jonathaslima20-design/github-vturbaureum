@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, LogOut, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn, getInitials } from '@/lib/utils';
 import Logo from '@/components/Logo';
-import SubscriptionModal from '@/components/subscription/SubscriptionModal';
 import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import PlanUsageIndicator from '@/components/dashboard/PlanUsageIndicator';
 import { getPendingOrderCount } from '@/lib/orderService';
 
 export default function DashboardSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [catalogExpanded, setCatalogExpanded] = useState(false);
   const [stockExpanded, setStockExpanded] = useState(false);
   const [salesExpanded, setSalesExpanded] = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
   const { signOut, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isCatalogSection = location.pathname.startsWith('/dashboard/listings') || location.pathname.startsWith('/dashboard/categories');
   const isStockSection = location.pathname.startsWith('/dashboard/inventory') || location.pathname.startsWith('/dashboard/stock-movements');
@@ -155,16 +154,16 @@ export default function DashboardSidebar() {
           <div className="border-t border-foreground/[0.06] pt-3 mt-1">
             <button
               className="flex items-center gap-3 w-full p-2.5 hover:bg-foreground/[0.03] transition-colors duration-150 text-left group"
-              onClick={() => setShowSubscriptionModal(true)}
+              onClick={() => { navigate('/dashboard/account'); if (isMobile) toggleMobileSidebar(); }}
             >
               <Avatar className="h-9 w-9 shrink-0 ring-1 ring-foreground/10">
-                <AvatarImage src={user?.avatar_url} alt={user?.name} />
+                <AvatarImage src={user?.avatar_url} alt={user?.owner_name || user?.name} />
                 <AvatarFallback className="text-xs font-bold bg-foreground text-background tracking-tight">
-                  {getInitials(user?.name || '')}
+                  {getInitials(user?.owner_name || user?.name || '')}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
+                <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.owner_name || user?.name}</p>
                 <div className="mt-0.5">
                   <PlanStatusBadge status={user?.plan_status} />
                 </div>
@@ -219,10 +218,6 @@ export default function DashboardSidebar() {
         {sidebarContent(false)}
       </div>
 
-      <SubscriptionModal
-        open={showSubscriptionModal}
-        onOpenChange={setShowSubscriptionModal}
-      />
     </>
   );
 }

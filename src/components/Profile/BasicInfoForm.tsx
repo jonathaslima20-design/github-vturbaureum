@@ -26,13 +26,28 @@ export function BasicInfoForm({ form, user, onNameChange }: BasicInfoFormProps) 
     <div className="space-y-4">
       <FormField
         control={form.control}
+        name="owner_name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Seu Nome</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Seu nome completo" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome</FormLabel>
+            <FormLabel>Nome do Negócio</FormLabel>
             <FormControl>
               <Input
                 {...field}
+                placeholder="Nome da sua empresa ou negócio"
                 onChange={(e) => {
                   field.onChange(e);
                   onNameChange(e);

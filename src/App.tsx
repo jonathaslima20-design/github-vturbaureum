@@ -46,6 +46,7 @@ import StockMovementsPage from '@/pages/dashboard/StockMovementsPage.tsx';
 import InventoryOverviewPage from '@/pages/dashboard/InventoryOverviewPage.tsx';
 import InventorySettingsPage from '@/pages/dashboard/InventorySettingsPage.tsx';
 import CheckoutPage from '@/pages/dashboard/CheckoutPage.tsx';
+import AccountPage from '@/pages/dashboard/AccountPage.tsx';
 
 // Admin Pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.tsx';
@@ -185,6 +186,7 @@ function AppContent() {
             <Route path="/dashboard/inventory/settings" element={<InventorySettingsPage />} />
             <Route path="/dashboard/stock-movements" element={<StockMovementsPage />} />
             <Route path="/dashboard/checkout" element={<CheckoutPage />} />
+            <Route path="/dashboard/account" element={<AccountPage />} />
             <Route path="/dashboard/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>

@@ -38,6 +38,7 @@ import { ThemeToggleSection } from '@/components/Profile/ThemeToggleSection';
 import { PromotionalBannerSection } from '@/components/Profile/PromotionalBannerSection';
 
 const formSchema = z.object({
+  owner_name: z.string().min(2, 'Nome muito curto').optional().or(z.literal('')),
   name: z.string().min(2, 'Nome muito curto'),
   email: z.string().email('Email inválido'),
   language: z.enum(['pt-BR', 'en-US', 'es-ES']),
@@ -73,6 +74,7 @@ export function ProfileSettings() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      owner_name: '',
       name: '',
       email: '',
       language: 'pt-BR',
@@ -102,6 +104,7 @@ export function ProfileSettings() {
       
       // Reset form with properly formatted values
       form.reset({
+        owner_name: user.owner_name || '',
         name: user.name || '',
         email: user.email || '',
         language: user.language || 'pt-BR',
@@ -206,6 +209,7 @@ export function ProfileSettings() {
         }
       }
       const updateData = {
+        owner_name: values.owner_name || null,
         name: values.name,
         email: values.email,
         language: values.language,

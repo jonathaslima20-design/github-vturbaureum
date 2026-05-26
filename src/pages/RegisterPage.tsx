@@ -39,6 +39,7 @@ import { supabase } from '@/lib/supabase';
 import { injectMetaPixel } from '@/lib/tracking';
 
 const formSchema = z.object({
+  owner_name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres'),
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
@@ -79,6 +80,7 @@ export default function RegisterPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      owner_name: '',
       name: '',
       email: '',
       password: '',
@@ -101,6 +103,7 @@ export default function RegisterPage() {
         data.password,
         {
           name: data.name,
+          owner_name: data.owner_name,
           niche_type: 'diversos',
           country_code: data.country_code,
           whatsapp: cleanedWhatsApp
@@ -210,6 +213,24 @@ export default function RegisterPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
+                  name="owner_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Seu Nome</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Seu nome completo"
+                          disabled={isLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
@@ -217,8 +238,8 @@ export default function RegisterPage() {
                       <FormControl>
                         <Input
                           placeholder="Nome da sua empresa ou negócio"
-                          disabled={isLoading} 
-                          {...field} 
+                          disabled={isLoading}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />

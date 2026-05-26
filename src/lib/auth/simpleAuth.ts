@@ -331,7 +331,7 @@ export async function authenticateUser(email: string, password: string): Promise
 export async function registerUser(
   email: string,
   password: string,
-  userData: { name: string; niche_type?: string; country_code?: string; whatsapp?: string }
+  userData: { name: string; owner_name?: string; niche_type?: string; country_code?: string; whatsapp?: string }
 ): Promise<{
   user: StoredUser | null;
   error: string | null;
@@ -387,6 +387,7 @@ export async function registerUser(
       .upsert({
         email: normalizedEmail,
         name: userData.name,
+        owner_name: userData.owner_name || null,
         niche_type: userData.niche_type || 'diversos',
         country_code: userData.country_code || '55',
         whatsapp: userData.whatsapp || null,
