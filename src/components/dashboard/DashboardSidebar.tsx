@@ -75,11 +75,11 @@ export default function DashboardSidebar() {
             <Logo showText={isExpanded} size="sm" />
           </div>
           {isMobile ? (
-            <button onClick={toggleMobileSidebar} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors">
+            <button onClick={toggleMobileSidebar} className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors backdrop-blur-sm">
               <X className="h-4 w-4" />
             </button>
           ) : (
-            <button onClick={toggleSidebar} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200">
+            <button onClick={toggleSidebar} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all duration-200">
               {expanded ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </button>
           )}
@@ -87,8 +87,8 @@ export default function DashboardSidebar() {
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
-          <nav className="space-y-2">
-            <CardNavItem
+          <nav className="space-y-1">
+            <GlassNavItem
               name="Dashboard"
               href="/dashboard"
               icon={LayoutDashboard}
@@ -96,7 +96,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <CardGroupItem
+            <GlassGroupItem
               label="Catalogo"
               icon={BookOpen}
               isGroupActive={isCatalogSection}
@@ -106,7 +106,7 @@ export default function DashboardSidebar() {
               items={catalogSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-            <CardGroupItem
+            <GlassGroupItem
               label="Estoque"
               icon={Warehouse}
               isGroupActive={isStockSection}
@@ -116,7 +116,7 @@ export default function DashboardSidebar() {
               items={stockSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-            <CardGroupItem
+            <GlassGroupItem
               label="Vendas"
               icon={ShoppingBag}
               isGroupActive={isSalesSection}
@@ -127,7 +127,7 @@ export default function DashboardSidebar() {
               onItemClick={() => isMobile && toggleMobileSidebar()}
               badge={pendingOrders}
             />
-            <CardNavItem
+            <GlassNavItem
               name="Configuracoes"
               href="/dashboard/settings"
               icon={Settings}
@@ -135,7 +135,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <CardNavItem
+            <GlassNavItem
               name="Central de Ajuda"
               href="/help"
               icon={HelpCircle}
@@ -143,7 +143,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <CardNavItem
+            <GlassNavItem
               name="Indique e Ganhe"
               href="/dashboard/referral"
               icon={Gift}
@@ -159,18 +159,18 @@ export default function DashboardSidebar() {
           <PlanUsageIndicator expanded={isExpanded} />
           <div className="pt-3 mt-3">
             <button
-              className="flex items-center gap-3 w-full rounded-2xl p-3 bg-card border border-border/60 shadow-sm hover:shadow-md hover:border-border hover:-translate-y-0.5 transition-all duration-200 text-left"
+              className="flex items-center gap-3 w-full rounded-2xl p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] backdrop-blur-md transition-all duration-300 text-left group"
               onClick={() => setShowSubscriptionModal(true)}
             >
-              <Avatar className="h-9 w-9 shrink-0 shadow-sm">
+              <Avatar className="h-9 w-9 shrink-0 ring-2 ring-white/10 group-hover:ring-white/20 transition-all duration-300">
                 <AvatarImage src={user?.avatar_url} alt={user?.name} />
-                <AvatarFallback className="text-[11px] font-semibold bg-foreground text-background">
+                <AvatarFallback className="text-[11px] font-semibold bg-white/10 text-foreground">
                   {getInitials(user?.name || '')}
                 </AvatarFallback>
               </Avatar>
               {isExpanded && (
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[13px] truncate leading-tight">{user?.name}</p>
+                  <p className="font-medium text-[13px] truncate leading-tight">{user?.name}</p>
                   <div className="mt-0.5">
                     <PlanStatusBadge status={user?.plan_status} />
                   </div>
@@ -180,7 +180,7 @@ export default function DashboardSidebar() {
             <button
               onClick={() => signOut()}
               className={cn(
-                "flex items-center gap-2.5 py-2.5 px-3 w-full text-left text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 mt-2 rounded-xl text-[13px]",
+                "flex items-center gap-2.5 py-2.5 px-3 w-full text-left text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 mt-2 rounded-xl text-[13px]",
                 !isExpanded && "justify-center"
               )}
             >
@@ -199,7 +199,7 @@ export default function DashboardSidebar() {
       <Button
         variant="outline"
         size="icon"
-        className="fixed top-3 left-4 z-50 md:hidden rounded-xl shadow-md"
+        className="fixed top-3 left-4 z-50 md:hidden rounded-xl bg-background/60 backdrop-blur-xl border-white/10 shadow-lg"
         onClick={toggleMobileSidebar}
       >
         <Menu className="h-5 w-5" />
@@ -208,7 +208,7 @@ export default function DashboardSidebar() {
       {/* Mobile overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 md:hidden transition-opacity duration-300",
+          "fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
           mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={toggleMobileSidebar}
@@ -217,21 +217,25 @@ export default function DashboardSidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 w-[280px] z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden flex flex-col bg-background border-r border-border/40",
+          "fixed inset-y-0 left-0 w-[280px] z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden flex flex-col",
+          "bg-background/70 backdrop-blur-2xl border-r border-white/[0.08] shadow-2xl",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {sidebarContent(true)}
       </div>
 
-      {/* Desktop sidebar - Card Stack */}
-      <div
-        className={cn(
-          "hidden md:flex flex-col h-screen bg-muted/40 border-r border-border/30 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          expanded ? "w-[256px]" : "w-[68px]"
-        )}
-      >
-        {sidebarContent(false)}
+      {/* Desktop sidebar - Glass Floating */}
+      <div className="hidden md:flex h-screen p-3 pr-0">
+        <div
+          className={cn(
+            "flex flex-col h-full rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            "bg-background/50 backdrop-blur-2xl border border-white/[0.08] shadow-xl shadow-black/5",
+            expanded ? "w-[248px]" : "w-[64px]"
+          )}
+        >
+          {sidebarContent(false)}
+        </div>
       </div>
 
       <SubscriptionModal
@@ -242,7 +246,7 @@ export default function DashboardSidebar() {
   );
 }
 
-interface CardNavItemProps {
+interface GlassNavItemProps {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -251,20 +255,20 @@ interface CardNavItemProps {
   onClick?: () => void;
 }
 
-function CardNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: CardNavItemProps) {
+function GlassNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: GlassNavItemProps) {
   const link = (
     <NavLink
       to={href}
       end={end}
       onClick={onClick}
       className={({ isActive }) => cn(
-        "flex flex-row items-center gap-3 py-3 px-3.5 rounded-2xl text-[13px] border transition-all duration-200 ease-out",
+        "flex flex-row items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] transition-all duration-200 ease-out",
         isActive
-          ? "bg-foreground text-background font-semibold shadow-lg shadow-foreground/10 border-transparent scale-[1.02]"
-          : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:shadow-md hover:border-border hover:-translate-y-0.5 shadow-sm"
+          ? "bg-white/[0.12] border border-white/[0.15] text-foreground font-medium shadow-sm backdrop-blur-sm"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06] border border-transparent"
       )}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" />
+      <Icon className="h-[17px] w-[17px] shrink-0" />
       {isExpanded && <span className="whitespace-nowrap">{name}</span>}
     </NavLink>
   );
@@ -274,7 +278,7 @@ function CardNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: CardN
       <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" className="text-xs">{name}</TooltipContent>
+          <TooltipContent side="right" className="text-xs bg-background/80 backdrop-blur-xl border-white/10">{name}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );
@@ -283,7 +287,7 @@ function CardNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: CardN
   return link;
 }
 
-interface CardGroupItemProps {
+interface GlassGroupItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isGroupActive: boolean;
@@ -295,26 +299,23 @@ interface CardGroupItemProps {
   badge?: number;
 }
 
-function CardGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: CardGroupItemProps) {
+function GlassGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: GlassGroupItemProps) {
   const trigger = (
     <button
       onClick={onToggle}
       className={cn(
-        "flex flex-row items-center gap-3 py-3 px-3.5 rounded-2xl text-[13px] border transition-all duration-200 ease-out w-full text-left",
+        "flex flex-row items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] transition-all duration-200 ease-out w-full text-left",
         isGroupActive
-          ? "bg-foreground text-background font-semibold shadow-lg shadow-foreground/10 border-transparent scale-[1.02]"
-          : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:shadow-md hover:border-border hover:-translate-y-0.5 shadow-sm"
+          ? "bg-white/[0.12] border border-white/[0.15] text-foreground font-medium shadow-sm backdrop-blur-sm"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06] border border-transparent"
       )}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" />
+      <Icon className="h-[17px] w-[17px] shrink-0" />
       {isExpanded && (
         <>
           <span className="flex-1 whitespace-nowrap">{label}</span>
           {badge !== undefined && badge > 0 && (
-            <span className={cn(
-              "flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold",
-              isGroupActive ? "bg-background/20 text-background" : "bg-red-500 text-white shadow-sm"
-            )}>
+            <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold bg-red-500/90 text-white backdrop-blur-sm">
               {badge > 99 ? '99+' : badge}
             </span>
           )}
@@ -333,34 +334,34 @@ function CardGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isE
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-            <TooltipContent side="right" className="text-xs">{label}</TooltipContent>
+            <TooltipContent side="right" className="text-xs bg-background/80 backdrop-blur-xl border-white/10">{label}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ) : trigger}
 
       {isOpen && isExpanded && (
-        <div className="mt-1.5 mx-1 space-y-1 rounded-xl bg-muted/60 border border-border/30 p-2">
+        <div className="mt-1 ml-3 pl-3 border-l border-white/[0.08] space-y-0.5 py-1">
           {items.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               onClick={onItemClick}
               className={({ isActive }) => cn(
-                "flex flex-row items-center gap-2.5 py-2 px-3 rounded-xl text-[12px] transition-all duration-200 ease-out",
+                "flex flex-row items-center gap-2.5 py-2 px-3 rounded-lg text-[12px] transition-all duration-200 ease-out",
                 isActive
-                  ? "text-foreground font-semibold bg-card border border-border/60 shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-card/80 border border-transparent"
+                  ? "text-foreground font-medium bg-white/[0.08] border border-white/[0.1]"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04] border border-transparent"
               )}
             >
               <item.icon className="h-3.5 w-3.5 shrink-0" />
               <span className="flex-1 whitespace-nowrap">{item.name}</span>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white shadow-sm">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500/90 px-1 text-[9px] font-bold text-white">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               )}
               {item.comingSoon && (
-                <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 opacity-50 font-normal">Breve</Badge>
+                <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 opacity-40 font-normal border-white/10">Breve</Badge>
               )}
             </NavLink>
           ))}
