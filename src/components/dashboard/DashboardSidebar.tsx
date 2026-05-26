@@ -75,177 +75,175 @@ export default function DashboardSidebar() {
   const toggleSidebar = () => setExpanded(!expanded);
   const toggleMobileSidebar = () => setMobileOpen(!mobileOpen);
 
-  const navItemClasses = ({ isActive }: { isActive: boolean }) => {
-    return cn(
-      "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors duration-150 relative",
-      {
-        "bg-white/10 text-foreground font-medium": isActive,
-        "hover:bg-white/5 text-muted-foreground hover:text-foreground": !isActive,
-      }
-    );
-  };
+  const sidebarExpanded = (isDesktop: boolean) => isDesktop ? expanded : true;
 
-  const renderNavContent = (isDesktop: boolean) => (
-    <>
-      {/* Header */}
-      <div className={cn(
-        "flex items-center justify-between px-4 py-5 border-b border-border/40",
-        !isDesktop && "py-4"
-      )}>
-        <NavLink to="/" className="flex items-center">
-          <Logo size="md" showText={false} />
-        </NavLink>
+  const renderNavContent = (isDesktop: boolean) => {
+    const isExpanded = sidebarExpanded(isDesktop);
 
-        {isDesktop ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
-          >
-            {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMobileSidebar}
-            className="h-8 w-8 rounded-full hover:bg-white/10"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        )}
-      </div>
+    return (
+      <>
+        {/* Header */}
+        <div className={cn(
+          "flex items-center px-4 py-5",
+          isExpanded ? "justify-between" : "justify-center"
+        )}>
+          {isExpanded && (
+            <NavLink to="/" className="flex items-center">
+              <Logo size="md" showText={false} />
+            </NavLink>
+          )}
 
-      {/* Navigation */}
-      <div className="px-3 py-4 flex-1 overflow-y-auto">
-        <nav className="space-y-0.5 flex flex-col">
-          {navigation.map((item) => (
-            <NavItemWithTooltip
-              key={item.name}
-              name={item.name}
-              href={item.href}
-              icon={item.icon}
-              expanded={isDesktop ? expanded : true}
-              navItemClasses={navItemClasses}
+          {isDesktop ? (
+            <button
+              onClick={toggleSidebar}
+              className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            >
+              {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobileSidebar}
+              className="h-8 w-8"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <div className="px-3 py-2 flex-1 overflow-y-auto">
+          <nav className="space-y-1 flex flex-col">
+            {navigation.map((item) => (
+              <SidebarNavItem
+                key={item.name}
+                name={item.name}
+                href={item.href}
+                icon={item.icon}
+                isExpanded={isExpanded}
+              />
+            ))}
+
+            {/* Catalog Group */}
+            <SidebarGroup
+              label="Catálogo"
+              icon={BookOpen}
+              isActive={isCatalogSection}
+              isOpen={catalogExpanded}
+              onToggle={() => setCatalogExpanded(!catalogExpanded)}
+              isExpanded={isExpanded}
+              items={catalogSubItems}
             />
-          ))}
 
-          {/* Catalog Group */}
-          <ExpandableGroup
-            label="Catálogo"
-            icon={BookOpen}
-            isActive={isCatalogSection}
-            isExpanded={catalogExpanded}
-            onToggle={() => setCatalogExpanded(!catalogExpanded)}
-            expanded={isDesktop ? expanded : true}
-            items={catalogSubItems}
-            navItemClasses={navItemClasses}
-          />
-
-          {/* Stock Group */}
-          <ExpandableGroup
-            label="Estoque"
-            icon={Warehouse}
-            isActive={isStockSection}
-            isExpanded={stockExpanded}
-            onToggle={() => setStockExpanded(!stockExpanded)}
-            expanded={isDesktop ? expanded : true}
-            items={stockSubItems}
-            navItemClasses={navItemClasses}
-          />
-
-          {/* Sales Group */}
-          <div>
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setSalesExpanded(!salesExpanded)}
-                    className={cn(
-                      "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors duration-150 w-full text-left",
-                      isSalesSection ? "bg-white/10 text-foreground font-medium" : "hover:bg-white/5 text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <ShoppingBag className="h-5 w-5 flex-shrink-0" />
-                    {(isDesktop ? expanded : true) && (
-                      <>
-                        <span className="flex-1">Vendas</span>
-                        {pendingOrders > 0 && (
-                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white animate-pulse">
-                            {pendingOrders > 99 ? '99+' : pendingOrders}
-                          </span>
-                        )}
-                        <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", salesExpanded && "rotate-180")} />
-                      </>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                {isDesktop && !expanded && (
-                  <TooltipContent side="right" className="font-medium">
-                    Vendas
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-            {salesExpanded && (isDesktop ? expanded : true) && (
-              <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-border/40 pl-3">
-                {salesSubItems.map((item) => (
-                  <NavLink
-                    key={item.name}
-                    to={item.href}
-                    className={navItemClasses}
-                  >
-                    <item.icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="flex-1">{item.name}</span>
-                    {'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
-                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
-                        {item.badge > 99 ? '99+' : item.badge}
-                      </span>
-                    )}
-                    {'comingSoon' in item && item.comingSoon && (
-                      <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 ml-auto opacity-60">Breve</Badge>
-                    )}
-                  </NavLink>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {navigationAfterSales.map((item) => (
-            <NavItemWithTooltip
-              key={item.name}
-              name={item.name}
-              href={item.href}
-              icon={item.icon}
-              expanded={isDesktop ? expanded : true}
-              navItemClasses={navItemClasses}
+            {/* Stock Group */}
+            <SidebarGroup
+              label="Estoque"
+              icon={Warehouse}
+              isActive={isStockSection}
+              isOpen={stockExpanded}
+              onToggle={() => setStockExpanded(!stockExpanded)}
+              isExpanded={isExpanded}
+              items={stockSubItems}
             />
-          ))}
-        </nav>
-      </div>
 
-      {/* Footer */}
-      <div className="mt-auto flex-shrink-0">
-        <div className="px-3 pb-2">
-          <div className="border-t border-border/40 pt-3">
+            {/* Sales Group */}
+            <div>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setSalesExpanded(!salesExpanded)}
+                      className={cn(
+                        "flex items-center gap-3 py-3 px-4 rounded-lg w-full text-left transition-all duration-200",
+                        isSalesSection
+                          ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <ShoppingBag className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isSalesSection && "opacity-70")} />
+                      {isExpanded && (
+                        <>
+                          <span className="flex-1 text-sm">Vendas</span>
+                          {pendingOrders > 0 && (
+                            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white animate-pulse">
+                              {pendingOrders > 99 ? '99+' : pendingOrders}
+                            </span>
+                          )}
+                          <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", salesExpanded && "rotate-180")} />
+                        </>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  {!isExpanded && (
+                    <TooltipContent side="right" className="font-medium">
+                      Vendas
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+              {salesExpanded && isExpanded && (
+                <div className="mt-1 ml-4 pl-4 space-y-0.5">
+                  {salesSubItems.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={({ isActive }) => cn(
+                        "flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm transition-all duration-200",
+                        isActive
+                          ? "text-foreground font-medium bg-muted/60"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                      )}
+                    >
+                      <item.icon className={cn("h-4 w-4")} />
+                      <span className="flex-1">{item.name}</span>
+                      {'badge' in item && typeof item.badge === 'number' && item.badge > 0 && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
+                      {'comingSoon' in item && item.comingSoon && (
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 ml-auto opacity-60">Breve</Badge>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {navigationAfterSales.map((item) => (
+              <SidebarNavItem
+                key={item.name}
+                name={item.name}
+                href={item.href}
+                icon={item.icon}
+                isExpanded={isExpanded}
+              />
+            ))}
+          </nav>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-auto flex-shrink-0">
+          {/* Referral link */}
+          <div className="px-3 mb-2">
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <NavLink
                     to="/dashboard/referral"
                     className={cn(
-                      "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors duration-150",
+                      "flex items-center gap-3 py-3 px-4 rounded-lg text-sm transition-all duration-200",
                       isReferralActive
-                        ? "bg-white/10 text-foreground font-medium"
-                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                        ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
-                    <Gift className="h-5 w-5 flex-shrink-0" />
-                    {(isDesktop ? expanded : true) && <span className="flex-1">Indique e Ganhe</span>}
+                    <Gift className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isReferralActive && "opacity-70")} />
+                    {isExpanded && <span className="flex-1">Indique e Ganhe</span>}
                   </NavLink>
                 </TooltipTrigger>
-                {isDesktop && !expanded && (
+                {!isExpanded && (
                   <TooltipContent side="right" className="font-medium">
                     Indique e Ganhe
                   </TooltipContent>
@@ -253,56 +251,61 @@ export default function DashboardSidebar() {
               </Tooltip>
             </TooltipProvider>
           </div>
-        </div>
 
-        <PlanUsageIndicator expanded={isDesktop ? expanded : true} />
+          <PlanUsageIndicator expanded={isExpanded} />
 
-        <div className="px-3 pb-4">
-          <div
-            className={cn(
-              "flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-colors duration-150",
-              "bg-white/5 hover:bg-white/10 border border-border/30"
-            )}
-            onClick={() => setShowSubscriptionModal(true)}
-          >
-            <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={user?.avatar_url} alt={user?.name} />
-              <AvatarFallback className="text-sm">{getInitials(user?.name || '')}</AvatarFallback>
-            </Avatar>
-            {(isDesktop ? expanded : true) && (
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{user?.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                <div className="mt-1">
-                  <PlanStatusBadge status={user?.plan_status} />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  onClick={() => signOut()}
-                  className="w-full justify-start text-red-400/70 hover:text-red-400 hover:bg-red-500/10 mt-2 transition-colors duration-150"
-                >
-                  <LogOut className="h-5 w-5" />
-                  {(isDesktop ? expanded : true) && <span className="ml-3">Sair</span>}
-                </Button>
-              </TooltipTrigger>
-              {isDesktop && !expanded && (
-                <TooltipContent side="right" className="font-medium">
-                  Sair
-                </TooltipContent>
+          {/* User card */}
+          <div className="px-3 pb-4">
+            <div
+              className={cn(
+                "flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200",
+                "bg-card border border-border shadow-sm hover:shadow-md hover:border-border/80"
               )}
-            </Tooltip>
-          </TooltipProvider>
+              onClick={() => setShowSubscriptionModal(true)}
+            >
+              <Avatar className="h-9 w-9 flex-shrink-0">
+                <AvatarImage src={user?.avatar_url} alt={user?.name} />
+                <AvatarFallback className="text-xs">{getInitials(user?.name || '')}</AvatarFallback>
+              </Avatar>
+              {isExpanded && (
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  <div className="mt-1">
+                    <PlanStatusBadge status={user?.plan_status} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    onClick={() => signOut()}
+                    className={cn(
+                      "w-full mt-2 transition-colors duration-200",
+                      isExpanded ? "justify-start" : "justify-center",
+                      "text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
+                    )}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {isExpanded && <span className="ml-3 text-sm">Sair</span>}
+                  </Button>
+                </TooltipTrigger>
+                {!isExpanded && (
+                  <TooltipContent side="right" className="font-medium">
+                    Sair
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  };
 
   return (
     <>
@@ -320,10 +323,7 @@ export default function DashboardSidebar() {
       <div
         className={cn(
           "fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
-          {
-            "opacity-100": mobileOpen,
-            "opacity-0 pointer-events-none": !mobileOpen,
-          }
+          mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={toggleMobileSidebar}
       />
@@ -331,11 +331,9 @@ export default function DashboardSidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 w-72 bg-background border-r border-border/50 z-50 transition-transform duration-300 md:hidden flex flex-col",
-          {
-            "translate-x-0": mobileOpen,
-            "-translate-x-full": !mobileOpen,
-          }
+          "fixed inset-y-0 left-0 w-72 z-50 transition-transform duration-300 md:hidden flex flex-col",
+          "bg-background shadow-2xl",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {renderNavContent(false)}
@@ -344,11 +342,8 @@ export default function DashboardSidebar() {
       {/* Desktop sidebar */}
       <div
         className={cn(
-          "hidden md:flex flex-col h-screen border-r border-border/50 bg-background transition-all duration-300",
-          {
-            "w-64": expanded,
-            "w-[68px]": !expanded,
-          }
+          "hidden md:flex flex-col h-screen bg-background shadow-lg transition-all duration-300",
+          expanded ? "w-64" : "w-[68px]"
         )}
       >
         {renderNavContent(true)}
@@ -362,25 +357,40 @@ export default function DashboardSidebar() {
   );
 }
 
-interface NavItemWithTooltipProps {
+interface SidebarNavItemProps {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  expanded: boolean;
-  navItemClasses: (props: { isActive: boolean }) => string;
+  isExpanded: boolean;
 }
 
-function NavItemWithTooltip({ name, href, icon: Icon, expanded, navItemClasses }: NavItemWithTooltipProps) {
+function SidebarNavItem({ name, href, icon: Icon, isExpanded }: SidebarNavItemProps) {
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <NavLink to={href} className={navItemClasses}>
-            <Icon className="h-5 w-5 flex-shrink-0" />
-            {expanded && <span className="flex-1">{name}</span>}
+          <NavLink
+            to={href}
+            end={href === '/dashboard'}
+            className={({ isActive }) => cn(
+              "flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 relative",
+              isActive
+                ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
+                )}
+                <Icon className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isActive && "opacity-70")} />
+                {isExpanded && <span className="text-sm flex-1">{name}</span>}
+              </>
+            )}
           </NavLink>
         </TooltipTrigger>
-        {!expanded && (
+        {!isExpanded && (
           <TooltipContent side="right" className="font-medium">
             {name}
           </TooltipContent>
@@ -390,18 +400,17 @@ function NavItemWithTooltip({ name, href, icon: Icon, expanded, navItemClasses }
   );
 }
 
-interface ExpandableGroupProps {
+interface SidebarGroupProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
-  isExpanded: boolean;
+  isOpen: boolean;
   onToggle: () => void;
-  expanded: boolean;
+  isExpanded: boolean;
   items: Array<{ name: string; href: string; icon: React.ComponentType<{ className?: string }> }>;
-  navItemClasses: (props: { isActive: boolean }) => string;
 }
 
-function ExpandableGroup({ label, icon: Icon, isActive, isExpanded, onToggle, expanded, items, navItemClasses }: ExpandableGroupProps) {
+function SidebarGroup({ label, icon: Icon, isActive, isOpen, onToggle, isExpanded, items }: SidebarGroupProps) {
   return (
     <div>
       <TooltipProvider delayDuration={0}>
@@ -410,35 +419,42 @@ function ExpandableGroup({ label, icon: Icon, isActive, isExpanded, onToggle, ex
             <button
               onClick={onToggle}
               className={cn(
-                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors duration-150 w-full text-left",
-                isActive ? "bg-white/10 text-foreground font-medium" : "hover:bg-white/5 text-muted-foreground hover:text-foreground"
+                "flex items-center gap-3 py-3 px-4 rounded-lg w-full text-left transition-all duration-200",
+                isActive
+                  ? "bg-muted/80 text-foreground font-medium border border-border/60 shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              {expanded && (
+              <Icon className={cn("h-5 w-5 flex-shrink-0 transition-opacity", !isActive && "opacity-70")} />
+              {isExpanded && (
                 <>
-                  <span className="flex-1">{label}</span>
-                  <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isExpanded && "rotate-180")} />
+                  <span className="flex-1 text-sm">{label}</span>
+                  <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen && "rotate-180")} />
                 </>
               )}
             </button>
           </TooltipTrigger>
-          {!expanded && (
+          {!isExpanded && (
             <TooltipContent side="right" className="font-medium">
               {label}
             </TooltipContent>
           )}
         </Tooltip>
       </TooltipProvider>
-      {isExpanded && expanded && (
-        <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-border/40 pl-3">
+      {isOpen && isExpanded && (
+        <div className="mt-1 ml-4 pl-4 space-y-0.5">
           {items.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
-              className={navItemClasses}
+              className={({ isActive: active }) => cn(
+                "flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm transition-all duration-200",
+                active
+                  ? "text-foreground font-medium bg-muted/60"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              )}
             >
-              <item.icon className="h-4 w-4 text-muted-foreground" />
+              <item.icon className="h-4 w-4" />
               <span className="flex-1">{item.name}</span>
             </NavLink>
           ))}
