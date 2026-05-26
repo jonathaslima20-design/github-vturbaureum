@@ -72,19 +72,14 @@ export default function DashboardSidebar() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-5">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-foreground flex items-center justify-center">
-              <Logo showText={false} size="sm" className="invert dark:invert-0" />
-            </div>
-            {isExpanded && (
-              <span className="font-semibold text-[15px] tracking-tight text-foreground">Painel</span>
-            )}
+            <Logo showText={isExpanded} size="sm" />
           </div>
           {isMobile ? (
-            <button onClick={toggleMobileSidebar} className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
+            <button onClick={toggleMobileSidebar} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors">
               <X className="h-4 w-4" />
             </button>
           ) : (
-            <button onClick={toggleSidebar} className="h-7 w-7 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200">
+            <button onClick={toggleSidebar} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200">
               {expanded ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </button>
           )}
@@ -92,9 +87,9 @@ export default function DashboardSidebar() {
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
-          {isExpanded && <PillSectionLabel>Menu</PillSectionLabel>}
-          <nav className="space-y-1">
-            <PillNavItem
+          {isExpanded && <CardSectionLabel>Menu</CardSectionLabel>}
+          <nav className="space-y-1.5">
+            <CardNavItem
               name="Dashboard"
               href="/dashboard"
               icon={LayoutDashboard}
@@ -104,10 +99,10 @@ export default function DashboardSidebar() {
             />
           </nav>
 
-          {isExpanded && <PillSectionLabel className="mt-7">Catalogo</PillSectionLabel>}
+          {isExpanded && <CardSectionLabel className="mt-6">Catalogo</CardSectionLabel>}
           {!isExpanded && <div className="my-4" />}
-          <nav className="space-y-1">
-            <PillGroupItem
+          <nav className="space-y-1.5">
+            <CardGroupItem
               label="Catalogo"
               icon={BookOpen}
               isGroupActive={isCatalogSection}
@@ -117,7 +112,7 @@ export default function DashboardSidebar() {
               items={catalogSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-            <PillGroupItem
+            <CardGroupItem
               label="Estoque"
               icon={Warehouse}
               isGroupActive={isStockSection}
@@ -129,10 +124,10 @@ export default function DashboardSidebar() {
             />
           </nav>
 
-          {isExpanded && <PillSectionLabel className="mt-7">Vendas</PillSectionLabel>}
+          {isExpanded && <CardSectionLabel className="mt-6">Vendas</CardSectionLabel>}
           {!isExpanded && <div className="my-4" />}
-          <nav className="space-y-1">
-            <PillGroupItem
+          <nav className="space-y-1.5">
+            <CardGroupItem
               label="Vendas"
               icon={ShoppingBag}
               isGroupActive={isSalesSection}
@@ -145,10 +140,10 @@ export default function DashboardSidebar() {
             />
           </nav>
 
-          {isExpanded && <PillSectionLabel className="mt-7">Outros</PillSectionLabel>}
+          {isExpanded && <CardSectionLabel className="mt-6">Outros</CardSectionLabel>}
           {!isExpanded && <div className="my-4" />}
-          <nav className="space-y-1">
-            <PillNavItem
+          <nav className="space-y-1.5">
+            <CardNavItem
               name="Configuracoes"
               href="/dashboard/settings"
               icon={Settings}
@@ -156,7 +151,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <PillNavItem
+            <CardNavItem
               name="Central de Ajuda"
               href="/help"
               icon={HelpCircle}
@@ -164,7 +159,7 @@ export default function DashboardSidebar() {
               isExpanded={isExpanded}
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            <PillNavItem
+            <CardNavItem
               name="Indique e Ganhe"
               href="/dashboard/referral"
               icon={Gift}
@@ -180,10 +175,10 @@ export default function DashboardSidebar() {
           <PlanUsageIndicator expanded={isExpanded} />
           <div className="pt-3 mt-3">
             <button
-              className="flex items-center gap-3 w-full rounded-full p-2 pr-3 hover:bg-muted transition-all duration-200 text-left"
+              className="flex items-center gap-3 w-full rounded-xl p-2.5 border border-border/40 bg-card hover:shadow-md transition-all duration-200 text-left"
               onClick={() => setShowSubscriptionModal(true)}
             >
-              <Avatar className="h-8 w-8 shrink-0 ring-2 ring-foreground/10">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage src={user?.avatar_url} alt={user?.name} />
                 <AvatarFallback className="text-[11px] font-semibold bg-foreground text-background">
                   {getInitials(user?.name || '')}
@@ -201,7 +196,7 @@ export default function DashboardSidebar() {
             <button
               onClick={() => signOut()}
               className={cn(
-                "flex items-center gap-2.5 py-2 px-3 w-full text-left text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 mt-1 rounded-full text-[13px]",
+                "flex items-center gap-2.5 py-2 px-3 w-full text-left text-muted-foreground hover:text-destructive hover:bg-destructive/5 hover:border-destructive/20 transition-all duration-200 mt-1.5 rounded-xl border border-transparent text-[13px]",
                 !isExpanded && "justify-center"
               )}
             >
@@ -220,7 +215,7 @@ export default function DashboardSidebar() {
       <Button
         variant="outline"
         size="icon"
-        className="fixed top-3 left-4 z-50 md:hidden rounded-full"
+        className="fixed top-3 left-4 z-50 md:hidden rounded-xl"
         onClick={toggleMobileSidebar}
       >
         <Menu className="h-5 w-5" />
@@ -238,7 +233,7 @@ export default function DashboardSidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 w-[272px] z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden flex flex-col bg-background border-r border-border/30",
+          "fixed inset-y-0 left-0 w-[272px] z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden flex flex-col bg-background",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -248,8 +243,8 @@ export default function DashboardSidebar() {
       {/* Desktop sidebar */}
       <div
         className={cn(
-          "hidden md:flex flex-col h-screen bg-transparent border-r border-border/30 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          expanded ? "w-[240px]" : "w-[60px]"
+          "hidden md:flex flex-col h-screen bg-muted/20 border-r border-border/40 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          expanded ? "w-[248px]" : "w-[64px]"
         )}
       >
         {sidebarContent(false)}
@@ -263,15 +258,16 @@ export default function DashboardSidebar() {
   );
 }
 
-function PillSectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+function CardSectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <p className={cn("text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground/50 px-4 mb-1.5", className)}>
-      {children}
-    </p>
+    <div className={cn("flex items-center gap-2 px-1 mb-2", className)}>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60 whitespace-nowrap">{children}</span>
+      <div className="flex-1 h-px bg-border/40" />
+    </div>
   );
 }
 
-interface PillNavItemProps {
+interface CardNavItemProps {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -280,7 +276,7 @@ interface PillNavItemProps {
   onClick?: () => void;
 }
 
-function PillNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: PillNavItemProps) {
+function CardNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: CardNavItemProps) {
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
@@ -290,10 +286,10 @@ function PillNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: PillN
             end={end}
             onClick={onClick}
             className={({ isActive }) => cn(
-              "flex items-center gap-2.5 py-2 px-4 rounded-full text-[13px] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              "flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl text-[13px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
               isActive
-                ? "bg-foreground text-background font-medium shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                ? "bg-foreground text-background font-medium shadow-md border-foreground/10 scale-[1.02] translate-x-0.5"
+                : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:shadow-sm hover:border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             )}
           >
             <Icon className="h-[17px] w-[17px] shrink-0" />
@@ -308,7 +304,7 @@ function PillNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: PillN
   );
 }
 
-interface PillGroupItemProps {
+interface CardGroupItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isGroupActive: boolean;
@@ -320,7 +316,7 @@ interface PillGroupItemProps {
   badge?: number;
 }
 
-function PillGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: PillGroupItemProps) {
+function CardGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: CardGroupItemProps) {
   return (
     <div>
       <TooltipProvider delayDuration={0}>
@@ -329,10 +325,10 @@ function PillGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isE
             <button
               onClick={onToggle}
               className={cn(
-                "flex items-center gap-2.5 py-2 px-4 rounded-full text-[13px] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] w-full text-left",
+                "flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl text-[13px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] w-full text-left",
                 isGroupActive
-                  ? "bg-foreground text-background font-medium shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "bg-foreground text-background font-medium shadow-md border-foreground/10 scale-[1.02] translate-x-0.5"
+                  : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:shadow-sm hover:border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
               )}
             >
               <Icon className="h-[17px] w-[17px] shrink-0" />
@@ -362,17 +358,17 @@ function PillGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isE
       </TooltipProvider>
 
       {isOpen && isExpanded && (
-        <div className="mt-1 ml-4 space-y-0.5">
+        <div className="mt-1.5 ml-3 pl-3 border-l-2 border-foreground/10 space-y-1">
           {items.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               onClick={onItemClick}
               className={({ isActive }) => cn(
-                "flex items-center gap-2 py-1.5 px-3.5 rounded-full text-[12px] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                "flex items-center gap-2 py-2 px-3 rounded-lg text-[12px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 isActive
-                  ? "text-foreground font-medium bg-muted"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  ? "text-foreground font-medium bg-card border-border/60 shadow-sm"
+                  : "text-muted-foreground hover:text-foreground border-transparent hover:bg-card hover:border-border/40"
               )}
             >
               <item.icon className="h-3.5 w-3.5 shrink-0" />
@@ -383,7 +379,7 @@ function PillGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isE
                 </span>
               )}
               {item.comingSoon && (
-                <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 opacity-50 font-normal rounded-full">Breve</Badge>
+                <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 opacity-50 font-normal">Breve</Badge>
               )}
             </NavLink>
           ))}
