@@ -166,6 +166,7 @@ export interface StorefrontSettings {
     autoDeductStock?: boolean;
     blockZeroStock?: boolean;
     reservationMinutes?: number;
+    checkout?: CheckoutSettings;
   };
   created_at: string;
   updated_at?: string;
@@ -372,6 +373,10 @@ export interface Order {
   coupon_id?: string | null;
   coupon_code?: string | null;
   discount_amount?: number;
+  payment_method?: string | null;
+  payment_method_discount?: number;
+  delivery_fee?: number;
+  delivery_option?: string | null;
 }
 
 export interface OrderItem {
@@ -515,4 +520,30 @@ export interface AppliedCoupon {
   discountType: CouponDiscountType;
   discountValue: number;
   calculatedDiscount: number;
+}
+
+// Checkout Settings Types (Payment Methods & Delivery)
+export type PaymentMethodDiscountType = 'percentage' | 'fixed_amount';
+
+export interface PaymentMethodConfig {
+  id: string;
+  name: string;
+  enabled: boolean;
+  discountType?: PaymentMethodDiscountType;
+  discountValue?: number;
+}
+
+export interface DeliveryOption {
+  id: string;
+  name: string;
+  fee: number;
+  enabled: boolean;
+  freeAbove?: number | null;
+}
+
+export interface CheckoutSettings {
+  paymentMethods: PaymentMethodConfig[];
+  deliveryOptions: DeliveryOption[];
+  requirePaymentMethod: boolean;
+  requireDeliveryOption: boolean;
 }

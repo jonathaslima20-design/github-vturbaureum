@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Package, Search, Filter, Loader as Loader2, ShoppingBag, Clock, CircleCheck as CheckCircle, DollarSign, MessageCircle, Ticket } from 'lucide-react';
+import { Package, Search, Filter, Loader as Loader2, ShoppingBag, Clock, CircleCheck as CheckCircle, DollarSign, MessageCircle, Ticket, Wallet, Truck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchOrders, getOrderStats, type OrderStats } from '@/lib/orderService';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
@@ -257,6 +257,18 @@ export default function OrdersPage() {
                           <Badge variant="outline" className="text-xs text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">
                             <Ticket className="h-3 w-3 mr-1" />
                             {order.coupon_code}
+                          </Badge>
+                        )}
+                        {order.payment_method && (
+                          <Badge variant="outline" className="text-xs">
+                            <Wallet className="h-3 w-3 mr-1" />
+                            {order.payment_method}
+                          </Badge>
+                        )}
+                        {order.delivery_option && (
+                          <Badge variant="outline" className="text-xs">
+                            <Truck className="h-3 w-3 mr-1" />
+                            {order.delivery_option}
                           </Badge>
                         )}
                       </div>

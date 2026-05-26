@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, User, Ticket, Loader as Loader2, CircleCheck as CheckCircle } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, User, Ticket, Loader as Loader2, CircleCheck as CheckCircle, Truck, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -38,6 +38,8 @@ import TieredPricingIndicator from '@/components/product/TieredPricingIndicator'
 import { PhoneInputWithCountry } from '@/components/ui/phone-input-with-country';
 import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 import { useCouponValidation } from '@/hooks/useCouponValidation';
+import { useCheckoutSettingsForStore } from '@/hooks/useCheckoutSettings';
+import type { PaymentMethodConfig, DeliveryOption } from '@/types';
 
 interface CartModalProps {
   open: boolean;
@@ -58,6 +60,7 @@ export default function CartModal({
   const { t } = useTranslation(language);
   const { autoDeductStock, inventoryEnabled } = useInventoryEnabledForStore(corretor?.id);
   const { loading: couponLoading, error: couponError, validateCoupon, clearCoupon, setError: setCouponError } = useCouponValidation();
+  const { settings: checkoutSettings, loading: checkoutSettingsLoading } = useCheckoutSettingsForStore(corretor?.id);
   const [sendingOrder, setSendingOrder] = useState(false);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [editingVariant, setEditingVariant] = useState<string | null>(null);
@@ -68,11 +71,36 @@ export default function CartModal({
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerCountryCode, setCustomerCountryCode] = useState('55');
-  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; payment?: string; delivery?: string }>({});
   const [couponCode, setCouponCode] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string | null>(null);
+
+  const enabledPaymentMethods = checkoutSettings.paymentMethods.filter(m => m.enabled);
+  const enabledDeliveryOptions = checkoutSettings.deliveryOptions.filter(d => d.enabled);
+
+  const selectedPaymentConfig = enabledPaymentMethods.find(m => m.id === selectedPaymentMethod);
+  const selectedDeliveryConfig = enabledDeliveryOptions.find(d => d.id === selectedDeliveryOption);
 
   const discountAmount = appliedCoupon?.calculatedDiscount || 0;
-  const finalTotal = Math.max(0, cart.total - discountAmount);
+
+  const paymentMethodDiscount = (() => {
+    if (!selectedPaymentConfig?.discountValue || !selectedPaymentConfig.discountType) return 0;
+    const subtotalAfterCoupon = Math.max(0, cart.total - discountAmount);
+    if (selectedPaymentConfig.discountType === 'percentage') {
+      return Math.round(subtotalAfterCoupon * (selectedPaymentConfig.discountValue / 100) * 100) / 100;
+    }
+    return Math.min(selectedPaymentConfig.discountValue, subtotalAfterCoupon);
+  })();
+
+  const deliveryFee = (() => {
+    if (!selectedDeliveryConfig) return 0;
+    const subtotalAfterDiscounts = Math.max(0, cart.total - discountAmount - paymentMethodDiscount);
+    if (selectedDeliveryConfig.freeAbove && subtotalAfterDiscounts >= selectedDeliveryConfig.freeAbove) return 0;
+    return selectedDeliveryConfig.fee;
+  })();
+
+  const finalTotal = Math.max(0, cart.total - discountAmount - paymentMethodDiscount + deliveryFee);
 
   useEffect(() => {
     const loadTieredPricing = async () => {
@@ -111,7 +139,13 @@ export default function CartModal({
       language,
       cart.distributions,
       customer,
-      appliedCoupon
+      appliedCoupon,
+      {
+        paymentMethod: selectedPaymentConfig?.name || null,
+        paymentMethodDiscount,
+        deliveryOption: selectedDeliveryConfig?.name || null,
+        deliveryFee,
+      }
     );
   };
 
@@ -137,13 +171,19 @@ export default function CartModal({
   };
 
   const validateCustomerInfo = (): boolean => {
-    const newErrors: { name?: string; phone?: string } = {};
+    const newErrors: { name?: string; phone?: string; payment?: string; delivery?: string } = {};
     if (!customerName.trim()) {
       newErrors.name = 'Informe seu nome';
     }
     const cleanPhone = customerPhone.replace(/\D/g, '');
     if (!cleanPhone || cleanPhone.length < 8) {
       newErrors.phone = 'Informe um numero de WhatsApp valido';
+    }
+    if (checkoutSettings.requirePaymentMethod && enabledPaymentMethods.length > 0 && !selectedPaymentMethod) {
+      newErrors.payment = 'Selecione uma forma de pagamento';
+    }
+    if (checkoutSettings.requireDeliveryOption && enabledDeliveryOptions.length > 0 && !selectedDeliveryOption) {
+      newErrors.delivery = 'Selecione uma opcao de entrega';
     }
     setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -201,6 +241,10 @@ export default function CartModal({
             coupon_id: appliedCoupon?.couponId || null,
             coupon_code: appliedCoupon?.code || null,
             discount_amount: discountAmount,
+            payment_method: selectedPaymentConfig?.name || null,
+            payment_method_discount: paymentMethodDiscount,
+            delivery_fee: deliveryFee,
+            delivery_option: selectedDeliveryConfig?.name || null,
           },
           orderItems,
           inventoryEnabled && autoDeductStock
@@ -218,6 +262,8 @@ export default function CartModal({
       clearCart();
       clearCoupon();
       setCouponCode('');
+      setSelectedPaymentMethod(null);
+      setSelectedDeliveryOption(null);
       setStep('cart');
       setCustomerName('');
       setCustomerPhone('');
@@ -843,6 +889,93 @@ export default function CartModal({
                       <p className="text-xs text-destructive">{couponError}</p>
                     )}
                   </div>
+
+                  {/* Payment Method Selection */}
+                  {enabledPaymentMethods.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1.5">
+                        <Wallet className="h-3.5 w-3.5" />
+                        Forma de pagamento
+                        {checkoutSettings.requirePaymentMethod && <span className="text-destructive">*</span>}
+                      </Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {enabledPaymentMethods.map((method) => {
+                          const isSelected = selectedPaymentMethod === method.id;
+                          const hasDiscount = method.discountValue && method.discountValue > 0;
+                          return (
+                            <button
+                              key={method.id}
+                              type="button"
+                              className={`relative p-2.5 rounded-lg border text-left text-sm transition-all ${
+                                isSelected
+                                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                  : 'border-border hover:border-foreground/30'
+                              }`}
+                              onClick={() => {
+                                setSelectedPaymentMethod(isSelected ? null : method.id);
+                                if (formErrors.payment) setFormErrors(p => ({ ...p, payment: undefined }));
+                              }}
+                            >
+                              <span className="font-medium">{method.name}</span>
+                              {hasDiscount && (
+                                <span className="block text-xs text-green-600 dark:text-green-400 mt-0.5">
+                                  {method.discountType === 'percentage'
+                                    ? `${method.discountValue}% de desconto`
+                                    : `-${formatCurrencyI18n(method.discountValue!, currency, language)}`
+                                  }
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {formErrors.payment && (
+                        <p className="text-xs text-destructive">{formErrors.payment}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Delivery Option Selection */}
+                  {enabledDeliveryOptions.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1.5">
+                        <Truck className="h-3.5 w-3.5" />
+                        Opcao de entrega
+                        {checkoutSettings.requireDeliveryOption && <span className="text-destructive">*</span>}
+                      </Label>
+                      <div className="space-y-1.5">
+                        {enabledDeliveryOptions.map((option) => {
+                          const isSelected = selectedDeliveryOption === option.id;
+                          const subtotalForFreeCheck = Math.max(0, cart.total - discountAmount - paymentMethodDiscount);
+                          const isFreeDelivery = option.freeAbove && subtotalForFreeCheck >= option.freeAbove;
+                          const displayFee = isFreeDelivery ? 0 : option.fee;
+                          return (
+                            <button
+                              key={option.id}
+                              type="button"
+                              className={`w-full flex items-center justify-between p-2.5 rounded-lg border text-sm transition-all ${
+                                isSelected
+                                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                  : 'border-border hover:border-foreground/30'
+                              }`}
+                              onClick={() => {
+                                setSelectedDeliveryOption(isSelected ? null : option.id);
+                                if (formErrors.delivery) setFormErrors(p => ({ ...p, delivery: undefined }));
+                              }}
+                            >
+                              <span className="font-medium">{option.name}</span>
+                              <span className={displayFee === 0 ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'}>
+                                {displayFee === 0 ? 'Gratis' : `+${formatCurrencyI18n(displayFee, currency, language)}`}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {formErrors.delivery && (
+                        <p className="text-xs text-destructive">{formErrors.delivery}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Order Summary */}
@@ -857,6 +990,24 @@ export default function CartModal({
                     <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
                       <span>Cupom {appliedCoupon.code}</span>
                       <span>-{formatCurrencyI18n(discountAmount, currency, language)}</span>
+                    </div>
+                  )}
+                  {paymentMethodDiscount > 0 && selectedPaymentConfig && (
+                    <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
+                      <span>Desc. {selectedPaymentConfig.name}</span>
+                      <span>-{formatCurrencyI18n(paymentMethodDiscount, currency, language)}</span>
+                    </div>
+                  )}
+                  {deliveryFee > 0 && selectedDeliveryConfig && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Entrega ({selectedDeliveryConfig.name})</span>
+                      <span>+{formatCurrencyI18n(deliveryFee, currency, language)}</span>
+                    </div>
+                  )}
+                  {deliveryFee === 0 && selectedDeliveryConfig && (
+                    <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
+                      <span>Entrega ({selectedDeliveryConfig.name})</span>
+                      <span>Gratis</span>
                     </div>
                   )}
                   <Separator className="my-1" />

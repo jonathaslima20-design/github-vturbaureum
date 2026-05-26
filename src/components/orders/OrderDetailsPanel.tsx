@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, MessageCircle, Package, Clock, ShoppingCart, MapPin, Ticket } from 'lucide-react';
+import { X, MessageCircle, Package, Clock, ShoppingCart, MapPin, Ticket, Wallet, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -275,21 +275,58 @@ export default function OrderDetailsPanel({
 
             <Separator />
 
-            {/* Coupon Info */}
-            {order.coupon_code && (
+            {/* Price Breakdown */}
+            {(order.coupon_code || order.payment_method || order.delivery_option) && (
               <>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Subtotal</span>
                     <span className="text-sm">{formatCurrency(order.subtotal)}</span>
                   </div>
-                  <div className="flex items-center justify-between text-green-600 dark:text-green-400">
-                    <span className="text-sm flex items-center gap-1.5">
-                      <Ticket className="h-3.5 w-3.5" />
-                      Cupom {order.coupon_code}
-                    </span>
-                    <span className="text-sm font-medium">-{formatCurrency(order.discount_amount || 0)}</span>
-                  </div>
+                  {order.coupon_code && (
+                    <div className="flex items-center justify-between text-green-600 dark:text-green-400">
+                      <span className="text-sm flex items-center gap-1.5">
+                        <Ticket className="h-3.5 w-3.5" />
+                        Cupom {order.coupon_code}
+                      </span>
+                      <span className="text-sm font-medium">-{formatCurrency(order.discount_amount || 0)}</span>
+                    </div>
+                  )}
+                  {order.payment_method && order.payment_method_discount && order.payment_method_discount > 0 && (
+                    <div className="flex items-center justify-between text-green-600 dark:text-green-400">
+                      <span className="text-sm flex items-center gap-1.5">
+                        <Wallet className="h-3.5 w-3.5" />
+                        Desc. {order.payment_method}
+                      </span>
+                      <span className="text-sm font-medium">-{formatCurrency(order.payment_method_discount)}</span>
+                    </div>
+                  )}
+                  {order.delivery_option && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+                        <Truck className="h-3.5 w-3.5" />
+                        Entrega: {order.delivery_option}
+                      </span>
+                      <span className="text-sm font-medium">
+                        {order.delivery_fee && order.delivery_fee > 0
+                          ? `+${formatCurrency(order.delivery_fee)}`
+                          : 'Gratis'
+                        }
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <Separator />
+              </>
+            )}
+
+            {/* Payment Method (when no price breakdown section) */}
+            {order.payment_method && !order.coupon_code && !order.delivery_option && !(order.payment_method_discount && order.payment_method_discount > 0) && (
+              <>
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-muted-foreground">Pagamento:</span>
+                  <span className="font-medium">{order.payment_method}</span>
                 </div>
                 <Separator />
               </>
@@ -302,6 +339,15 @@ export default function OrderDetailsPanel({
                 {formatCurrency(order.total)}
               </span>
             </div>
+
+            {/* Payment Method Label (shown under total when breakdown section already present) */}
+            {order.payment_method && (order.coupon_code || order.delivery_option || (order.payment_method_discount && order.payment_method_discount > 0)) && (
+              <div className="flex items-center gap-1.5 text-sm">
+                <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">Pagamento:</span>
+                <span className="font-medium">{order.payment_method}</span>
+              </div>
+            )}
 
             {/* Order Info */}
             <div className="text-xs text-muted-foreground space-y-1">

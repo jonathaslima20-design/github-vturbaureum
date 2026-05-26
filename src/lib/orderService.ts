@@ -16,6 +16,10 @@ interface CreateOrderData {
   coupon_id?: string | null;
   coupon_code?: string | null;
   discount_amount?: number;
+  payment_method?: string | null;
+  payment_method_discount?: number;
+  delivery_fee?: number;
+  delivery_option?: string | null;
 }
 
 interface CreateOrderItemData {
@@ -59,6 +63,16 @@ export async function createOrder(
     insertPayload.coupon_id = orderData.coupon_id;
     insertPayload.coupon_code = orderData.coupon_code;
     insertPayload.discount_amount = orderData.discount_amount || 0;
+  }
+
+  if (orderData.payment_method) {
+    insertPayload.payment_method = orderData.payment_method;
+    insertPayload.payment_method_discount = orderData.payment_method_discount || 0;
+  }
+
+  if (orderData.delivery_option) {
+    insertPayload.delivery_option = orderData.delivery_option;
+    insertPayload.delivery_fee = orderData.delivery_fee || 0;
   }
 
   const { data: order, error: orderError } = await supabase

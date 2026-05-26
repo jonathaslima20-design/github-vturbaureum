@@ -4,6 +4,7 @@ import { ProfileSettings } from '@/components/dashboard/ProfileSettings';
 import { StorefrontSettings } from '@/components/dashboard/StorefrontSettings';
 import { AppearanceSettings } from '@/components/dashboard/AppearanceSettings';
 import TrackingSettingsContent from '@/components/dashboard/TrackingSettingsContent';
+import CheckoutSettingsContent from '@/components/dashboard/CheckoutSettingsContent';
 import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
@@ -27,11 +28,12 @@ export default function SettingsPage() {
 
             {/* Tabs */}
             <div className="flex gap-1 sm:gap-4 border-b mb-6 sm:mb-8 -mx-4 sm:mx-0 px-4 sm:px-0">
-              {(['profile', 'appearance', 'storefront', 'tracking'] as const).map((tab) => {
+              {(['profile', 'appearance', 'storefront', 'checkout', 'tracking'] as const).map((tab) => {
                 const labels: Record<string, string> = {
                   profile: 'Perfil',
                   appearance: 'Aparência',
                   storefront: 'Vitrine',
+                  checkout: 'Checkout',
                   tracking: 'Rastreamento',
                 };
                 return (
@@ -59,6 +61,7 @@ export default function SettingsPage() {
               {activeTab === 'profile' && <ProfileSettings />}
               {activeTab === 'appearance' && <AppearanceSettings />}
               {activeTab === 'storefront' && <StorefrontSettings />}
+              {activeTab === 'checkout' && <CheckoutSettingsContent />}
               {activeTab === 'tracking' && <TrackingSettingsContent />}
             </div>
           </div>

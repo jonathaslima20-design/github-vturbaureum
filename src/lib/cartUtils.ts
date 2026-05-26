@@ -7,6 +7,13 @@ interface CustomerData {
   countryCode: string;
 }
 
+interface PaymentDeliveryInfo {
+  paymentMethod?: string | null;
+  paymentMethodDiscount?: number;
+  deliveryOption?: string | null;
+  deliveryFee?: number;
+}
+
 export function generateCartOrderMessage(
   cartItems: CartItem[],
   total: number,
@@ -16,7 +23,8 @@ export function generateCartOrderMessage(
   language: SupportedLanguage = 'pt-BR',
   distributions: CartDistribution[] = [],
   customer?: CustomerData,
-  coupon?: AppliedCoupon | null
+  coupon?: AppliedCoupon | null,
+  paymentDelivery?: PaymentDeliveryInfo
 ): string {
   if (cartItems.length === 0 && distributions.length === 0) return '';
 
@@ -228,20 +236,61 @@ export function generateCartOrderMessage(
     orderMessage += `*${couponLabels[language] || couponLabels['pt-BR']}:* ${coupon.code} (-${formatCurrencyI18n(coupon.calculatedDiscount, currency, language)})\n`;
   }
 
+  if (paymentDelivery?.paymentMethodDiscount && paymentDelivery.paymentMethodDiscount > 0) {
+    const pmDiscountLabels = {
+      'pt-BR': 'Desc. forma de pagamento',
+      'en-US': 'Payment method discount',
+      'es-ES': 'Desc. forma de pago',
+    };
+    orderMessage += `*${pmDiscountLabels[language] || pmDiscountLabels['pt-BR']}:* -${formatCurrencyI18n(paymentDelivery.paymentMethodDiscount, currency, language)}\n`;
+  }
+
+  if (paymentDelivery?.deliveryFee && paymentDelivery.deliveryFee > 0) {
+    const deliveryLabels = {
+      'pt-BR': 'Entrega',
+      'en-US': 'Delivery',
+      'es-ES': 'Entrega',
+    };
+    orderMessage += `*${deliveryLabels[language] || deliveryLabels['pt-BR']}:* ${paymentDelivery.deliveryOption || ''} (+${formatCurrencyI18n(paymentDelivery.deliveryFee, currency, language)})\n`;
+  } else if (paymentDelivery?.deliveryOption) {
+    const deliveryLabels = {
+      'pt-BR': 'Entrega',
+      'en-US': 'Delivery',
+      'es-ES': 'Entrega',
+    };
+    const freeLabels = {
+      'pt-BR': 'Gratis',
+      'en-US': 'Free',
+      'es-ES': 'Gratis',
+    };
+    orderMessage += `*${deliveryLabels[language] || deliveryLabels['pt-BR']}:* ${paymentDelivery.deliveryOption} (${freeLabels[language] || freeLabels['pt-BR']})\n`;
+  }
+
   const totalLabels = {
     'pt-BR': 'TOTAL',
     'en-US': 'TOTAL',
     'es-ES': 'TOTAL',
   };
 
-  orderMessage += `*${totalLabels[language] || totalLabels['pt-BR']}: ${formatCurrencyI18n(total, currency, language)}*\n\n`;
-  
+  orderMessage += `*${totalLabels[language] || totalLabels['pt-BR']}: ${formatCurrencyI18n(total, currency, language)}*\n`;
+
+  if (paymentDelivery?.paymentMethod) {
+    const paymentLabels = {
+      'pt-BR': 'Forma de Pagamento',
+      'en-US': 'Payment Method',
+      'es-ES': 'Forma de Pago',
+    };
+    orderMessage += `*${paymentLabels[language] || paymentLabels['pt-BR']}:* ${paymentDelivery.paymentMethod}\n`;
+  }
+
+  orderMessage += `\n`;
+
   const footerMessages = {
-    'pt-BR': 'Aguardo retorno com informações sobre pagamento e entrega.',
-    'en-US': 'I await your response with payment and delivery information.',
-    'es-ES': 'Espero su respuesta con información de pago y entrega.',
+    'pt-BR': 'Aguardo retorno para finalizar o pedido.',
+    'en-US': 'I await your response to finalize the order.',
+    'es-ES': 'Espero su respuesta para finalizar el pedido.',
   };
-  
+
   orderMessage += footerMessages[language] || footerMessages['pt-BR'];
 
   return orderMessage;
