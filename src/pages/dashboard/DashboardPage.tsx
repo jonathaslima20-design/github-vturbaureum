@@ -213,7 +213,7 @@ export default function DashboardPage() {
       <RevenueCard periodDays={periodDays} />
 
       {/* Charts Row: Revenue Chart + Sales Funnel */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         <RevenueChart periodDays={periodDays} />
         <SalesFunnel periodDays={periodDays} />
       </div>
