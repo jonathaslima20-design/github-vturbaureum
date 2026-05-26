@@ -277,31 +277,35 @@ interface CardNavItemProps {
 }
 
 function CardNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: CardNavItemProps) {
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <NavLink
-            to={href}
-            end={end}
-            onClick={onClick}
-            className={({ isActive }) => cn(
-              "flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl text-[13px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
-              isActive
-                ? "bg-foreground text-background font-medium shadow-md border-foreground/10"
-                : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:shadow-sm hover:border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-            )}
-          >
-            <Icon className="h-[17px] w-[17px] shrink-0" />
-            {isExpanded && <span>{name}</span>}
-          </NavLink>
-        </TooltipTrigger>
-        {!isExpanded && (
-          <TooltipContent side="right" className="text-xs">{name}</TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
+  const link = (
+    <NavLink
+      to={href}
+      end={end}
+      onClick={onClick}
+      className={({ isActive }) => cn(
+        "flex flex-row items-center gap-2.5 py-2.5 px-3.5 rounded-xl text-[13px] border transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        isActive
+          ? "bg-foreground text-background font-medium shadow-md border-foreground/10"
+          : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:shadow-sm hover:border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+      )}
+    >
+      <Icon className="h-[17px] w-[17px] shrink-0" />
+      {isExpanded && <span className="whitespace-nowrap">{name}</span>}
+    </NavLink>
   );
+
+  if (!isExpanded) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent side="right" className="text-xs">{name}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return link;
 }
 
 interface CardGroupItemProps {
