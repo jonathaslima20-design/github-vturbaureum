@@ -173,7 +173,7 @@ export default function DashboardSidebar() {
               </Avatar>
               {isExpanded && (
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate leading-tight tracking-tight">{user?.name}</p>
+                  <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
                   <div className="mt-0.5">
                     <PlanStatusBadge status={user?.plan_status} />
                   </div>
@@ -183,7 +183,7 @@ export default function DashboardSidebar() {
             <button
               onClick={() => signOut()}
               className={cn(
-                "flex items-center gap-2.5 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-sm tracking-tight",
+                "flex items-center gap-2.5 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-[15px] tracking-tight",
                 !isExpanded && "justify-center"
               )}
             >
@@ -231,7 +231,7 @@ export default function DashboardSidebar() {
       <div
         className={cn(
           "hidden md:flex flex-col h-screen bg-background border-r border-foreground/[0.08] transition-all duration-250 ease-out",
-          expanded ? "w-[240px]" : "w-[60px]"
+          expanded ? "w-[256px]" : "w-[60px]"
         )}
       >
         {sidebarContent(false)}
@@ -266,7 +266,7 @@ function InkNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: InkNav
       end={end}
       onClick={onClick}
       className={cn(
-        "flex flex-row items-center gap-3 py-2.5 px-3 text-sm tracking-tight transition-colors duration-150 relative",
+        "flex flex-row items-center gap-3 py-2.5 px-3 text-[15px] tracking-tight transition-colors duration-150 relative",
         isActive
           ? "text-foreground font-semibold bg-foreground/[0.04]"
           : "text-muted-foreground hover:text-foreground"
@@ -275,7 +275,7 @@ function InkNavItem({ name, href, icon: Icon, isExpanded, end, onClick }: InkNav
       {isActive && (
         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
       )}
-      <Icon className="h-[18px] w-[18px] shrink-0" />
+      <Icon className="h-[19px] w-[19px] shrink-0" />
       {isExpanded && <span className="whitespace-nowrap">{name}</span>}
     </NavLink>
   );
@@ -311,7 +311,7 @@ function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isEx
     <button
       onClick={onToggle}
       className={cn(
-        "flex flex-row items-center gap-3 py-2.5 px-3 text-sm tracking-tight transition-colors duration-150 w-full text-left relative",
+        "flex flex-row items-center gap-3 py-2.5 px-3 text-[15px] tracking-tight transition-colors duration-150 w-full text-left relative",
         isGroupActive
           ? "text-foreground font-semibold bg-foreground/[0.04]"
           : "text-muted-foreground hover:text-foreground"
@@ -320,7 +320,7 @@ function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isEx
       {isGroupActive && (
         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
       )}
-      <Icon className="h-[18px] w-[18px] shrink-0" />
+      <Icon className="h-[19px] w-[19px] shrink-0" />
       {isExpanded && (
         <>
           <span className="flex-1 whitespace-nowrap">{label}</span>
@@ -357,13 +357,13 @@ function InkGroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isEx
               to={item.href}
               onClick={onItemClick}
               className={({ isActive }) => cn(
-                "flex flex-row items-center gap-2.5 py-2 pl-4 pr-3 text-[13px] tracking-tight transition-colors duration-150",
+                "flex flex-row items-center gap-2.5 py-2 pl-4 pr-3 text-sm tracking-tight transition-colors duration-150",
                 isActive
                   ? "text-foreground font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <item.icon className="h-3.5 w-3.5 shrink-0" />
+              <item.icon className="h-4 w-4 shrink-0" />
               <span className="flex-1 whitespace-nowrap">{item.name}</span>
               {item.badge !== undefined && item.badge > 0 && (
                 <span className="text-[10px] font-bold tabular-nums bg-foreground text-background px-1.5 py-0.5">
