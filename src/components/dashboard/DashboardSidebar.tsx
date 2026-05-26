@@ -4,7 +4,6 @@ import { LayoutDashboard, Package, LogOut, ChevronLeft, ChevronRight, Menu, X, S
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn, getInitials } from '@/lib/utils';
@@ -46,10 +45,6 @@ export default function DashboardSidebar() {
     getPendingOrderCount(user.id).then(setPendingOrders);
   }, [user?.id]);
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  ];
-
   const catalogSubItems = [
     { name: 'Produtos', href: '/dashboard/listings', icon: Package },
     { name: 'Categorias', href: '/dashboard/categories', icon: FolderTree },
@@ -66,21 +61,8 @@ export default function DashboardSidebar() {
     { name: 'Vendas Online', href: '/dashboard/sales', icon: CreditCard, comingSoon: true },
   ];
 
-  const bottomNavigation = [
-    { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
-    { name: 'Central de Ajuda', href: '/help', icon: HelpCircle },
-    { name: 'Indique e Ganhe', href: '/dashboard/referral', icon: Gift },
-  ];
-
   const toggleSidebar = () => setExpanded(!expanded);
   const toggleMobileSidebar = () => setMobileOpen(!mobileOpen);
-
-  const navItemClasses = ({ isActive }: { isActive: boolean }) => cn(
-    "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200",
-    isActive
-      ? "bg-muted text-foreground font-medium"
-      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-  );
 
   const sidebarContent = (isMobile: boolean) => {
     const isExpanded = isMobile ? true : expanded;
@@ -88,55 +70,42 @@ export default function DashboardSidebar() {
     return (
       <>
         {/* Header */}
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2.5">
             <Logo showText={false} size="sm" />
             {isExpanded && (
-              <span className="font-bold text-base">Painel</span>
+              <span className="font-semibold text-[15px] tracking-tight text-foreground">Painel</span>
             )}
           </div>
-
           {isMobile ? (
-            <Button variant="ghost" size="icon" onClick={toggleMobileSidebar} className="h-8 w-8">
-              <X className="h-5 w-5" />
-            </Button>
+            <button onClick={toggleMobileSidebar} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors">
+              <X className="h-4 w-4" />
+            </button>
           ) : (
-            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-              {expanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-            </Button>
+            <button onClick={toggleSidebar} className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+              {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
           )}
         </div>
 
-        <Separator />
-
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto p-3">
-          <nav className="space-y-1">
-            {navigation.map((item) => (
-              <TooltipProvider key={item.name} delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <NavLink
-                      to={item.href}
-                      end
-                      className={navItemClasses}
-                      onClick={() => isMobile && toggleMobileSidebar()}
-                    >
-                      {() => (
-                        <>
-                          <item.icon className="h-5 w-5 shrink-0" />
-                          {isExpanded && <span className="text-sm">{item.name}</span>}
-                        </>
-                      )}
-                    </NavLink>
-                  </TooltipTrigger>
-                  {!isExpanded && <TooltipContent side="right">{item.name}</TooltipContent>}
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+        <div className="flex-1 overflow-y-auto px-3 py-2">
+          {isExpanded && <SectionLabel>Menu</SectionLabel>}
+          <nav className="space-y-0.5">
+            <NavItem
+              name="Dashboard"
+              href="/dashboard"
+              icon={LayoutDashboard}
+              end
+              isExpanded={isExpanded}
+              onClick={() => isMobile && toggleMobileSidebar()}
+            />
+          </nav>
 
-            {/* Catalog group */}
-            <CollapsibleGroup
+          {isExpanded && <SectionLabel className="mt-6">Catálogo</SectionLabel>}
+          {!isExpanded && <div className="my-3 mx-1 border-t border-border/40" />}
+          <nav className="space-y-0.5">
+            <GroupItem
               label="Catálogo"
               icon={BookOpen}
               isGroupActive={isCatalogSection}
@@ -146,9 +115,7 @@ export default function DashboardSidebar() {
               items={catalogSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
-
-            {/* Stock group */}
-            <CollapsibleGroup
+            <GroupItem
               label="Estoque"
               icon={Warehouse}
               isGroupActive={isStockSection}
@@ -158,9 +125,12 @@ export default function DashboardSidebar() {
               items={stockSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
             />
+          </nav>
 
-            {/* Sales group */}
-            <CollapsibleGroup
+          {isExpanded && <SectionLabel className="mt-6">Vendas</SectionLabel>}
+          {!isExpanded && <div className="my-3 mx-1 border-t border-border/40" />}
+          <nav className="space-y-0.5">
+            <GroupItem
               label="Vendas"
               icon={ShoppingBag}
               isGroupActive={isSalesSection}
@@ -171,61 +141,72 @@ export default function DashboardSidebar() {
               onItemClick={() => isMobile && toggleMobileSidebar()}
               badge={pendingOrders}
             />
+          </nav>
 
-            {bottomNavigation.map((item) => (
-              <TooltipProvider key={item.name} delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <NavLink
-                      to={item.href}
-                      end
-                      className={navItemClasses}
-                      onClick={() => isMobile && toggleMobileSidebar()}
-                    >
-                      {() => (
-                        <>
-                          <item.icon className="h-5 w-5 shrink-0" />
-                          {isExpanded && <span className="text-sm">{item.name}</span>}
-                        </>
-                      )}
-                    </NavLink>
-                  </TooltipTrigger>
-                  {!isExpanded && <TooltipContent side="right">{item.name}</TooltipContent>}
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+          {isExpanded && <SectionLabel className="mt-6">Outros</SectionLabel>}
+          {!isExpanded && <div className="my-3 mx-1 border-t border-border/40" />}
+          <nav className="space-y-0.5">
+            <NavItem
+              name="Configurações"
+              href="/dashboard/settings"
+              icon={Settings}
+              end
+              isExpanded={isExpanded}
+              onClick={() => isMobile && toggleMobileSidebar()}
+            />
+            <NavItem
+              name="Central de Ajuda"
+              href="/help"
+              icon={HelpCircle}
+              end
+              isExpanded={isExpanded}
+              onClick={() => isMobile && toggleMobileSidebar()}
+            />
+            <NavItem
+              name="Indique e Ganhe"
+              href="/dashboard/referral"
+              icon={Gift}
+              end
+              isExpanded={isExpanded}
+              onClick={() => isMobile && toggleMobileSidebar()}
+            />
           </nav>
         </div>
 
         {/* Footer */}
-        <div className="p-3">
+        <div className="mt-auto px-3 pb-3 pt-2">
           <PlanUsageIndicator expanded={isExpanded} />
-          <Separator className="my-3" />
-          <button
-            className="flex items-center gap-3 w-full rounded-lg p-2.5 hover:bg-muted/60 transition-colors text-left"
-            onClick={() => setShowSubscriptionModal(true)}
-          >
-            <Avatar className="h-9 w-9 shrink-0">
-              <AvatarImage src={user?.avatar_url} alt={user?.name} />
-              <AvatarFallback className="text-xs font-medium">{getInitials(user?.name || '')}</AvatarFallback>
-            </Avatar>
-            {isExpanded && (
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{user?.name}</p>
-                <div className="mt-0.5">
-                  <PlanStatusBadge status={user?.plan_status} />
+          <div className="border-t border-border/40 pt-3 mt-3">
+            <button
+              className="flex items-center gap-2.5 w-full rounded-lg p-2 hover:bg-muted transition-colors text-left"
+              onClick={() => setShowSubscriptionModal(true)}
+            >
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarImage src={user?.avatar_url} alt={user?.name} />
+                <AvatarFallback className="text-[11px] font-medium bg-foreground text-background">
+                  {getInitials(user?.name || '')}
+                </AvatarFallback>
+              </Avatar>
+              {isExpanded && (
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-[13px] truncate leading-tight">{user?.name}</p>
+                  <div className="mt-0.5">
+                    <PlanStatusBadge status={user?.plan_status} />
+                  </div>
                 </div>
-              </div>
-            )}
-          </button>
-
-          <button
-            onClick={() => signOut()}
-            className="flex items-center gap-3 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-destructive transition-colors mt-1 rounded-lg"
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {isExpanded && <span className="text-sm">Sair</span>}
-          </button>
+              )}
+            </button>
+            <button
+              onClick={() => signOut()}
+              className={cn(
+                "flex items-center gap-2.5 py-2 px-2 w-full text-left text-muted-foreground hover:text-destructive transition-colors mt-1 rounded-lg text-[13px]",
+                !isExpanded && "justify-center"
+              )}
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              {isExpanded && <span>Sair</span>}
+            </button>
+          </div>
         </div>
       </>
     );
@@ -246,7 +227,7 @@ export default function DashboardSidebar() {
       {/* Mobile overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
+          "fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40 md:hidden transition-opacity duration-300",
           mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={toggleMobileSidebar}
@@ -255,7 +236,7 @@ export default function DashboardSidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 w-72 z-50 transition-transform duration-300 md:hidden flex flex-col bg-background shadow-2xl",
+          "fixed inset-y-0 left-0 w-[272px] z-50 transition-transform duration-300 md:hidden flex flex-col bg-background border-r border-border/60",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -265,8 +246,8 @@ export default function DashboardSidebar() {
       {/* Desktop sidebar */}
       <div
         className={cn(
-          "hidden md:flex flex-col h-screen bg-background shadow-lg transition-all duration-300",
-          expanded ? "w-64" : "w-16"
+          "hidden md:flex flex-col h-screen bg-background border-r border-border/60 transition-all duration-300",
+          expanded ? "w-[240px]" : "w-[60px]"
         )}
       >
         {sidebarContent(false)}
@@ -280,7 +261,52 @@ export default function DashboardSidebar() {
   );
 }
 
-interface CollapsibleGroupProps {
+function SectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={cn("text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60 px-3 mb-1", className)}>
+      {children}
+    </p>
+  );
+}
+
+interface NavItemProps {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  isExpanded: boolean;
+  end?: boolean;
+  onClick?: () => void;
+}
+
+function NavItem({ name, href, icon: Icon, isExpanded, end, onClick }: NavItemProps) {
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <NavLink
+            to={href}
+            end={end}
+            onClick={onClick}
+            className={({ isActive }) => cn(
+              "flex items-center gap-2.5 py-2 px-3 rounded-lg text-[13px] transition-all duration-150",
+              isActive
+                ? "bg-foreground text-background font-medium"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            )}
+          >
+            <Icon className="h-[18px] w-[18px] shrink-0" />
+            {isExpanded && <span>{name}</span>}
+          </NavLink>
+        </TooltipTrigger>
+        {!isExpanded && (
+          <TooltipContent side="right" className="text-xs">{name}</TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+interface GroupItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isGroupActive: boolean;
@@ -292,7 +318,7 @@ interface CollapsibleGroupProps {
   badge?: number;
 }
 
-function CollapsibleGroup({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: CollapsibleGroupProps) {
+function GroupItem({ label, icon: Icon, isGroupActive, isOpen, onToggle, isExpanded, items, onItemClick, badge }: GroupItemProps) {
   return (
     <div>
       <TooltipProvider delayDuration={0}>
@@ -301,53 +327,61 @@ function CollapsibleGroup({ label, icon: Icon, isGroupActive, isOpen, onToggle, 
             <button
               onClick={onToggle}
               className={cn(
-                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 w-full text-left",
+                "flex items-center gap-2.5 py-2 px-3 rounded-lg text-[13px] transition-all duration-150 w-full text-left",
                 isGroupActive
-                  ? "bg-muted text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-foreground text-background font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              <Icon className="h-[18px] w-[18px] shrink-0" />
               {isExpanded && (
                 <>
-                  <span className="text-sm flex-1">{label}</span>
+                  <span className="flex-1">{label}</span>
                   {badge !== undefined && badge > 0 && (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white animate-pulse">
+                    <span className={cn(
+                      "flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold",
+                      isGroupActive ? "bg-background/20 text-background" : "bg-red-500 text-white"
+                    )}>
                       {badge > 99 ? '99+' : badge}
                     </span>
                   )}
-                  <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen && "rotate-180")} />
+                  <ChevronDown className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200 opacity-60",
+                    isOpen && "rotate-180"
+                  )} />
                 </>
               )}
             </button>
           </TooltipTrigger>
-          {!isExpanded && <TooltipContent side="right">{label}</TooltipContent>}
+          {!isExpanded && (
+            <TooltipContent side="right" className="text-xs">{label}</TooltipContent>
+          )}
         </Tooltip>
       </TooltipProvider>
 
       {isOpen && isExpanded && (
-        <div className="mt-1 ml-4 pl-4 border-l border-border/50 space-y-0.5">
+        <div className="mt-0.5 ml-[18px] pl-3 border-l border-border/50 space-y-0.5">
           {items.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               onClick={onItemClick}
               className={({ isActive }) => cn(
-                "flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-200",
+                "flex items-center gap-2 py-1.5 px-2.5 rounded-md text-[12px] transition-all duration-150",
                 isActive
-                  ? "text-foreground font-medium bg-muted/70"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                  ? "text-foreground font-medium bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
               )}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
+              <item.icon className="h-3.5 w-3.5 shrink-0" />
               <span className="flex-1">{item.name}</span>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               )}
               {item.comingSoon && (
-                <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 opacity-60">Breve</Badge>
+                <Badge variant="outline" className="text-[8px] px-1 py-0 h-3.5 opacity-50 font-normal">Breve</Badge>
               )}
             </NavLink>
           ))}
