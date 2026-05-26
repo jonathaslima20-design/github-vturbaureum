@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Loader as Loader2, GripVertical, SquareCheck as CheckSquare, Square, Eye, MessageCircle, TrendingUp, MoveVertical as MoreVertical, Pencil, Copy, Trash2, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
