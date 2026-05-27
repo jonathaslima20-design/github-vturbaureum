@@ -310,20 +310,43 @@ export default function UsersManagementPage() {
 
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
-      const { error } = await supabase.from('users').delete().eq('id', userId);
-      if (error) throw error;
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
 
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        const errorMsg = result.results?.[0]?.error || result.error?.message || 'Erro ao excluir usuario';
+        throw new Error(errorMsg);
+      }
+
+      const stats = result.results?.[0]?.cleanup;
       setUsers(prev => prev.filter(u => u.id !== userId));
       setSelectedUsers(prev => {
         const next = new Set(prev);
         next.delete(userId);
         return next;
       });
-      toast.success('Usuario excluido com sucesso');
+
+      const filesInfo = stats?.filesDeleted ? ` (${stats.filesDeleted} arquivo${stats.filesDeleted > 1 ? 's' : ''} removido${stats.filesDeleted > 1 ? 's' : ''})` : '';
+      toast.success(`Usuario excluido com sucesso${filesInfo}`);
       fetchSummaryCounts();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting user:', error);
-      toast.error('Erro ao excluir usuario');
+      toast.error(error.message || 'Erro ao excluir usuario');
     }
   }, [fetchSummaryCounts]);
 
@@ -336,17 +359,48 @@ export default function UsersManagementPage() {
         case 'unblock':
           await supabase.from('users').update({ is_blocked: false }).in('id', userIds);
           break;
-        case 'delete':
-          await supabase.from('users').delete().in('id', userIds);
+        case 'delete': {
+          const { data: session } = await supabase.auth.getSession();
+          const token = session?.session?.access_token;
+          if (!token) throw new Error('Not authenticated');
+
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+              },
+              body: JSON.stringify({ userIds }),
+            }
+          );
+
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error?.message || 'Erro ao excluir usuarios');
+          }
+
+          const { summary } = result;
+          if (summary.failed > 0) {
+            toast.warning(`${summary.succeeded} de ${summary.total} usuarios excluidos. ${summary.failed} falharam.`);
+          } else {
+            const filesInfo = summary.totalFilesDeleted > 0 ? ` (${summary.totalFilesDeleted} arquivos removidos)` : '';
+            toast.success(`${summary.succeeded} usuario${summary.succeeded > 1 ? 's' : ''} excluido${summary.succeeded > 1 ? 's' : ''} com sucesso${filesInfo}`);
+          }
           break;
+        }
       }
       await fetchUsers();
       await fetchSummaryCounts();
       setSelectedUsers(new Set());
-      toast.success('Acao executada com sucesso');
-    } catch (error) {
+      if (action !== 'delete') {
+        toast.success('Acao executada com sucesso');
+      }
+    } catch (error: any) {
       console.error('Error executing bulk action:', error);
-      toast.error('Erro ao executar acao em lote');
+      toast.error(error.message || 'Erro ao executar acao em lote');
     }
   }, [fetchUsers, fetchSummaryCounts]);
 
