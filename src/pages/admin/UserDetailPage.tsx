@@ -127,18 +127,34 @@ export default function UserDetailPage() {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', user.id);
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
 
-      if (error) throw error;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ userId: user.id }),
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        const errorMsg = result.results?.[0]?.error || result.error?.message || 'Erro ao excluir usuario';
+        throw new Error(errorMsg);
+      }
 
       toast.success('Usuário excluído com sucesso');
       navigate('/admin/users');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting user:', error);
-      toast.error('Erro ao excluir usuário');
+      toast.error(error.message || 'Erro ao excluir usuário');
     }
   };
 

@@ -183,10 +183,6 @@ function AppContent() {
           <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/help/category/:categorySlug" element={<HelpCategoryPage />} />
           <Route path="/help/category/:categorySlug/:articleSlug" element={<HelpArticlePage />} />
-
-          {/* Corretor Public Profile Routes */}
-          <Route path="/:slug" element={<CorretorPage />} />
-          <Route path="/:slug/produtos/:productId" element={<ProductDetailsPage />} />
         </Route>
 
         {/* Protected Dashboard Routes */}
@@ -226,6 +222,12 @@ function AppContent() {
             <Route path="/admin/mercadopago" element={<MercadoPagoPage />} />
             <Route path="/admin/banner-clients" element={<BannerClientsPage />} />
           </Route>
+        </Route>
+
+        {/* Corretor Public Profile Routes - MUST be last to avoid catching /admin, /dashboard, etc. */}
+        <Route element={<PublicLayout />}>
+          <Route path="/:slug" element={<CorretorPage />} />
+          <Route path="/:slug/produtos/:productId" element={<ProductDetailsPage />} />
         </Route>
       </Routes>
     </Suspense>
