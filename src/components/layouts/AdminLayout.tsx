@@ -9,12 +9,10 @@ export default function AdminLayout() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Scroll to top on page change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
@@ -26,9 +24,9 @@ export default function AdminLayout() {
         onMobileToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
       />
       <div className="flex-1 flex flex-col">
-        <AdminHeader onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <AdminHeader />
         <motion.main
-          className="flex-1 p-3 md:p-6 lg:p-8 max-w-screen-2xl mx-auto w-full"
+          className="flex-1 w-full"
           key={location.pathname}
         >
           <Outlet />

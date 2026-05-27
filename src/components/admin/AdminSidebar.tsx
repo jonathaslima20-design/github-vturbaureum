@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ChartBar as BarChart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound, Wallet } from 'lucide-react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, Settings, LogOut, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound, Wallet, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
+import { cn, getInitials } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface AdminSidebarProps {
   mobileOpen?: boolean;
@@ -13,10 +13,8 @@ interface AdminSidebarProps {
 }
 
 export default function AdminSidebar({ mobileOpen = false, onMobileToggle }: AdminSidebarProps) {
-  const [expanded, setExpanded] = useState(true);
   const { signOut, user } = useAuth();
-  
-  // Filter navigation items based on user role
+
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin', 'parceiro'] },
     { name: 'Usuários', href: '/admin/users', icon: Users, roles: ['admin', 'parceiro'] },
@@ -24,139 +22,150 @@ export default function AdminSidebar({ mobileOpen = false, onMobileToggle }: Adm
     { name: 'Mercado Pago', href: '/admin/mercadopago', icon: Wallet, roles: ['admin'] },
     { name: 'Banner de Clientes', href: '/admin/banner-clients', icon: UsersRound, roles: ['admin'] },
     { name: 'Indicações', href: '/admin/referrals', icon: Gift, roles: ['admin', 'parceiro'] },
-
     { name: 'Configurações', href: '/admin/settings', icon: Settings, roles: ['admin'] },
     { name: 'Central de Ajuda', href: '/admin/help', icon: HelpCircle, roles: ['admin'] },
   ].filter(item => item.roles.includes(user?.role || ''));
-  
-  const toggleSidebar = () => {
-    setExpanded(!expanded);
-  };
-  
-  const toggleMobileSidebar = () => {
-    onMobileToggle?.();
-  };
-  
-  const navItemClasses = ({ isActive }: { isActive: boolean }) => {
-    return cn(
-      "flex items-center space-x-2 md:space-x-3 py-2.5 px-2.5 md:px-3 rounded-xl transition-all duration-200 min-h-[40px] md:min-h-[44px]",
-      {
-        "bg-foreground text-background font-medium shadow-sm": isActive,
-        "hover:bg-muted text-muted-foreground hover:text-foreground": !isActive,
-      }
-    );
-  };
-  
-  // Sidebar content
-  const sidebarContent = (
+
+  const sidebarContent = (isMobile: boolean) => (
     <>
-      <div className="flex items-center justify-between p-3 md:p-4">
-        <div className="flex items-center space-x-2">
-          <Logo showText={false} size="sm" className="md:w-8 md:h-8" />
-          {expanded && (
-            <div className="flex items-center">
-              <span className="font-bold text-sm md:text-base">
-                {user?.role === 'parceiro' ? 'Revenda' : 'Admin'}
-              </span>
-              <ShieldCheck className="h-3.5 w-3.5 md:h-4 md:w-4 ml-1 text-primary" />
-            </div>
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-5">
+        <div className="flex items-center gap-3">
+          <Logo showText size="md" />
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-foreground/[0.05] rounded">
+            <ShieldCheck className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[11px] font-medium text-muted-foreground tracking-tight">
+              {user?.role === 'parceiro' ? 'Revenda' : 'Admin'}
+            </span>
+          </div>
+          {isMobile && (
+            <button
+              onClick={onMobileToggle}
+              className="h-8 w-8 flex items-center justify-center hover:bg-foreground/5 transition-colors ml-1"
+            >
+              <X className="h-4 w-4" />
+            </button>
           )}
         </div>
-
-        {/* Mobile close button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleMobileSidebar}
-          className="md:hidden h-8 w-8"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-
-        {/* Desktop expand/collapse button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className="hidden md:flex"
-        >
-          {expanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-        </Button>
       </div>
 
-      <div className="px-2 py-2">
-        <nav className="space-y-0.5 flex flex-col">
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto px-3 py-2">
+        <nav className="space-y-0.5">
           {navigation.map((item) => (
-            <NavLink
+            <AdminNavItem
               key={item.name}
-              to={item.href}
-              className={navItemClasses}
-              onClick={() => onMobileToggle?.()}
-            >
-              <item.icon className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
-              {expanded && <span className="text-sm md:text-base">{item.name}</span>}
-            </NavLink>
+              name={item.name}
+              href={item.href}
+              icon={item.icon}
+              end={item.href === '/admin'}
+              onClick={() => isMobile && onMobileToggle?.()}
+            />
           ))}
         </nav>
       </div>
 
-      <div className="mt-auto p-3 md:p-4">
-        <Separator className="mb-3 md:mb-4" />
-        <button
-          onClick={() => signOut()}
-          className="flex items-center space-x-3 py-2 w-full text-left text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <LogOut className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
-          {expanded && <span className="text-sm md:text-base">Sair</span>}
-        </button>
+      {/* Footer */}
+      <div className="mt-auto px-3 pb-4 pt-2">
+        <div className="border-t border-foreground/[0.06] pt-3 mt-1">
+          <div className="flex items-center gap-3 w-full p-2.5">
+            <Avatar className="h-9 w-9 shrink-0 ring-1 ring-foreground/10">
+              <AvatarImage src={user?.avatar_url} alt={user?.name} />
+              <AvatarFallback className="text-xs font-bold bg-foreground text-background tracking-tight">
+                {getInitials(user?.name || '')}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {user?.role === 'parceiro' ? 'Revenda' : 'Administrador'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => signOut()}
+            className="flex items-center gap-2.5 py-2.5 px-2.5 w-full text-left text-muted-foreground hover:text-foreground transition-colors duration-150 mt-1 text-[15px] tracking-tight"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span>Sair</span>
+          </button>
+        </div>
       </div>
     </>
   );
-  
-  // Mobile overlay
-  const mobileOverlay = (
-    <div 
-      className={cn(
-        "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity",
-        {
-          "opacity-100": mobileOpen,
-          "opacity-0 pointer-events-none": !mobileOpen,
-        }
-      )}
-      onClick={toggleMobileSidebar}
-    />
-  );
-  
+
   return (
     <>
+      {/* Mobile trigger */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="fixed top-3 left-4 z-50 md:hidden rounded-none border-foreground/20"
+        onClick={onMobileToggle}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
       {/* Mobile overlay */}
-      {mobileOverlay}
-      
+      <div
+        className={cn(
+          "fixed inset-0 bg-background/80 z-40 md:hidden transition-opacity duration-200",
+          mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onMobileToggle}
+      />
+
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 w-[260px] bg-background border-r z-50 transition-transform duration-300 md:hidden flex flex-col",
-          {
-            "translate-x-0": mobileOpen,
-            "-translate-x-full": !mobileOpen,
-          }
+          "fixed inset-y-0 left-0 w-[272px] z-50 transition-transform duration-250 ease-out md:hidden flex flex-col bg-background border-r border-foreground/[0.08]",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {sidebarContent}
+        {sidebarContent(true)}
       </div>
-      
+
       {/* Desktop sidebar */}
-      <div 
-        className={cn(
-          "hidden md:flex flex-col h-screen border-r bg-background transition-all duration-300",
-          {
-            "w-64": expanded,
-            "w-16": !expanded,
-          }
-        )}
-      >
-        {sidebarContent}
+      <div className="hidden md:flex flex-col h-screen w-[256px] bg-background border-r border-foreground/[0.08]">
+        {sidebarContent(false)}
       </div>
     </>
+  );
+}
+
+interface AdminNavItemProps {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  end?: boolean;
+  onClick?: () => void;
+}
+
+function AdminNavItem({ name, href, icon: Icon, end, onClick }: AdminNavItemProps) {
+  const location = useLocation();
+  const isActive = end
+    ? location.pathname === href
+    : location.pathname.startsWith(href);
+
+  return (
+    <NavLink
+      to={href}
+      end={end}
+      onClick={onClick}
+      className={cn(
+        "flex flex-row items-center gap-3 py-2.5 px-3 text-[15px] tracking-tight transition-colors duration-150 relative",
+        isActive
+          ? "text-foreground font-semibold bg-foreground/[0.04]"
+          : "text-muted-foreground hover:text-foreground"
+      )}
+    >
+      {isActive && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-foreground" />
+      )}
+      <Icon className="h-[19px] w-[19px] shrink-0" />
+      <span className="whitespace-nowrap">{name}</span>
+    </NavLink>
   );
 }
