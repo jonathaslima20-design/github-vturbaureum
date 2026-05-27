@@ -6,11 +6,11 @@ function FunnelBar({ stage, maxValue, index }: { stage: FunnelStage; maxValue: n
   const widthPercent = maxValue > 0 ? Math.max((stage.value / maxValue) * 100, 8) : 8;
 
   const colors = [
-    'bg-sky-500',
-    'bg-sky-500/80',
-    'bg-sky-500/60',
-    'bg-sky-500/40',
-    'bg-sky-500/25',
+    'bg-primary',
+    'bg-primary/80',
+    'bg-primary/60',
+    'bg-primary/45',
+    'bg-primary/30',
   ];
 
   return (
@@ -34,11 +34,11 @@ function FunnelBar({ stage, maxValue, index }: { stage: FunnelStage; maxValue: n
         {stage.change !== 0 && (
           <div className="flex items-center justify-end gap-0.5">
             {stage.change > 0 ? (
-              <TrendingUp className="h-3 w-3 text-emerald-600" />
+              <TrendingUp className="h-3 w-3 text-muted-foreground" />
             ) : (
-              <TrendingDown className="h-3 w-3 text-red-500" />
+              <TrendingDown className="h-3 w-3 text-muted-foreground" />
             )}
-            <span className={`text-xs font-medium ${stage.change > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+            <span className="text-xs font-medium text-muted-foreground">
               {stage.change > 0 ? '+' : ''}{stage.change.toFixed(0)}%
             </span>
           </div>
@@ -110,7 +110,7 @@ export function SalesFunnel({ periodDays = 30 }: SalesFunnelProps) {
             {bottleneckIndex >= 0 && worstConversion < 50 && (
               <div className="mt-4 pt-3 border-t">
                 <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-amber-600">Gargalo:</span>{' '}
+                  <span className="font-semibold text-foreground">Gargalo:</span>{' '}
                   A maior perda esta entre {stages[bottleneckIndex].label} e {stages[bottleneckIndex + 1].label} ({worstConversion.toFixed(1)}% de conversao)
                 </p>
               </div>
