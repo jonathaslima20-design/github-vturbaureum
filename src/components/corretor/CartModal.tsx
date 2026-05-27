@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, User, Ticket, Loader as Loader2, CircleCheck as CheckCircle, Truck, Wallet } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingCart, MessageCircle, CreditCard as Edit3, Palette, Ruler, TrendingDown, Package, ChevronDown, ChevronUp, ArrowLeft, Ticket, Loader as Loader2, Truck, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -35,11 +35,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import TieredPricingIndicator from '@/components/product/TieredPricingIndicator';
-import { PhoneInputWithCountry } from '@/components/ui/phone-input-with-country';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 import { useCouponValidation } from '@/hooks/useCouponValidation';
 import { useCheckoutSettingsForStore } from '@/hooks/useCheckoutSettings';
-import type { PaymentMethodConfig, DeliveryOption } from '@/types';
+
 
 interface CartModalProps {
   open: boolean;
@@ -70,7 +70,6 @@ export default function CartModal({
   const [step, setStep] = useState<'cart' | 'checkout'>('cart');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
-  const [customerCountryCode, setCustomerCountryCode] = useState('55');
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; payment?: string; delivery?: string }>({});
   const [couponCode, setCouponCode] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
@@ -197,9 +196,9 @@ export default function CartModal({
       setSendingOrder(true);
 
       const cleanPhone = customerPhone.replace(/\D/g, '');
-      const customer = { name: customerName.trim(), whatsapp: cleanPhone, countryCode: customerCountryCode };
-      const orderMessage = generateOrderMessage(customer);
       const countryCode = corretor.country_code || '55';
+      const customer = { name: customerName.trim(), whatsapp: cleanPhone, countryCode };
+      const orderMessage = generateOrderMessage(customer);
       const whatsappUrl = generateWhatsAppUrl(corretor.whatsapp || '', orderMessage, countryCode);
 
       const orderItems = [
@@ -232,7 +231,7 @@ export default function CartModal({
             store_owner_id: corretor.id,
             customer_name: customer.name,
             customer_whatsapp: cleanPhone,
-            customer_country_code: customerCountryCode,
+            customer_country_code: countryCode,
             order_type: 'whatsapp',
             subtotal: cart.total,
             total: finalTotal,
@@ -267,7 +266,6 @@ export default function CartModal({
       setStep('cart');
       setCustomerName('');
       setCustomerPhone('');
-      setCustomerCountryCode('55');
       setFormErrors({});
       onOpenChange(false);
     } catch (error) {
@@ -308,7 +306,7 @@ export default function CartModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
@@ -785,100 +783,97 @@ export default function CartModal({
                 )}
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="checkout-name" className="flex items-center gap-1.5">
-                      <User className="h-3.5 w-3.5" />
-                      Nome completo
-                    </Label>
-                    <Input
-                      id="checkout-name"
-                      placeholder="Seu nome"
-                      value={customerName}
-                      onChange={(e) => {
-                        setCustomerName(e.target.value);
-                        if (formErrors.name) setFormErrors((p) => ({ ...p, name: undefined }));
-                      }}
-                      autoFocus
-                    />
-                    {formErrors.name && (
-                      <p className="text-xs text-destructive">{formErrors.name}</p>
-                    )}
+              <div className="flex flex-col gap-0 -mb-2">
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[calc(85vh-200px)]">
+                  {/* Customer Info */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="checkout-name" className="text-xs text-muted-foreground">
+                        Nome completo
+                      </Label>
+                      <Input
+                        id="checkout-name"
+                        placeholder="Seu nome"
+                        value={customerName}
+                        onChange={(e) => {
+                          setCustomerName(e.target.value);
+                          if (formErrors.name) setFormErrors((p) => ({ ...p, name: undefined }));
+                        }}
+                        className="h-9"
+                        autoFocus
+                      />
+                      {formErrors.name && (
+                        <p className="text-xs text-destructive">{formErrors.name}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">
+                        WhatsApp
+                      </Label>
+                      <PhoneInput
+                        value={customerPhone}
+                        onChange={(value) => {
+                          setCustomerPhone(value);
+                          if (formErrors.phone) setFormErrors((p) => ({ ...p, phone: undefined }));
+                        }}
+                        className="h-9"
+                      />
+                      {formErrors.phone && (
+                        <p className="text-xs text-destructive">{formErrors.phone}</p>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-1.5">
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      WhatsApp
-                    </Label>
-                    <PhoneInputWithCountry
-                      value={customerPhone}
-                      defaultCountry="BR"
-                      onChange={(data) => {
-                        setCustomerPhone(data.phone);
-                        setCustomerCountryCode(data.ddi.replace('+', ''));
-                        if (formErrors.phone) setFormErrors((p) => ({ ...p, phone: undefined }));
-                      }}
-                    />
-                    {formErrors.phone && (
-                      <p className="text-xs text-destructive">{formErrors.phone}</p>
-                    )}
-                  </div>
-
-                  {/* Coupon Section */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-1.5">
-                      <Ticket className="h-3.5 w-3.5" />
-                      Cupom de desconto
-                    </Label>
+                  {/* Coupon Section - Compact */}
+                  <div className="space-y-1.5">
                     {appliedCoupon ? (
-                      <div className="flex items-center gap-2 p-2.5 rounded-md border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-                        <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                            {appliedCoupon.code}
-                          </p>
-                          <p className="text-xs text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-2 h-9 px-3 rounded-md border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                        <Ticket className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <span className="text-sm font-medium text-green-700 dark:text-green-300 flex-1 truncate">
+                          {appliedCoupon.code}
+                          <span className="font-normal ml-1.5">
                             -{formatCurrencyI18n(appliedCoupon.calculatedDiscount, currency, language)}
                             {appliedCoupon.discountType === 'percentage' && ` (${appliedCoupon.discountValue}%)`}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0 text-green-600 hover:text-red-600 dark:text-green-400"
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          className="text-green-600 hover:text-red-500 dark:text-green-400 transition-colors p-0.5"
                           onClick={handleRemoveCoupon}
                         >
                           <X className="h-3.5 w-3.5" />
-                        </Button>
+                        </button>
                       </div>
                     ) : (
                       <div className="flex gap-2">
-                        <Input
-                          placeholder="Codigo do cupom"
-                          value={couponCode}
-                          onChange={(e) => {
-                            setCouponCode(e.target.value.toUpperCase());
-                            if (couponError) setCouponError(null);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              handleApplyCoupon();
-                            }
-                          }}
-                          className="flex-1 uppercase"
-                          disabled={couponLoading}
-                        />
+                        <div className="relative flex-1">
+                          <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                          <Input
+                            placeholder="Cupom de desconto"
+                            value={couponCode}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value.toUpperCase());
+                              if (couponError) setCouponError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleApplyCoupon();
+                              }
+                            }}
+                            className="h-9 pl-9 uppercase text-sm"
+                            disabled={couponLoading}
+                          />
+                        </div>
                         <Button
                           variant="outline"
+                          size="sm"
                           onClick={handleApplyCoupon}
                           disabled={couponLoading || !couponCode.trim()}
-                          className="shrink-0"
+                          className="h-9 px-3 shrink-0"
                         >
                           {couponLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
                             'Aplicar'
                           )}
@@ -890,151 +885,163 @@ export default function CartModal({
                     )}
                   </div>
 
-                  {/* Payment Method Selection */}
-                  {enabledPaymentMethods.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-1.5">
-                        <Wallet className="h-3.5 w-3.5" />
-                        Forma de pagamento
-                        {checkoutSettings.requirePaymentMethod && <span className="text-destructive">*</span>}
-                      </Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {enabledPaymentMethods.map((method) => {
-                          const isSelected = selectedPaymentMethod === method.id;
-                          const hasDiscount = method.discountValue && method.discountValue > 0;
-                          return (
-                            <button
-                              key={method.id}
-                              type="button"
-                              className={`relative p-2.5 rounded-lg border text-left text-sm transition-all ${
-                                isSelected
-                                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                  : 'border-border hover:border-foreground/30'
-                              }`}
-                              onClick={() => {
-                                setSelectedPaymentMethod(isSelected ? null : method.id);
-                                if (formErrors.payment) setFormErrors(p => ({ ...p, payment: undefined }));
-                              }}
-                            >
-                              <span className="font-medium">{method.name}</span>
-                              {hasDiscount && (
-                                <span className="block text-xs text-green-600 dark:text-green-400 mt-0.5">
-                                  {method.discountType === 'percentage'
-                                    ? `${method.discountValue}% de desconto`
-                                    : `-${formatCurrencyI18n(method.discountValue!, currency, language)}`
-                                  }
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {formErrors.payment && (
-                        <p className="text-xs text-destructive">{formErrors.payment}</p>
+                  {/* Payment & Delivery Row */}
+                  {(enabledPaymentMethods.length > 0 || enabledDeliveryOptions.length > 0) && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {enabledPaymentMethods.length > 0 && (
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground">
+                            Pagamento {checkoutSettings.requirePaymentMethod && <span className="text-destructive">*</span>}
+                          </Label>
+                          <Select
+                            value={selectedPaymentMethod || ''}
+                            onValueChange={(value) => {
+                              setSelectedPaymentMethod(value || null);
+                              if (formErrors.payment) setFormErrors(p => ({ ...p, payment: undefined }));
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {enabledPaymentMethods.map((method) => {
+                                const hasDiscount = method.discountValue && method.discountValue > 0;
+                                return (
+                                  <SelectItem key={method.id} value={method.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span>{method.name}</span>
+                                      {hasDiscount && (
+                                        <span className="text-xs text-green-600 dark:text-green-400">
+                                          {method.discountType === 'percentage'
+                                            ? `-${method.discountValue}%`
+                                            : `-${formatCurrencyI18n(method.discountValue!, currency, language)}`
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                          {formErrors.payment && (
+                            <p className="text-xs text-destructive">{formErrors.payment}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {enabledDeliveryOptions.length > 0 && (
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground">
+                            Entrega {checkoutSettings.requireDeliveryOption && <span className="text-destructive">*</span>}
+                          </Label>
+                          <Select
+                            value={selectedDeliveryOption || ''}
+                            onValueChange={(value) => {
+                              setSelectedDeliveryOption(value || null);
+                              if (formErrors.delivery) setFormErrors(p => ({ ...p, delivery: undefined }));
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {enabledDeliveryOptions.map((option) => {
+                                const subtotalForFreeCheck = Math.max(0, cart.total - discountAmount - paymentMethodDiscount);
+                                const isFreeDelivery = option.freeAbove && subtotalForFreeCheck >= option.freeAbove;
+                                const displayFee = isFreeDelivery ? 0 : option.fee;
+                                return (
+                                  <SelectItem key={option.id} value={option.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span>{option.name}</span>
+                                      <span className={displayFee === 0 ? 'text-xs text-green-600 dark:text-green-400' : 'text-xs text-muted-foreground'}>
+                                        {displayFee === 0 ? 'Gratis' : `+${formatCurrencyI18n(displayFee, currency, language)}`}
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                          {formErrors.delivery && (
+                            <p className="text-xs text-destructive">{formErrors.delivery}</p>
+                          )}
+                        </div>
                       )}
                     </div>
                   )}
 
-                  {/* Delivery Option Selection */}
-                  {enabledDeliveryOptions.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-1.5">
-                        <Truck className="h-3.5 w-3.5" />
-                        Opcao de entrega
-                        {checkoutSettings.requireDeliveryOption && <span className="text-destructive">*</span>}
-                      </Label>
-                      <div className="space-y-1.5">
-                        {enabledDeliveryOptions.map((option) => {
-                          const isSelected = selectedDeliveryOption === option.id;
-                          const subtotalForFreeCheck = Math.max(0, cart.total - discountAmount - paymentMethodDiscount);
-                          const isFreeDelivery = option.freeAbove && subtotalForFreeCheck >= option.freeAbove;
-                          const displayFee = isFreeDelivery ? 0 : option.fee;
-                          return (
-                            <button
-                              key={option.id}
-                              type="button"
-                              className={`w-full flex items-center justify-between p-2.5 rounded-lg border text-sm transition-all ${
-                                isSelected
-                                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                  : 'border-border hover:border-foreground/30'
-                              }`}
-                              onClick={() => {
-                                setSelectedDeliveryOption(isSelected ? null : option.id);
-                                if (formErrors.delivery) setFormErrors(p => ({ ...p, delivery: undefined }));
-                              }}
-                            >
-                              <span className="font-medium">{option.name}</span>
-                              <span className={displayFee === 0 ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'}>
-                                {displayFee === 0 ? 'Gratis' : `+${formatCurrencyI18n(displayFee, currency, language)}`}
-                              </span>
-                            </button>
-                          );
-                        })}
+                  {/* Invoice-style Order Summary */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted/40 px-3 py-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Resumo do pedido
+                      </span>
+                    </div>
+                    <div className="px-3 py-2.5 space-y-1.5 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">
+                          Subtotal ({cart.itemCount} {cart.itemCount === 1 ? 'item' : 'itens'})
+                        </span>
+                        <span>{formatCurrencyI18n(cart.total, currency, language)}</span>
                       </div>
-                      {formErrors.delivery && (
-                        <p className="text-xs text-destructive">{formErrors.delivery}</p>
+                      {appliedCoupon && discountAmount > 0 && (
+                        <div className="flex justify-between items-center text-green-600 dark:text-green-400">
+                          <span className="flex items-center gap-1.5">
+                            <Ticket className="h-3 w-3" />
+                            Cupom {appliedCoupon.code}
+                          </span>
+                          <span>-{formatCurrencyI18n(discountAmount, currency, language)}</span>
+                        </div>
+                      )}
+                      {paymentMethodDiscount > 0 && selectedPaymentConfig && (
+                        <div className="flex justify-between items-center text-green-600 dark:text-green-400">
+                          <span className="flex items-center gap-1.5">
+                            <Wallet className="h-3 w-3" />
+                            Desc. {selectedPaymentConfig.name}
+                          </span>
+                          <span>-{formatCurrencyI18n(paymentMethodDiscount, currency, language)}</span>
+                        </div>
+                      )}
+                      {selectedDeliveryConfig && (
+                        <div className={`flex justify-between items-center ${deliveryFee === 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                          <span className={`flex items-center gap-1.5 ${deliveryFee > 0 ? 'text-muted-foreground' : ''}`}>
+                            <Truck className="h-3 w-3" />
+                            {selectedDeliveryConfig.name}
+                          </span>
+                          <span>
+                            {deliveryFee === 0 ? 'Gratis' : `+${formatCurrencyI18n(deliveryFee, currency, language)}`}
+                          </span>
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-
-                {/* Order Summary */}
-                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">
-                      {cart.itemCount} {cart.itemCount === 1 ? 'item' : 'itens'}
-                    </span>
-                    <span>{formatCurrencyI18n(cart.total, currency, language)}</span>
-                  </div>
-                  {appliedCoupon && discountAmount > 0 && (
-                    <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
-                      <span>Cupom {appliedCoupon.code}</span>
-                      <span>-{formatCurrencyI18n(discountAmount, currency, language)}</span>
+                    <div className="border-t px-3 py-2.5 bg-muted/20 flex justify-between items-center">
+                      <span className="font-semibold">Total</span>
+                      <span className="text-lg font-bold text-primary">
+                        {formatCurrencyI18n(finalTotal, currency, language)}
+                      </span>
                     </div>
-                  )}
-                  {paymentMethodDiscount > 0 && selectedPaymentConfig && (
-                    <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
-                      <span>Desc. {selectedPaymentConfig.name}</span>
-                      <span>-{formatCurrencyI18n(paymentMethodDiscount, currency, language)}</span>
-                    </div>
-                  )}
-                  {deliveryFee > 0 && selectedDeliveryConfig && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Entrega ({selectedDeliveryConfig.name})</span>
-                      <span>+{formatCurrencyI18n(deliveryFee, currency, language)}</span>
-                    </div>
-                  )}
-                  {deliveryFee === 0 && selectedDeliveryConfig && (
-                    <div className="flex justify-between items-center text-sm text-green-600 dark:text-green-400">
-                      <span>Entrega ({selectedDeliveryConfig.name})</span>
-                      <span>Gratis</span>
-                    </div>
-                  )}
-                  <Separator className="my-1" />
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total</span>
-                    <span className="text-lg font-bold text-primary">
-                      {formatCurrencyI18n(finalTotal, currency, language)}
-                    </span>
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                {/* Fixed Action Buttons */}
+                <div className="flex gap-2 pt-3 border-t mt-3">
                   <Button
                     variant="outline"
                     onClick={() => setStep('cart')}
                     disabled={sendingOrder}
-                    className="flex-1"
+                    size="sm"
+                    className="flex-1 h-10"
                   >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeft className="h-4 w-4 mr-1.5" />
                     Voltar
                   </Button>
                   <Button
                     onClick={handleSendOrder}
                     disabled={sendingOrder}
-                    className="flex-1"
+                    size="sm"
+                    className="flex-1 h-10"
                   >
-                    <MessageCircle className="h-4 w-4 mr-2" />
                     {sendingOrder ? 'Enviando...' : 'Confirmar'}
                   </Button>
                 </div>
