@@ -799,7 +799,7 @@ export default function CartModal({
                           setCustomerName(e.target.value);
                           if (formErrors.name) setFormErrors((p) => ({ ...p, name: undefined }));
                         }}
-                        className="h-9"
+                        className="h-9 text-xs px-3"
                         autoFocus
                       />
                       {formErrors.name && (
@@ -816,7 +816,7 @@ export default function CartModal({
                           setCustomerPhone(value);
                           if (formErrors.phone) setFormErrors((p) => ({ ...p, phone: undefined }));
                         }}
-                        className="h-9"
+                        className="h-9 text-xs px-3"
                       />
                       {formErrors.phone && (
                         <p className="text-xs text-destructive">{formErrors.phone}</p>
@@ -829,7 +829,7 @@ export default function CartModal({
                     {appliedCoupon ? (
                       <div className="flex items-center gap-2 h-9 px-3 rounded-md border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
                         <Ticket className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                        <span className="text-sm font-medium text-green-700 dark:text-green-300 flex-1 truncate">
+                        <span className="text-xs font-medium text-green-700 dark:text-green-300 flex-1 truncate">
                           {appliedCoupon.code}
                           <span className="font-normal ml-1.5">
                             -{formatCurrencyI18n(appliedCoupon.calculatedDiscount, currency, language)}
@@ -861,7 +861,7 @@ export default function CartModal({
                                 handleApplyCoupon();
                               }
                             }}
-                            className="h-9 pl-9 uppercase text-sm"
+                            className="h-9 pl-9 px-3 uppercase text-xs"
                             disabled={couponLoading}
                           />
                         </div>
@@ -870,7 +870,7 @@ export default function CartModal({
                           size="sm"
                           onClick={handleApplyCoupon}
                           disabled={couponLoading || !couponCode.trim()}
-                          className="h-9 px-3 shrink-0"
+                          className="h-9 px-3 shrink-0 text-xs"
                         >
                           {couponLoading ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -900,15 +900,15 @@ export default function CartModal({
                               if (formErrors.payment) setFormErrors(p => ({ ...p, payment: undefined }));
                             }}
                           >
-                            <SelectTrigger className="h-9">
+                            <SelectTrigger className="h-9 text-xs px-3">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                             <SelectContent>
                               {enabledPaymentMethods.map((method) => {
                                 const hasDiscount = method.discountValue && method.discountValue > 0;
                                 return (
-                                  <SelectItem key={method.id} value={method.id}>
-                                    <div className="flex items-center gap-2">
+                                  <SelectItem key={method.id} value={method.id} className="text-xs">
+                                    <div className="flex items-center gap-1.5">
                                       <span>{method.name}</span>
                                       {hasDiscount && (
                                         <span className="text-xs text-green-600 dark:text-green-400">
@@ -942,7 +942,7 @@ export default function CartModal({
                               if (formErrors.delivery) setFormErrors(p => ({ ...p, delivery: undefined }));
                             }}
                           >
-                            <SelectTrigger className="h-9">
+                            <SelectTrigger className="h-9 text-xs px-3">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                             <SelectContent>
@@ -951,8 +951,8 @@ export default function CartModal({
                                 const isFreeDelivery = option.freeAbove && subtotalForFreeCheck >= option.freeAbove;
                                 const displayFee = isFreeDelivery ? 0 : option.fee;
                                 return (
-                                  <SelectItem key={option.id} value={option.id}>
-                                    <div className="flex items-center gap-2">
+                                  <SelectItem key={option.id} value={option.id} className="text-xs">
+                                    <div className="flex items-center gap-1.5">
                                       <span>{option.name}</span>
                                       <span className={displayFee === 0 ? 'text-xs text-green-600 dark:text-green-400' : 'text-xs text-muted-foreground'}>
                                         {displayFee === 0 ? 'Gratis' : `+${formatCurrencyI18n(displayFee, currency, language)}`}
