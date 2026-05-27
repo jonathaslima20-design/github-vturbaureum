@@ -154,7 +154,7 @@ export default function CheckoutSettingsContent() {
             <CardTitle>Formas de Pagamento</CardTitle>
           </div>
           <CardDescription>
-            Configure quais formas de pagamento seus clientes podem escolher no checkout. Ative pelo menos uma opcao para que o campo apareca.
+            Configure quais formas de pagamento seus clientes podem escolher no checkout. Ative pelo menos uma opção para que o campo apareça.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -193,7 +193,7 @@ export default function CheckoutSettingsContent() {
 
           <div className="flex gap-2">
             <Input
-              placeholder="Nome do metodo personalizado..."
+              placeholder="Nome do método personalizado..."
               value={newMethodName}
               onChange={(e) => setNewMethodName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addCustomPaymentMethod()}
@@ -217,18 +217,18 @@ export default function CheckoutSettingsContent() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Opcoes de Entrega</CardTitle>
+            <CardTitle>Opções de Entrega</CardTitle>
           </div>
           <CardDescription>
-            Configure as opcoes de entrega e suas taxas. Adicione opcoes como "Retirada na loja", "Centro", "Zona Norte", etc.
+            Configure as opções de entrega e suas taxas. Adicione opções como "Retirada na loja", "Centro", "Zona Norte", etc.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-row items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <p className="text-sm font-medium">Exigir opcao de entrega</p>
+              <p className="text-sm font-medium">Exigir opção de entrega</p>
               <p className="text-xs text-muted-foreground">
-                O cliente deve selecionar uma opcao de entrega antes de enviar o pedido
+                O cliente deve selecionar uma opção de entrega antes de enviar o pedido
               </p>
             </div>
             <Switch
@@ -243,8 +243,8 @@ export default function CheckoutSettingsContent() {
           {settings.deliveryOptions.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">
               <Truck className="h-8 w-8 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">Nenhuma opcao de entrega configurada</p>
-              <p className="text-xs mt-1">Adicione opcoes abaixo</p>
+              <p className="text-sm">Nenhuma opção de entrega configurada</p>
+              <p className="text-xs mt-1">Adicione opções abaixo</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -265,7 +265,7 @@ export default function CheckoutSettingsContent() {
           <Separator />
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Adicionar opcao de entrega</Label>
+            <Label className="text-sm font-medium">Adicionar opção de entrega</Label>
             <div className="flex gap-2">
               <Input
                 placeholder="Nome (ex: Centro, Zona Norte...)"

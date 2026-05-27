@@ -5,10 +5,10 @@ import type { CheckoutSettings, PaymentMethodConfig, DeliveryOption } from '@/ty
 
 const DEFAULT_PAYMENT_METHODS: PaymentMethodConfig[] = [
   { id: 'pix', name: 'PIX', enabled: false },
-  { id: 'credit_card', name: 'Cartao de Credito', enabled: false },
-  { id: 'debit_card', name: 'Cartao de Debito', enabled: false },
+  { id: 'credit_card', name: 'Cartão de Crédito', enabled: false },
+  { id: 'debit_card', name: 'Cartão de Débito', enabled: false },
   { id: 'cash', name: 'Dinheiro', enabled: false },
-  { id: 'bank_transfer', name: 'Transferencia Bancaria', enabled: false },
+  { id: 'bank_transfer', name: 'Transferência Bancária', enabled: false },
 ];
 
 const DEFAULT_CHECKOUT_SETTINGS: CheckoutSettings = {
