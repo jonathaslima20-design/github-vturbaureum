@@ -660,7 +660,7 @@ export default function UserDetailPage() {
             </TabsContent>
 
             <TabsContent value="indicacoes" className="mt-6">
-              <UserReferralsTab userId={id!} referralCode={user?.referral_code} />
+              <UserReferralsTab userId={userId!} referralCode={user?.referral_code} />
             </TabsContent>
           </Tabs>
         </div>
