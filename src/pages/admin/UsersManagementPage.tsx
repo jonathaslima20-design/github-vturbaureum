@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -13,20 +13,36 @@ import { useAuth } from '@/contexts/AuthContext';
 import { updateUserImageLimitBulk } from '@/lib/adminApi';
 import { toast } from 'sonner';
 import type { User } from '@/types';
-import { startOfDay, endOfDay, subDays, subMonths, isWithinInterval } from 'date-fns';
 
 export type DateFilterType = 'all' | 'today' | 'last7days' | 'last30days' | 'last3months' | 'custom';
 export type PlanTypeFilterType = 'all' | 'monthly' | 'quarterly' | 'semiannually' | 'annually' | 'no-plan';
 export type ExpirationFilterType = 'all' | 'expiring-today' | 'expiring-7days' | 'expiring-30days' | 'expired' | 'custom';
 
+const PAGE_SIZE = 50;
+
+interface SummaryCounts {
+  total: number;
+  active: number;
+  blocked: number;
+  activePlans: number;
+  freePlans: number;
+  suspendedPlans: number;
+  noPlans: number;
+  recent7: number;
+  recent30: number;
+}
+
 export default function UsersManagementPage() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [displayedUsers, setDisplayedUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [planFilter, setPlanFilter] = useState('all');
@@ -41,362 +57,371 @@ export default function UsersManagementPage() {
   const [cloneSourceUserId, setCloneSourceUserId] = useState<string>('');
   const [copyProductsDialogOpen, setCopyProductsDialogOpen] = useState(false);
   const [copyProductsSourceUserId, setCopyProductsSourceUserId] = useState<string>('');
+  const [summaryCounts, setSummaryCounts] = useState<SummaryCounts>({
+    total: 0, active: 0, blocked: 0, activePlans: 0, freePlans: 0,
+    suspendedPlans: 0, noPlans: 0, recent7: 0, recent30: 0,
+  });
 
-  // Fetch users data
-  useEffect(() => {
-    fetchUsers();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(value);
+      setPage(0);
+    }, 300);
   }, []);
 
-  // Listen for clone user dialog events
-  useEffect(() => {
-    const handleOpenCloneDialog = (e: Event) => {
-      const customEvent = e as CustomEvent<{ targetUserId: string }>;
-      setCloneSourceUserId(customEvent.detail.targetUserId);
-      setCloneDialogOpen(true);
-    };
+  const resetPage = useCallback(() => setPage(0), []);
 
-    const handleOpenCopyProducts = (e: Event) => {
-      const customEvent = e as CustomEvent<{ targetUserId: string }>;
-      setCopyProductsSourceUserId(customEvent.detail.targetUserId);
-      setCopyProductsDialogOpen(true);
-    };
+  const handleRoleFilterChange = useCallback((v: string) => { setRoleFilter(v); resetPage(); }, [resetPage]);
+  const handleStatusFilterChange = useCallback((v: string) => { setStatusFilter(v); resetPage(); }, [resetPage]);
+  const handlePlanFilterChange = useCallback((v: string) => { setPlanFilter(v); resetPage(); }, [resetPage]);
+  const handlePlanTypeFilterChange = useCallback((v: PlanTypeFilterType) => { setPlanTypeFilter(v); resetPage(); }, [resetPage]);
+  const handleDateFilterChange = useCallback((v: DateFilterType) => { setDateFilter(v); resetPage(); }, [resetPage]);
+  const handleCustomStartDateChange = useCallback((v: Date | undefined) => { setCustomStartDate(v); resetPage(); }, [resetPage]);
+  const handleCustomEndDateChange = useCallback((v: Date | undefined) => { setCustomEndDate(v); resetPage(); }, [resetPage]);
+  const handleExpirationFilterChange = useCallback((v: ExpirationFilterType) => { setExpirationFilter(v); resetPage(); }, [resetPage]);
+  const handleCustomExpirationStartDateChange = useCallback((v: Date | undefined) => { setCustomExpirationStartDate(v); resetPage(); }, [resetPage]);
+  const handleCustomExpirationEndDateChange = useCallback((v: Date | undefined) => { setCustomExpirationEndDate(v); resetPage(); }, [resetPage]);
 
-    window.addEventListener('openCloneUserDialog', handleOpenCloneDialog);
-    window.addEventListener('openCopyProducts', handleOpenCopyProducts);
-
-    return () => {
-      window.removeEventListener('openCloneUserDialog', handleOpenCloneDialog);
-      window.removeEventListener('openCopyProducts', handleOpenCopyProducts);
-    };
-  }, []);
-
-  // Filter users based on search and filters
-  useEffect(() => {
-    let filtered = users;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.slug && user.slug.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Role filter
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.role === roleFilter);
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'active') {
-        filtered = filtered.filter(user => !user.is_blocked);
-      } else if (statusFilter === 'blocked') {
-        filtered = filtered.filter(user => user.is_blocked);
-      }
-    }
-
-    // Plan filter
-    if (planFilter !== 'all') {
-      if (planFilter === 'no-plan') {
-        filtered = filtered.filter(user => !user.plan_status || user.plan_status === 'inactive');
-      } else {
-        filtered = filtered.filter(user => user.plan_status === planFilter);
-      }
-    }
-
-    // Plan Type filter
-    if (planTypeFilter !== 'all') {
-      if (planTypeFilter === 'no-plan') {
-        filtered = filtered.filter(user => !user.billing_cycle);
-      } else {
-        filtered = filtered.filter(user => user.billing_cycle === planTypeFilter);
-      }
-    }
-
-    // Date filter
-    if (dateFilter !== 'all') {
+  const fetchSummaryCounts = useCallback(async () => {
+    try {
       const now = new Date();
-      let startDate: Date | undefined;
-      let endDate: Date | undefined;
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-      switch (dateFilter) {
-        case 'today':
-          startDate = startOfDay(now);
-          endDate = endOfDay(now);
-          break;
-        case 'last7days':
-          startDate = startOfDay(subDays(now, 7));
-          endDate = endOfDay(now);
-          break;
-        case 'last30days':
-          startDate = startOfDay(subDays(now, 30));
-          endDate = endOfDay(now);
-          break;
-        case 'last3months':
-          startDate = startOfDay(subMonths(now, 3));
-          endDate = endOfDay(now);
-          break;
-        case 'custom':
-          if (customStartDate && customEndDate) {
-            startDate = startOfDay(customStartDate);
-            endDate = endOfDay(customEndDate);
-          }
-          break;
-      }
+      const [totalRes, activeRes, blockedRes, activePlanRes, freePlanRes, suspendedRes, noPlanRes, recent7Res, recent30Res] = await Promise.all([
+        supabase.from('users').select('id', { count: 'exact', head: true }),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('is_blocked', false),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('is_blocked', true),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'active'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'free'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'suspended'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).or('plan_status.is.null,plan_status.eq.inactive'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+        supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo),
+      ]);
 
-      if (startDate && endDate) {
-        filtered = filtered.filter(user => {
-          if (!user.created_at) return false;
-          const userDate = new Date(user.created_at);
-          return isWithinInterval(userDate, { start: startDate!, end: endDate! });
-        });
-      }
-    }
-
-    // Expiration date filter
-    if (expirationFilter !== 'all') {
-      const now = new Date();
-      filtered = filtered.filter(user => {
-        if (!user.next_payment_date) return false;
-
-        const expirationDate = new Date(user.next_payment_date);
-        const daysUntilExpiration = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-        switch (expirationFilter) {
-          case 'expiring-today':
-            return daysUntilExpiration === 0;
-          case 'expiring-7days':
-            return daysUntilExpiration > 0 && daysUntilExpiration <= 7;
-          case 'expiring-30days':
-            return daysUntilExpiration > 0 && daysUntilExpiration <= 30;
-          case 'expired':
-            return daysUntilExpiration < 0;
-          case 'custom':
-            if (customExpirationStartDate && customExpirationEndDate) {
-              const startDate = startOfDay(customExpirationStartDate);
-              const endDate = endOfDay(customExpirationEndDate);
-              return isWithinInterval(expirationDate, { start: startDate, end: endDate });
-            }
-            return false;
-          default:
-            return true;
-        }
+      setSummaryCounts({
+        total: totalRes.count || 0,
+        active: activeRes.count || 0,
+        blocked: blockedRes.count || 0,
+        activePlans: activePlanRes.count || 0,
+        freePlans: freePlanRes.count || 0,
+        suspendedPlans: suspendedRes.count || 0,
+        noPlans: noPlanRes.count || 0,
+        recent7: recent7Res.count || 0,
+        recent30: recent30Res.count || 0,
       });
+    } catch (error) {
+      console.error('Error fetching summary counts:', error);
     }
+  }, []);
 
-    setDisplayedUsers(filtered);
-  }, [users, searchTerm, roleFilter, statusFilter, planFilter, planTypeFilter, dateFilter, customStartDate, customEndDate, expirationFilter, customExpirationStartDate, customExpirationEndDate]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
 
-      const { data: usersData, error: usersError } = await supabase
+      let query = supabase
         .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' });
 
+      if (debouncedSearch) {
+        query = query.or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,slug.ilike.%${debouncedSearch}%`);
+      }
+      if (roleFilter !== 'all') {
+        query = query.eq('role', roleFilter);
+      }
+      if (statusFilter === 'active') {
+        query = query.eq('is_blocked', false);
+      } else if (statusFilter === 'blocked') {
+        query = query.eq('is_blocked', true);
+      }
+      if (planFilter !== 'all') {
+        if (planFilter === 'no-plan') {
+          query = query.or('plan_status.is.null,plan_status.eq.inactive');
+        } else {
+          query = query.eq('plan_status', planFilter);
+        }
+      }
+
+      if (dateFilter !== 'all') {
+        const now = new Date();
+        let startDate: string | undefined;
+        let endDate: string | undefined;
+
+        switch (dateFilter) {
+          case 'today':
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();
+            break;
+          case 'last7days':
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            break;
+          case 'last30days':
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+            break;
+          case 'last3months':
+            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
+            break;
+          case 'custom':
+            if (customStartDate) startDate = new Date(customStartDate.getFullYear(), customStartDate.getMonth(), customStartDate.getDate()).toISOString();
+            if (customEndDate) endDate = new Date(customEndDate.getFullYear(), customEndDate.getMonth(), customEndDate.getDate() + 1).toISOString();
+            break;
+        }
+
+        if (startDate) query = query.gte('created_at', startDate);
+        if (endDate) query = query.lt('created_at', endDate);
+      }
+
+      query = query.order('created_at', { ascending: false });
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
+
+      const { data: usersData, error: usersError, count } = await query;
       if (usersError) throw usersError;
 
-      const { data: subscriptionsData, error: subscriptionsError } = await supabase
-        .from('subscriptions')
-        .select('user_id, billing_cycle, status, next_payment_date, end_date');
+      setTotalCount(count || 0);
 
-      if (subscriptionsError) throw subscriptionsError;
+      if (!usersData || usersData.length === 0) {
+        setUsers([]);
+        setLoading(false);
+        return;
+      }
+
+      const userIds = usersData.map(u => u.id);
+      const { data: subscriptionsData } = await supabase
+        .from('subscriptions')
+        .select('user_id, billing_cycle, status, next_payment_date, end_date')
+        .in('user_id', userIds);
 
       const subscriptionsByUser = new Map(
         subscriptionsData?.map(sub => [sub.user_id, sub]) || []
       );
 
-      const usersWithSubscriptions = (usersData || []).map(user => ({
+      let enrichedUsers = usersData.map(user => ({
         ...user,
         billing_cycle: subscriptionsByUser.get(user.id)?.billing_cycle,
         next_payment_date: subscriptionsByUser.get(user.id)?.next_payment_date,
         subscription_end_date: subscriptionsByUser.get(user.id)?.end_date,
       }));
 
-      setUsers(usersWithSubscriptions);
+      if (planTypeFilter !== 'all') {
+        if (planTypeFilter === 'no-plan') {
+          enrichedUsers = enrichedUsers.filter(u => !u.billing_cycle);
+        } else {
+          enrichedUsers = enrichedUsers.filter(u => u.billing_cycle === planTypeFilter);
+        }
+      }
+
+      if (expirationFilter !== 'all') {
+        const now = new Date();
+        enrichedUsers = enrichedUsers.filter(user => {
+          if (!user.next_payment_date) return false;
+          const expDate = new Date(user.next_payment_date);
+          const daysUntil = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+          switch (expirationFilter) {
+            case 'expiring-today': return daysUntil === 0;
+            case 'expiring-7days': return daysUntil > 0 && daysUntil <= 7;
+            case 'expiring-30days': return daysUntil > 0 && daysUntil <= 30;
+            case 'expired': return daysUntil < 0;
+            case 'custom':
+              if (customExpirationStartDate && customExpirationEndDate) {
+                return expDate >= customExpirationStartDate && expDate <= customExpirationEndDate;
+              }
+              return false;
+            default: return true;
+          }
+        });
+      }
+
+      setUsers(enrichedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Erro ao carregar usuários');
+      toast.error('Erro ao carregar usuarios');
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, roleFilter, statusFilter, planFilter, planTypeFilter, dateFilter, customStartDate, customEndDate, expirationFilter, customExpirationStartDate, customExpirationEndDate, page]);
 
-  const handleSelectUser = (userId: string, checked: boolean) => {
-    const newSelected = new Set(selectedUsers);
-    if (checked) {
-      newSelected.add(userId);
-    } else {
-      newSelected.delete(userId);
-    }
-    setSelectedUsers(newSelected);
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
-  const handleSelectAll = (checked: boolean) => {
+  useEffect(() => {
+    fetchSummaryCounts();
+  }, [fetchSummaryCounts]);
+
+  useEffect(() => {
+    const handleOpenCloneDialog = (e: Event) => {
+      const customEvent = e as CustomEvent<{ targetUserId: string }>;
+      setCloneSourceUserId(customEvent.detail.targetUserId);
+      setCloneDialogOpen(true);
+    };
+    const handleOpenCopyProducts = (e: Event) => {
+      const customEvent = e as CustomEvent<{ targetUserId: string }>;
+      setCopyProductsSourceUserId(customEvent.detail.targetUserId);
+      setCopyProductsDialogOpen(true);
+    };
+    window.addEventListener('openCloneUserDialog', handleOpenCloneDialog);
+    window.addEventListener('openCopyProducts', handleOpenCopyProducts);
+    return () => {
+      window.removeEventListener('openCloneUserDialog', handleOpenCloneDialog);
+      window.removeEventListener('openCopyProducts', handleOpenCopyProducts);
+    };
+  }, []);
+
+  const handleSelectUser = useCallback((userId: string, checked: boolean) => {
+    setSelectedUsers(prev => {
+      const next = new Set(prev);
+      checked ? next.add(userId) : next.delete(userId);
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback((checked: boolean) => {
     if (checked) {
-      setSelectedUsers(new Set(displayedUsers.map(user => user.id)));
+      setSelectedUsers(new Set(users.map(u => u.id)));
     } else {
       setSelectedUsers(new Set());
     }
-  };
+  }, [users]);
 
-  const handleToggleBlock = async (userId: string, currentBlocked: boolean) => {
+  const handleToggleBlock = useCallback(async (userId: string, currentBlocked: boolean) => {
     try {
       const { error } = await supabase
         .from('users')
         .update({ is_blocked: !currentBlocked })
         .eq('id', userId);
-
       if (error) throw error;
 
-      // Update local state
-      setUsers(prev => prev.map(user => 
-        user.id === userId 
-          ? { ...user, is_blocked: !currentBlocked }
-          : user
-      ));
-
-      toast.success(
-        currentBlocked 
-          ? 'Usuário desbloqueado com sucesso' 
-          : 'Usuário bloqueado com sucesso'
-      );
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_blocked: !currentBlocked } : u));
+      toast.success(currentBlocked ? 'Usuario desbloqueado com sucesso' : 'Usuario bloqueado com sucesso');
+      fetchSummaryCounts();
     } catch (error) {
       console.error('Error toggling user block status:', error);
-      toast.error('Erro ao alterar status do usuário');
+      toast.error('Erro ao alterar status do usuario');
     }
-  };
+  }, [fetchSummaryCounts]);
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = useCallback(async (userId: string) => {
     try {
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', userId);
-
+      const { error } = await supabase.from('users').delete().eq('id', userId);
       if (error) throw error;
 
-      // Update local state
-      setUsers(prev => prev.filter(user => user.id !== userId));
+      setUsers(prev => prev.filter(u => u.id !== userId));
       setSelectedUsers(prev => {
-        const newSelected = new Set(prev);
-        newSelected.delete(userId);
-        return newSelected;
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
       });
-
-      toast.success('Usuário excluído com sucesso');
+      toast.success('Usuario excluido com sucesso');
+      fetchSummaryCounts();
     } catch (error) {
       console.error('Error deleting user:', error);
-      toast.error('Erro ao excluir usuário');
+      toast.error('Erro ao excluir usuario');
     }
-  };
+  }, [fetchSummaryCounts]);
 
-  const handleBulkAction = async (action: string, userIds: string[]) => {
+  const handleBulkAction = useCallback(async (action: string, userIds: string[]) => {
     try {
       switch (action) {
         case 'block':
-          await supabase
-            .from('users')
-            .update({ is_blocked: true })
-            .in('id', userIds);
+          await supabase.from('users').update({ is_blocked: true }).in('id', userIds);
           break;
         case 'unblock':
-          await supabase
-            .from('users')
-            .update({ is_blocked: false })
-            .in('id', userIds);
+          await supabase.from('users').update({ is_blocked: false }).in('id', userIds);
           break;
         case 'delete':
-          await supabase
-            .from('users')
-            .delete()
-            .in('id', userIds);
+          await supabase.from('users').delete().in('id', userIds);
           break;
       }
-
-      // Refresh data
       await fetchUsers();
+      await fetchSummaryCounts();
       setSelectedUsers(new Set());
-
-      toast.success('Ação executada com sucesso');
+      toast.success('Acao executada com sucesso');
     } catch (error) {
       console.error('Error executing bulk action:', error);
-      toast.error('Erro ao executar ação em lote');
+      toast.error('Erro ao executar acao em lote');
     }
-  };
+  }, [fetchUsers, fetchSummaryCounts]);
 
-  const handleBulkSetImageLimit = async (maxImages: number) => {
+  const handleBulkSetImageLimit = useCallback(async (maxImages: number) => {
     try {
       const userIds = Array.from(selectedUsers);
-
       const result = await updateUserImageLimitBulk(userIds, maxImages);
-
-      setUsers(prev => prev.map(user =>
-        selectedUsers.has(user.id)
-          ? { ...user, max_images_per_product: maxImages }
-          : user
+      setUsers(prev => prev.map(u =>
+        selectedUsers.has(u.id) ? { ...u, max_images_per_product: maxImages } : u
       ));
-
       setSelectedUsers(new Set());
-
-      toast.success(
-        `Limite de ${maxImages} imagens definido para ${result.affectedCount} usuário${result.affectedCount > 1 ? 's' : ''}`
-      );
+      toast.success(`Limite de ${maxImages} imagens definido para ${result.affectedCount} usuario${result.affectedCount > 1 ? 's' : ''}`);
     } catch (error: any) {
       console.error('Error setting bulk image limit:', error);
       toast.error(error.message || 'Erro ao definir limite de imagens em massa');
     }
-  };
+  }, [selectedUsers]);
+
+  const handleRefresh = useCallback(() => {
+    fetchUsers();
+    fetchSummaryCounts();
+  }, [fetchUsers, fetchSummaryCounts]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const selectedUsersArray = useMemo(
+    () => users.filter(u => selectedUsers.has(u.id)),
+    [users, selectedUsers]
+  );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl page-title">Gerenciamento de Usuários</h1>
-          <p className="text-muted-foreground">Visualize e gerencie todos os usuários do sistema</p>
+          <h1 className="text-2xl md:text-3xl page-title">Gerenciamento de Usuarios</h1>
+          <p className="text-muted-foreground">Visualize e gerencie todos os usuarios do sistema</p>
         </div>
         <Button onClick={() => navigate('/admin/users/new')}>
           <Plus className="h-4 w-4 mr-2" />
-          Novo Usuário
+          Novo Usuario
         </Button>
       </div>
 
-      <UserSummaryCards users={users} />
+      <UserSummaryCards counts={summaryCounts} />
 
       <UserListControls
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        onSearchChange={handleSearchChange}
         roleFilter={roleFilter}
-        onRoleFilterChange={setRoleFilter}
+        onRoleFilterChange={handleRoleFilterChange}
         statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
+        onStatusFilterChange={handleStatusFilterChange}
         planFilter={planFilter}
-        onPlanFilterChange={setPlanFilter}
+        onPlanFilterChange={handlePlanFilterChange}
         planTypeFilter={planTypeFilter}
-        onPlanTypeFilterChange={setPlanTypeFilter}
+        onPlanTypeFilterChange={handlePlanTypeFilterChange}
         dateFilter={dateFilter}
-        onDateFilterChange={setDateFilter}
+        onDateFilterChange={handleDateFilterChange}
         customStartDate={customStartDate}
-        onCustomStartDateChange={setCustomStartDate}
+        onCustomStartDateChange={handleCustomStartDateChange}
         customEndDate={customEndDate}
-        onCustomEndDateChange={setCustomEndDate}
+        onCustomEndDateChange={handleCustomEndDateChange}
         expirationFilter={expirationFilter}
-        onExpirationFilterChange={setExpirationFilter}
+        onExpirationFilterChange={handleExpirationFilterChange}
         customExpirationStartDate={customExpirationStartDate}
-        onCustomExpirationStartDateChange={setCustomExpirationStartDate}
+        onCustomExpirationStartDateChange={handleCustomExpirationStartDateChange}
         customExpirationEndDate={customExpirationEndDate}
-        onCustomExpirationEndDateChange={setCustomExpirationEndDate}
-        totalUsers={users.length}
-        filteredUsers={displayedUsers.length}
-        onRefresh={fetchUsers}
+        onCustomExpirationEndDateChange={handleCustomExpirationEndDateChange}
+        totalUsers={summaryCounts.total}
+        filteredUsers={totalCount}
+        onRefresh={handleRefresh}
       />
 
       <UserTable
-        users={displayedUsers}
+        users={users}
         selectedUsers={selectedUsers}
         onSelectUser={handleSelectUser}
         onSelectAll={handleSelectAll}
@@ -404,27 +429,26 @@ export default function UsersManagementPage() {
         onDeleteUser={handleDeleteUser}
         loading={loading}
         currentUserRole={currentUser?.role || 'user'}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        pageSize={PAGE_SIZE}
+        totalCount={totalCount}
       />
 
       {selectedUsers.size > 0 && (
         <FloatingUserBulkActions
           selectedCount={selectedUsers.size}
-          selectedUsers={users.filter(user => selectedUsers.has(user.id))}
+          selectedUsers={selectedUsersArray}
           onClearSelection={() => setSelectedUsers(new Set())}
-          onBulkActivatePlan={async (planId: string) => {
-            // TODO: Implement bulk plan activation
-            console.log('Bulk activate plan:', planId);
-          }}
+          onBulkActivatePlan={async () => {}}
           onBulkBlockUsers={async () => {
             await handleBulkAction('block', Array.from(selectedUsers));
           }}
           onBulkUnblockUsers={async () => {
             await handleBulkAction('unblock', Array.from(selectedUsers));
           }}
-          onBulkChangeRole={async (newRole: string) => {
-            // TODO: Implement bulk role change
-            console.log('Bulk change role:', newRole);
-          }}
+          onBulkChangeRole={async () => {}}
           onBulkSetImageLimit={handleBulkSetImageLimit}
           loading={loading}
           subscriptionPlans={[]}
@@ -436,9 +460,7 @@ export default function UsersManagementPage() {
         open={cloneDialogOpen}
         onOpenChange={setCloneDialogOpen}
         sourceUserId={cloneSourceUserId}
-        onSuccess={() => {
-          fetchUsers();
-        }}
+        onSuccess={handleRefresh}
       />
 
       <SimpleCopyProductsDialog

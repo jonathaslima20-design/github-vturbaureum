@@ -40,7 +40,7 @@ export function HelpArticleFeedback({ articleId }: HelpArticleFeedbackProps) {
   const submitFeedback = async (isHelpful: boolean, text: string = '') => {
     try {
       const { error } = await supabase
-        .from('help_feedback')
+        .from('help_article_feedback')
         .insert({
           article_id: articleId,
           is_helpful: isHelpful,

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, FileText, Package, Settings, ShoppingCart, Gift, AlertCircle, Rocket } from 'lucide-react';
+import { ArrowRight, FileText, Package, Settings, ShoppingCart, Gift, CircleAlert as AlertCircle, Rocket, CreditCard, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -24,6 +24,8 @@ const iconMap = {
   'Gift': Gift,
   'AlertCircle': AlertCircle,
   'FileText': FileText,
+  'CreditCard': CreditCard,
+  'TrendingUp': TrendingUp,
 };
 
 export function HelpCategoryCard({ category }: HelpCategoryCardProps) {

@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, ExternalLink, Ban, Phone, Instagram, MapPin, Calendar, Key, Lock, Trash2, Eye, CreditCard, DollarSign, CircleCheck as CheckCircle, Circle as XCircle, Clock, Image as ImageIcon } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ArrowLeft, ExternalLink, Ban, Phone, Instagram, MapPin, Calendar, Key, Lock, Trash2, Eye, CreditCard, DollarSign, CircleCheck as CheckCircle, Circle as XCircle, Clock, Image as ImageIcon, Gift, Loader as Loader2, Copy } from 'lucide-react';
 import { EditImageLimitDialog } from '@/components/admin/EditImageLimitDialog';
 import { toast } from 'sonner';
 import { Product } from '@/types';
@@ -643,17 +644,157 @@ export default function UserDetailPage() {
             </TabsContent>
 
             <TabsContent value="indicacoes" className="mt-6">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12 text-muted-foreground">
-                    Informações de indicações em desenvolvimento
-                  </div>
-                </CardContent>
-              </Card>
+              <UserReferralsTab userId={id!} referralCode={user?.referral_code} />
             </TabsContent>
           </Tabs>
         </div>
       </div>
+    </div>
+  );
+}
+
+function UserReferralsTab({ userId, referralCode }: { userId: string; referralCode?: string }) {
+  const [commissions, setCommissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, pending: 0, paid: 0 });
+
+  const fetchReferrals = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from('referral_commissions')
+        .select('*')
+        .eq('referrer_id', userId)
+        .order('created_at', { ascending: false });
+
+      const commissionsData = data || [];
+      const referredIds = commissionsData.map(c => c.referred_user_id);
+
+      let usersMap = new Map<string, { name: string; email: string }>();
+      if (referredIds.length > 0) {
+        const { data: usersData } = await supabase.from('users').select('id, name, email').in('id', referredIds);
+        for (const u of usersData || []) usersMap.set(u.id, { name: u.name, email: u.email });
+      }
+
+      const enriched = commissionsData.map(c => ({
+        ...c,
+        referred_name: usersMap.get(c.referred_user_id)?.name || 'Desconhecido',
+        referred_email: usersMap.get(c.referred_user_id)?.email || '',
+      }));
+
+      setCommissions(enriched);
+      setStats({
+        total: enriched.length,
+        pending: enriched.filter(c => c.status === 'pending').reduce((s: number, c: any) => s + c.amount, 0),
+        paid: enriched.filter(c => c.status === 'paid').reduce((s: number, c: any) => s + c.amount, 0),
+      });
+    } catch (error) {
+      console.error('Error fetching user referrals:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => { fetchReferrals(); }, [fetchReferrals]);
+
+  const referralLink = referralCode ? `${window.location.origin}/register?ref=${referralCode}` : null;
+
+  const handleCopyLink = () => {
+    if (referralLink) {
+      navigator.clipboard.writeText(referralLink);
+      toast.success('Link copiado');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card><CardContent className="py-12 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></CardContent></Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {referralLink && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Link de Indicacao</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs bg-muted px-3 py-2 rounded truncate">{referralLink}</code>
+              <Button variant="outline" size="sm" onClick={handleCopyLink}><Copy className="h-4 w-4" /></Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-3 gap-3">
+        <Card>
+          <CardContent className="pt-4 pb-4 px-4">
+            <p className="text-xs text-muted-foreground">Indicacoes</p>
+            <p className="text-xl font-bold mt-1">{stats.total}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-4 px-4">
+            <p className="text-xs text-muted-foreground">Pendente</p>
+            <p className="text-xl font-bold mt-1 text-amber-600">R$ {stats.pending.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-4 px-4">
+            <p className="text-xs text-muted-foreground">Pago</p>
+            <p className="text-xl font-bold mt-1 text-green-600">R$ {stats.paid.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium flex items-center gap-2"><Gift className="h-4 w-4" /> Usuarios Indicados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {commissions.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma indicacao realizada</p>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Indicado</TableHead>
+                    <TableHead>Plano</TableHead>
+                    <TableHead>Comissao</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Data</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {commissions.map((c: any) => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <div>
+                          <p className="text-sm font-medium">{c.referred_name}</p>
+                          <p className="text-xs text-muted-foreground">{c.referred_email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell><Badge variant="outline" className="text-xs">{c.plan_type}</Badge></TableCell>
+                      <TableCell className="font-medium">R$ {c.amount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        {c.status === 'pending'
+                          ? <Badge variant="outline" className="text-xs border-amber-300 text-amber-600">Pendente</Badge>
+                          : <Badge className="bg-green-500 text-xs">Pago</Badge>}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {format(new Date(c.created_at), 'dd/MM/yy', { locale: ptBR })}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
