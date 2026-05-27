@@ -12,9 +12,7 @@ import { getPendingOrderCount } from '@/lib/orderService';
 
 export default function DashboardSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [catalogExpanded, setCatalogExpanded] = useState(false);
-  const [stockExpanded, setStockExpanded] = useState(false);
-  const [salesExpanded, setSalesExpanded] = useState(false);
+  const [openGroup, setOpenGroup] = useState<'catalog' | 'stock' | 'sales' | null>(null);
   const [pendingOrders, setPendingOrders] = useState(0);
   const { signOut, user } = useAuth();
   const location = useLocation();
@@ -25,16 +23,14 @@ export default function DashboardSidebar() {
   const isSalesSection = location.pathname.startsWith('/dashboard/orders') || location.pathname.startsWith('/dashboard/sales') || location.pathname.startsWith('/dashboard/coupons');
 
   useEffect(() => {
-    if (isCatalogSection) setCatalogExpanded(true);
-  }, [isCatalogSection]);
+    if (isCatalogSection) setOpenGroup('catalog');
+    else if (isStockSection) setOpenGroup('stock');
+    else if (isSalesSection) setOpenGroup('sales');
+  }, [isCatalogSection, isStockSection, isSalesSection]);
 
-  useEffect(() => {
-    if (isStockSection) setStockExpanded(true);
-  }, [isStockSection]);
-
-  useEffect(() => {
-    if (isSalesSection) setSalesExpanded(true);
-  }, [isSalesSection]);
+  const toggleGroup = (group: 'catalog' | 'stock' | 'sales') => {
+    setOpenGroup((prev) => (prev === group ? null : group));
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -90,8 +86,8 @@ export default function DashboardSidebar() {
               label="Catalogo"
               icon={BookOpen}
               isGroupActive={isCatalogSection}
-              isOpen={catalogExpanded}
-              onToggle={() => setCatalogExpanded(!catalogExpanded)}
+              isOpen={openGroup === 'catalog'}
+              onToggle={() => toggleGroup('catalog')}
               isExpanded
               items={catalogSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
@@ -100,8 +96,8 @@ export default function DashboardSidebar() {
               label="Estoque"
               icon={Warehouse}
               isGroupActive={isStockSection}
-              isOpen={stockExpanded}
-              onToggle={() => setStockExpanded(!stockExpanded)}
+              isOpen={openGroup === 'stock'}
+              onToggle={() => toggleGroup('stock')}
               isExpanded
               items={stockSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
@@ -110,8 +106,8 @@ export default function DashboardSidebar() {
               label="Vendas"
               icon={ShoppingBag}
               isGroupActive={isSalesSection}
-              isOpen={salesExpanded}
-              onToggle={() => setSalesExpanded(!salesExpanded)}
+              isOpen={openGroup === 'sales'}
+              onToggle={() => toggleGroup('sales')}
               isExpanded
               items={salesSubItems}
               onItemClick={() => isMobile && toggleMobileSidebar()}
