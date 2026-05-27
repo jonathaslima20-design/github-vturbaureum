@@ -849,7 +849,7 @@ export default function CartModal({
                         <div className="relative flex-1">
                           <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                           <Input
-                            placeholder="Cupom de desconto"
+                            placeholder="Codigo do cupom"
                             value={couponCode}
                             onChange={(e) => {
                               setCouponCode(e.target.value.toUpperCase());
@@ -861,7 +861,7 @@ export default function CartModal({
                                 handleApplyCoupon();
                               }
                             }}
-                            className="h-9 pl-9 px-3 uppercase text-xs"
+                            className="h-9 pl-9 pr-3 uppercase text-xs"
                             disabled={couponLoading}
                           />
                         </div>
