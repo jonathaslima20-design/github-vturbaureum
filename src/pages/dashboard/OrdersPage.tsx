@@ -123,8 +123,8 @@ export default function OrdersPage() {
           <Card>
             <CardContent className="pt-4 pb-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <ShoppingBag className="h-4 w-4 text-blue-500" />
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ShoppingBag className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.total}</p>
@@ -137,8 +137,8 @@ export default function OrdersPage() {
           <Card>
             <CardContent className="pt-4 pb-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Clock className="h-4 w-4 text-amber-500" />
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Clock className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.pending}</p>
@@ -151,8 +151,8 @@ export default function OrdersPage() {
           <Card>
             <CardContent className="pt-4 pb-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.delivered}</p>
@@ -165,8 +165,8 @@ export default function OrdersPage() {
           <Card>
             <CardContent className="pt-4 pb-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-teal-500/10 flex items-center justify-center">
-                  <DollarSign className="h-4 w-4 text-teal-500" />
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <DollarSign className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</p>
@@ -254,7 +254,7 @@ export default function OrdersPage() {
                           {order.source === 'cart' ? 'Carrinho' : 'Produto'}
                         </Badge>
                         {order.coupon_code && (
-                          <Badge variant="outline" className="text-xs text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">
+                          <Badge variant="outline" className="text-xs">
                             <Ticket className="h-3 w-3 mr-1" />
                             {order.coupon_code}
                           </Badge>
@@ -287,7 +287,7 @@ export default function OrdersPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         onClick={(e) => {
                           e.stopPropagation();
                           window.open(whatsappUrl, '_blank');

@@ -50,7 +50,7 @@ function getCouponStatus(coupon: Coupon): 'active' | 'inactive' | 'expired' {
 
 function CouponStatusBadge({ coupon }: { coupon: Coupon }) {
   const status = getCouponStatus(coupon);
-  if (status === 'active') return <Badge className="bg-green-600 text-white text-xs">Ativo</Badge>;
+  if (status === 'active') return <Badge className="bg-primary text-primary-foreground text-xs">Ativo</Badge>;
   if (status === 'expired') return <Badge variant="secondary" className="text-xs">Expirado</Badge>;
   return <Badge variant="outline" className="text-xs">Inativo</Badge>;
 }
@@ -152,8 +152,8 @@ export default function CouponsPage() {
         <Card>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                <Ticket className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Ticket className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.totalActive}</p>
@@ -165,8 +165,8 @@ export default function CouponsPage() {
         <Card>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.totalUses}</p>
@@ -178,8 +178,8 @@ export default function CouponsPage() {
         <Card>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
-                <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <DollarSign className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{formatCurrency(stats.totalDiscountGiven)}</p>
@@ -362,7 +362,7 @@ export default function CouponsPage() {
                       {format(new Date(usage.used_at), "dd/MM/yyyy 'as' HH:mm", { locale: ptBR })}
                     </p>
                   </div>
-                  <span className="text-sm font-semibold text-green-600">
+                  <span className="text-sm font-semibold text-primary">
                     -{formatCurrency(usage.discount_applied)}
                   </span>
                 </div>
