@@ -18,7 +18,7 @@ export default function PlanUsageIndicator({ expanded = true }: PlanUsageIndicat
   const barColor = (pct: number) => {
     if (pct >= 100) return 'bg-red-500';
     if (pct >= 70) return 'bg-amber-400';
-    return 'bg-blue-400';
+    return 'bg-sky-400';
   };
 
   if (!expanded) {

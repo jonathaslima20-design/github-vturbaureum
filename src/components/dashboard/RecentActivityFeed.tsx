@@ -26,9 +26,9 @@ export function RecentActivityFeed() {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'lead': return <MessageSquare className="h-4 w-4 text-sky-500" />;
-      case 'order': return <ShoppingBag className="h-4 w-4 text-emerald-600" />;
-      case 'view_milestone': return <Eye className="h-4 w-4 text-amber-500" />;
+      case 'lead': return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
+      case 'order': return <ShoppingBag className="h-4 w-4 text-muted-foreground" />;
+      case 'view_milestone': return <Eye className="h-4 w-4 text-muted-foreground" />;
       default: return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
     }
   };

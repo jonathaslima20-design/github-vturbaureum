@@ -7,10 +7,10 @@ function FunnelBar({ stage, maxValue, index }: { stage: FunnelStage; maxValue: n
 
   const colors = [
     'bg-sky-500',
-    'bg-blue-500',
-    'bg-teal-500',
-    'bg-emerald-500',
-    'bg-green-600',
+    'bg-sky-500/80',
+    'bg-sky-500/60',
+    'bg-sky-500/40',
+    'bg-sky-500/25',
   ];
 
   return (
@@ -86,7 +86,7 @@ export function SalesFunnel({ periodDays = 30 }: SalesFunnelProps) {
     <Card className="flex-1 overflow-hidden min-w-0">
       <CardHeader>
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Filter className="h-5 w-5 text-sky-500" />
+          <Filter className="h-5 w-5 text-muted-foreground" />
           Funil de Vendas
         </CardTitle>
         <p className="text-sm text-muted-foreground">Ultimos {periodDays} dias vs periodo anterior</p>

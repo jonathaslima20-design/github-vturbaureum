@@ -222,7 +222,7 @@ const ProductCardComponent = memo(function ProductCardComponent({
             {/* Overlay badges - top */}
             <div className="absolute top-2 left-8 md:left-9 flex flex-wrap gap-1">
               {(hasDiscount && discountPercentage || (isTieredPricing && firstTierPrices?.discountPercentage)) && (
-                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 text-[10px] px-1.5 py-0 font-semibold shadow-sm">
+                <Badge className="bg-sky-500 hover:bg-sky-600 text-white border-0 text-[10px] px-1.5 py-0 font-semibold shadow-sm">
                   -{firstTierPrices?.discountPercentage || discountPercentage}%
                 </Badge>
               )}
@@ -237,7 +237,7 @@ const ProductCardComponent = memo(function ProductCardComponent({
             {/* Trending badge */}
             {analytics?.trending && (
               <div className="absolute bottom-2 left-2">
-                <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-[10px] px-1.5 py-0 font-medium shadow-sm gap-0.5">
+                <Badge className="bg-sky-500/80 hover:bg-sky-500 text-white border-0 text-[10px] px-1.5 py-0 font-medium shadow-sm gap-0.5">
                   <TrendingUp className="h-2.5 w-2.5" />
                   Tendencia
                 </Badge>

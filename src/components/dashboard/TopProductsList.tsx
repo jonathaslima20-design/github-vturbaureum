@@ -51,7 +51,7 @@ function ProductRankItem({ product, rank }: { product: RankedProduct; rank: numb
         <div className="flex items-center gap-1.5 min-w-0">
           <p className="text-sm font-medium truncate">{product.title}</p>
           {product.trending && (
-            <Flame className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+            <Flame className="h-3.5 w-3.5 text-sky-500 shrink-0" />
           )}
         </div>
         <div className="flex items-center gap-3 mt-0.5">
@@ -87,7 +87,7 @@ export function TopProductsList({ periodDays = 30 }: TopProductsListProps) {
     <Card className="flex-1 overflow-hidden min-w-0">
       <CardHeader>
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-amber-500" />
+          <Trophy className="h-5 w-5 text-muted-foreground" />
           Top Produtos
         </CardTitle>
         <p className="text-sm text-muted-foreground">Mais visualizados nos ultimos {periodDays} dias</p>

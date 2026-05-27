@@ -9,11 +9,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ViewsAndLeadsChart } from '@/components/dashboard/ViewsAndLeadsChart';
 import { RevenueCard } from '@/components/dashboard/RevenueCard';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
-import { InsightsSection } from '@/components/dashboard/InsightsSection';
 import { TopProductsList } from '@/components/dashboard/TopProductsList';
 import { SalesFunnel } from '@/components/dashboard/SalesFunnel';
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
-import { StoreScoreCard } from '@/components/dashboard/StoreScoreCard';
 import { DashboardPeriodFilter, PeriodOption } from '@/components/dashboard/DashboardPeriodFilter';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -224,17 +222,12 @@ export default function DashboardPage() {
       {/* Views & Leads Chart */}
       <ViewsAndLeadsChart days={periodDays} />
 
-      {/* Insights */}
-      <InsightsSection />
-
       {/* Top Products + Recent Activity */}
       <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         <TopProductsList periodDays={periodDays} />
         <RecentActivityFeed />
       </div>
 
-      {/* Store Score */}
-      <StoreScoreCard />
     </div>
   );
 }

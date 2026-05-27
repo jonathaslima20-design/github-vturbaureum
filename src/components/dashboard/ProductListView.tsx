@@ -128,7 +128,7 @@ export function ProductListView({
                     </span>
                   ))}
                   {analytics?.trending && (
-                    <Badge className="bg-orange-500/10 text-orange-600 border-0 text-[9px] px-1 py-0 gap-0.5">
+                    <Badge className="bg-sky-500/10 text-sky-600 border-0 text-[9px] px-1 py-0 gap-0.5">
                       <TrendingUp className="h-2.5 w-2.5" />
                     </Badge>
                   )}
