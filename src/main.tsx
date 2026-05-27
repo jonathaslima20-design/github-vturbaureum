@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { validateSession } from '@/lib/auth/simpleAuth';
+import { CustomDomainProvider } from '@/contexts/CustomDomainContext';
 
 // Environment validation before app initialization
 const validateEnvironment = () => {
@@ -74,6 +75,8 @@ if (validateEnvironment()) {
   validateSession();
   
   createRoot(document.getElementById('root')!).render(
-    <App />
+    <CustomDomainProvider>
+      <App />
+    </CustomDomainProvider>
   );
 }

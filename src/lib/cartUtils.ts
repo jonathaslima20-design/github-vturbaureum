@@ -1,6 +1,22 @@
 import type { CartItem, CartDistribution, AppliedCoupon } from '@/types';
 import { formatCurrencyI18n, generateWhatsAppMessage, type SupportedLanguage, type SupportedCurrency } from '@/lib/i18n';
 
+function getProductUrl(productId: string, corretorSlug: string): string {
+  if (typeof window === 'undefined') return `https://vitrineturbo.com/${corretorSlug}/produtos/${productId}`;
+
+  const hostname = window.location.hostname;
+  const isMainDomain = hostname === 'vitrineturbo.com' || hostname.includes('netlify.app') || hostname.includes('vercel.app');
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+  if (isMainDomain) {
+    return `https://vitrineturbo.com/${corretorSlug}/produtos/${productId}`;
+  } else if (isLocalhost) {
+    return `${window.location.origin}/${corretorSlug}/produtos/${productId}`;
+  } else {
+    return `${window.location.origin}/produtos/${productId}`;
+  }
+}
+
 interface CustomerData {
   name: string;
   whatsapp: string;
@@ -66,14 +82,7 @@ export function generateCartOrderMessage(
     // Add product link
     if (corretorSlug) {
       try {
-        const isProduction = typeof window !== 'undefined' &&
-          (window.location.hostname === 'vitrineturbo.com' ||
-           window.location.hostname.includes('netlify.app') ||
-           window.location.hostname.includes('vercel.app'));
-        const baseUrl = isProduction ? 'https://vitrineturbo.com' :
-          (typeof window !== 'undefined' ? window.location.origin : 'https://vitrineturbo.com');
-        const productUrl = `${baseUrl}/${corretorSlug}/produtos/${dist.product.id}`;
-        orderMessage += `${productUrl}\n`;
+        orderMessage += `${getProductUrl(dist.product.id, corretorSlug)}\n`;
       } catch {
         orderMessage += `Ver produto\n`;
       }
@@ -166,17 +175,8 @@ export function generateCartOrderMessage(
     // Add product link for easy access to full details
     if (corretorSlug) {
       try {
-        // Use production domain in production, otherwise use current origin
-        const isProduction = typeof window !== 'undefined' &&
-          (window.location.hostname === 'vitrineturbo.com' ||
-           window.location.hostname.includes('netlify.app') ||
-           window.location.hostname.includes('vercel.app'));
-        const baseUrl = isProduction ? 'https://vitrineturbo.com' :
-          (typeof window !== 'undefined' ? window.location.origin : 'https://vitrineturbo.com');
-        const productUrl = `${baseUrl}/${corretorSlug}/produtos/${item.id}`;
-        orderMessage += `${productUrl}\n`;
+        orderMessage += `${getProductUrl(item.id, corretorSlug)}\n`;
       } catch {
-        // Fallback if URL generation fails
         orderMessage += `Ver produto\n`;
       }
     }

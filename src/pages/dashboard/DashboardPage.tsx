@@ -64,7 +64,10 @@ export default function DashboardPage() {
       return;
     }
 
-    window.open(`https://vitrineturbo.com/${user!.slug}`, '_blank');
+    const storeUrl = user!.custom_domain
+      ? `https://${user!.custom_domain}`
+      : `https://vitrineturbo.com/${user!.slug}`;
+    window.open(storeUrl, '_blank');
   };
 
   const periodLabel = `nos últimos ${periodDays} dias`;

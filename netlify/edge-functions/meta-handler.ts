@@ -245,12 +245,21 @@ function generateDefaultMetaTagsHTML(): string {
 </html>`;
 }
 
+function isCustomDomainHostname(hostname: string): boolean {
+  return hostname !== 'vitrineturbo.com' &&
+    hostname !== 'www.vitrineturbo.com' &&
+    !hostname.endsWith('.netlify.app') &&
+    hostname !== 'localhost' &&
+    hostname !== '127.0.0.1';
+}
+
 export default async (request: Request, context: Context) => {
   const userAgent = request.headers.get('user-agent') || '';
   const url = new URL(request.url);
 
   console.log('🔍 Edge Function - Netlify Meta Handler Started:', {
     path: url.pathname,
+    hostname: url.hostname,
     userAgent: userAgent.substring(0, 100),
     isCrawler: isCrawlerUserAgent(userAgent),
     timestamp: new Date().toISOString()
@@ -265,7 +274,96 @@ export default async (request: Request, context: Context) => {
   console.log('✅ Crawler detected - processing for meta tags');
 
   try {
-    // Parse the URL to extract the slug
+    // Get Supabase credentials early (needed for both custom domain and slug resolution)
+    let supabaseUrl = Deno.env.get('VITE_SUPABASE_URL');
+    let supabaseKey = Deno.env.get('VITE_SUPABASE_ANON_KEY');
+    if (!supabaseUrl) supabaseUrl = context.site.env.get('VITE_SUPABASE_URL');
+    if (!supabaseKey) supabaseKey = context.site.env.get('VITE_SUPABASE_ANON_KEY');
+
+    // Handle custom domain resolution
+    if (isCustomDomainHostname(url.hostname) && supabaseUrl && supabaseKey) {
+      console.log('🌐 Custom domain detected:', url.hostname);
+
+      const domainResponse = await fetch(
+        `${supabaseUrl}/rest/v1/custom_domains?domain=eq.${encodeURIComponent(url.hostname)}&status=eq.active&select=user_id`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (domainResponse.ok) {
+        const domains = await domainResponse.json();
+        if (domains.length > 0) {
+          const userId = domains[0].user_id;
+          const pathSegments = url.pathname.split('/').filter(Boolean);
+
+          // On custom domain: /produtos/:productId or / (storefront root)
+          const isProductPage = pathSegments.length === 2 && pathSegments[0] === 'produtos';
+          const productId = isProductPage ? pathSegments[1] : null;
+
+          // Fetch user profile by user_id
+          const profileResponse = await fetch(
+            `${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=name,slug,bio,avatar_url,cover_url_desktop,cover_url_mobile&limit=1`,
+            {
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (profileResponse.ok) {
+            const profiles = await profileResponse.json() as UserProfile[];
+            if (profiles.length > 0) {
+              const profile = profiles[0];
+
+              if (isProductPage && productId) {
+                // Product page on custom domain
+                const productResponse = await fetch(
+                  `${supabaseUrl}/rest/v1/products?id=eq.${productId}&user_id=eq.${userId}&select=id,title,description,short_description,featured_image_url,price,discounted_price,is_starting_price,user_id&limit=1`,
+                  {
+                    headers: {
+                      'apikey': supabaseKey,
+                      'Authorization': `Bearer ${supabaseKey}`,
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                );
+
+                if (productResponse.ok) {
+                  const products = await productResponse.json() as ProductProfile[];
+                  if (products.length > 0) {
+                    const html = generateProductMetaTagsHTML(products[0], profile, request.url);
+                    return new Response(html, {
+                      status: 200,
+                      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300, s-maxage=600' },
+                    });
+                  }
+                }
+              } else {
+                // Storefront root on custom domain
+                const html = generateMetaTagsHTML(profile, request.url);
+                return new Response(html, {
+                  status: 200,
+                  headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300, s-maxage=600' },
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // If custom domain not found or any error, pass through
+      console.log('⚠️ Custom domain not resolved, passing through');
+      return context.next();
+    }
+
+    // Parse the URL to extract the slug (standard vitrineturbo.com flow)
     const pathSegments = url.pathname.split('/').filter(Boolean);
 
     // Skip special paths
@@ -287,7 +385,7 @@ export default async (request: Request, context: Context) => {
     }
 
     const slug = pathSegments[0];
-    
+
     // Check if this is a product page: /:slug/produtos/:productId
     const isProductPage = pathSegments.length === 3 && pathSegments[1] === 'produtos';
     const productId = isProductPage ? pathSegments[2] : null;
@@ -299,37 +397,10 @@ export default async (request: Request, context: Context) => {
       pathSegments
     });
 
-    // Get Supabase credentials from environment - try multiple sources
-    let supabaseUrl = Deno.env.get('VITE_SUPABASE_URL');
-    let supabaseKey = Deno.env.get('VITE_SUPABASE_ANON_KEY');
-
-    // Try context if env vars not found
-    if (!supabaseUrl) {
-      supabaseUrl = context.site.env.get('VITE_SUPABASE_URL');
-    }
-    if (!supabaseKey) {
-      supabaseKey = context.site.env.get('VITE_SUPABASE_ANON_KEY');
-    }
-
-    // Fallback attempt - show helpful error if still missing
-    if (!supabaseUrl) {
-      console.error('❌ VITE_SUPABASE_URL is not configured in Netlify environment');
-      supabaseUrl = 'MISSING';
-    }
-    if (!supabaseKey) {
-      console.error('❌ VITE_SUPABASE_ANON_KEY is not configured in Netlify environment');
-      supabaseKey = 'MISSING';
-    }
-
     if (!supabaseUrl || !supabaseKey) {
-      console.error('❌ Missing Supabase credentials - no sources available');
+      console.error('❌ Missing Supabase credentials');
       return context.next();
     }
-
-    console.log('✅ Supabase credentials found:', {
-      url: supabaseUrl.substring(0, 30) + '...',
-      hasKey: !!supabaseKey
-    });
 
     if (isProductPage && productId) {
       // Handle product page

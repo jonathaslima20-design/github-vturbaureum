@@ -6,6 +6,7 @@ import { CartProvider } from '@/contexts/CartContext';
 import { SubscriptionModalProvider } from '@/contexts/SubscriptionModalContext';
 import { CorretorPageStateProvider } from '@/contexts/CorretorPageStateContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { useCustomDomain } from '@/contexts/CustomDomainContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useState, Suspense } from 'react';
 import { CircleAlert as AlertCircle } from 'lucide-react';
@@ -69,6 +70,7 @@ import AdminRoute from '@/components/AdminRoute';
 
 function AppContent() {
   const { isLoaded } = useTheme();
+  const { isCustomDomain, slug: customDomainSlug, loading: customDomainLoading } = useCustomDomain();
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -147,6 +149,14 @@ function AppContent() {
     );
   }
 
+  if (customDomainLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -155,17 +165,25 @@ function AppContent() {
     }>
       <SessionManager />
       <Routes>
+        {/* Custom Domain Routes - when accessed via user's own domain */}
+        {isCustomDomain && customDomainSlug && (
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<CorretorPage customDomainSlug={customDomainSlug} />} />
+            <Route path="/produtos/:productId" element={<ProductDetailsPage customDomainSlug={customDomainSlug} />} />
+          </Route>
+        )}
+
         {/* Public Routes */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<LandingPage />} />
+          {!isCustomDomain && <Route path="/" element={<LandingPage />} />}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          
+
           {/* Help Center Routes */}
           <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/help/category/:categorySlug" element={<HelpCategoryPage />} />
           <Route path="/help/category/:categorySlug/:articleSlug" element={<HelpArticlePage />} />
-          
+
           {/* Corretor Public Profile Routes */}
           <Route path="/:slug" element={<CorretorPage />} />
           <Route path="/:slug/produtos/:productId" element={<ProductDetailsPage />} />

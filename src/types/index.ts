@@ -4,6 +4,20 @@ export type PlanStatus = 'active' | 'inactive' | 'suspended' | 'free';
 
 export type BillingCycle = 'monthly' | 'semiannually' | 'annually';
 
+export type CustomDomainStatus = 'pending_dns' | 'dns_verified' | 'active' | 'error';
+
+export interface CustomDomain {
+  id: string;
+  user_id: string;
+  domain: string;
+  status: CustomDomainStatus;
+  verification_token: string;
+  error_message?: string | null;
+  activated_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface User {
   id: string;
   email: string;

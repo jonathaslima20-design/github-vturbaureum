@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrencyI18n, useTranslation, type SupportedLanguage, type SupportedCurrency } from '@/lib/i18n';
 import { useCart } from '@/contexts/CartContext';
+import { useCustomDomain } from '@/contexts/CustomDomainContext';
 import ProductVariantModal from './ProductVariantModal';
 import type { Product } from '@/types';
 import { fetchProductPriceTiers, getMinimumPriceFromTiers, getFirstTierPrices } from '@/lib/tieredPricingUtils';
@@ -31,6 +32,7 @@ function ProductCardComponent({
 }: ProductCardProps) {
   const { t } = useTranslation(language);
   const { addToCart, isInCart, getItemQuantity } = useCart();
+  const { isCustomDomain } = useCustomDomain();
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [minimumTieredPrice, setMinimumTieredPrice] = useState<number | null>(null);
   const [firstTierPrices, setFirstTierPrices] = useState<any>(null);
@@ -168,7 +170,7 @@ function ProductCardComponent({
       transition={{ duration: 0.4 }}
     >
       <Link
-        to={`/${corretorSlug}/produtos/${product.id}`}
+        to={isCustomDomain ? `/produtos/${product.id}` : `/${corretorSlug}/produtos/${product.id}`}
         state={{ from: 'product-detail' }}
         onClick={handleProductClick}
         className="block h-full"

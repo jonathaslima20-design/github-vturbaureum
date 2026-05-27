@@ -27,8 +27,13 @@ import { StorefrontThemeProvider } from '@/contexts/StorefrontThemeContext';
 
 const PromotionalBanner = lazy(() => import('@/components/corretor/PromotionalBanner'));
 
-export default function CorretorPage() {
-  const { slug } = useParams();
+interface CorretorPageProps {
+  customDomainSlug?: string;
+}
+
+export default function CorretorPage({ customDomainSlug }: CorretorPageProps = {}) {
+  const { slug: paramSlug } = useParams();
+  const slug = customDomainSlug || paramSlug;
   const [searchParams] = useSearchParams();
   const location = useLocation();
 

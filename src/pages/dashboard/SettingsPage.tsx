@@ -5,6 +5,7 @@ import { StorefrontSettings } from '@/components/dashboard/StorefrontSettings';
 import { AppearanceSettings } from '@/components/dashboard/AppearanceSettings';
 import TrackingSettingsContent from '@/components/dashboard/TrackingSettingsContent';
 import CheckoutSettingsContent from '@/components/dashboard/CheckoutSettingsContent';
+import { CustomDomainSettings } from '@/components/dashboard/CustomDomainSettings';
 import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
@@ -27,14 +28,15 @@ export default function SettingsPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 sm:gap-4 border-b mb-6 sm:mb-8 -mx-4 sm:mx-0 px-4 sm:px-0">
-              {(['profile', 'appearance', 'storefront', 'checkout', 'tracking'] as const).map((tab) => {
+            <div className="flex gap-1 sm:gap-4 border-b mb-6 sm:mb-8 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto">
+              {(['profile', 'appearance', 'storefront', 'checkout', 'tracking', 'domain'] as const).map((tab) => {
                 const labels: Record<string, string> = {
                   profile: 'Perfil',
-                  appearance: 'Aparência',
+                  appearance: 'Aparencia',
                   storefront: 'Vitrine',
                   checkout: 'Checkout',
                   tracking: 'Rastreamento',
+                  domain: 'Dominio',
                 };
                 return (
                   <button
@@ -63,6 +65,7 @@ export default function SettingsPage() {
               {activeTab === 'storefront' && <StorefrontSettings />}
               {activeTab === 'checkout' && <CheckoutSettingsContent />}
               {activeTab === 'tracking' && <TrackingSettingsContent />}
+              {activeTab === 'domain' && <CustomDomainSettings />}
             </div>
           </div>
         </Card>

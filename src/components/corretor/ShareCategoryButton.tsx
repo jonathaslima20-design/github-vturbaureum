@@ -41,12 +41,18 @@ export default function ShareCategoryButton({
   });
 
   const generateCategoryUrl = () => {
-    // Use production domain in production, otherwise use current origin
-    const isProduction = window.location.hostname === 'vitrineturbo.com' || 
-                        window.location.hostname.includes('netlify.app');
-    const baseUrl = isProduction ? 'https://vitrineturbo.com' : window.location.origin;
+    const hostname = window.location.hostname;
+    const isMainDomain = hostname === 'vitrineturbo.com' || hostname.includes('netlify.app');
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const categoryParam = encodeURIComponent(categoryName);
-    return `${baseUrl}/${corretorSlug}?category=${categoryParam}`;
+
+    if (isMainDomain) {
+      return `https://vitrineturbo.com/${corretorSlug}?category=${categoryParam}`;
+    } else if (isLocalhost) {
+      return `${window.location.origin}/${corretorSlug}?category=${categoryParam}`;
+    } else {
+      return `${window.location.origin}?category=${categoryParam}`;
+    }
   };
 
   const handleShareClick = async () => {

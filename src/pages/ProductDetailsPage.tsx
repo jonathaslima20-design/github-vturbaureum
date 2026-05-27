@@ -25,8 +25,13 @@ import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 import { StorefrontThemeProvider } from '@/contexts/StorefrontThemeContext';
 import type { ProductVariantStock } from '@/types';
 
-export default function ProductDetailsPage() {
-  const { slug, productId } = useParams();
+interface ProductDetailsPageProps {
+  customDomainSlug?: string;
+}
+
+export default function ProductDetailsPage({ customDomainSlug }: ProductDetailsPageProps = {}) {
+  const { slug: paramSlug, productId } = useParams();
+  const slug = customDomainSlug || paramSlug;
   const [product, setProduct] = useState<any | null>(null);
   const [corretor, setCorretor] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -228,7 +233,7 @@ export default function ProductDetailsPage() {
           {error || "Erro ao carregar os dados do produto"}
         </p>
         <Button asChild>
-         <Link to={slug ? `/${slug}` : "/"}>{t('header.back_to_storefront')}</Link>
+         <Link to={customDomainSlug ? "/" : (slug ? `/${slug}` : "/")}>{t('header.back_to_storefront')}</Link>
         </Button>
       </div>
     );
@@ -337,7 +342,7 @@ export default function ProductDetailsPage() {
             className="pl-0 hover:pl-1 transition-all"
             onClick={() => console.log('Back button clicked - returning to storefront')}
           >
-            <Link to={`/${slug}`} state={{ from: 'product-detail' }} className="flex items-center">
+            <Link to={customDomainSlug ? "/" : `/${slug}`} state={{ from: 'product-detail' }} className="flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" />
               {t('header.back_to_storefront')}
             </Link>
