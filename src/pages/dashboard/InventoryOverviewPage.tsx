@@ -181,8 +181,8 @@ function InventoryDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{lowStockCount}</p>
@@ -195,8 +195,8 @@ function InventoryDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <XCircle className="h-5 w-5 text-red-500" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <XCircle className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{outOfStockCount}</p>
@@ -209,8 +209,8 @@ function InventoryDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Boxes className="h-5 w-5 text-green-500" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Boxes className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalUnits}</p>
