@@ -38,6 +38,7 @@ import TieredPricingIndicator from '@/components/product/TieredPricingIndicator'
 import { PhoneInput } from '@/components/ui/phone-input';
 import { useInventoryEnabledForStore } from '@/hooks/useInventoryEnabled';
 import { useCouponValidation } from '@/hooks/useCouponValidation';
+import { useHasActiveCoupons } from '@/hooks/useHasActiveCoupons';
 import { useCheckoutSettingsForStore } from '@/hooks/useCheckoutSettings';
 
 
@@ -60,6 +61,7 @@ export default function CartModal({
   const { t } = useTranslation(language);
   const { autoDeductStock, inventoryEnabled } = useInventoryEnabledForStore(corretor?.id);
   const { loading: couponLoading, error: couponError, validateCoupon, clearCoupon, setError: setCouponError } = useCouponValidation();
+  const { hasActiveCoupons } = useHasActiveCoupons(corretor?.id);
   const { settings: checkoutSettings, loading: checkoutSettingsLoading } = useCheckoutSettingsForStore(corretor?.id);
   const [sendingOrder, setSendingOrder] = useState(false);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
@@ -824,7 +826,8 @@ export default function CartModal({
                     </div>
                   </div>
 
-                  {/* Coupon Section - Compact */}
+                  {/* Coupon Section - Only show when store has active coupons or one is already applied */}
+                  {(hasActiveCoupons || appliedCoupon) && (
                   <div className="space-y-1.5">
                     {appliedCoupon ? (
                       <div className="flex items-center gap-2 h-9 px-3 rounded-md border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
@@ -884,6 +887,7 @@ export default function CartModal({
                       <p className="text-xs text-destructive">{couponError}</p>
                     )}
                   </div>
+                  )}
 
                   {/* Payment & Delivery Row */}
                   {(enabledPaymentMethods.length > 0 || enabledDeliveryOptions.length > 0) && (
