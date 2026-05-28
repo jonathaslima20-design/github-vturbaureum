@@ -34,6 +34,7 @@ import HelpArticlePage from '@/pages/HelpArticlePage.tsx';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.tsx';
 import CookiesPolicyPage from '@/pages/CookiesPolicyPage.tsx';
 import TermsOfUsePage from '@/pages/TermsOfUsePage.tsx';
+import DataDeletionPage from '@/pages/DataDeletionPage.tsx';
 
 // Dashboard Pages
 import DashboardPage from '@/pages/dashboard/DashboardPage.tsx';
@@ -69,6 +70,7 @@ import { OrphanedFilesPage } from '@/pages/admin/OrphanedFilesPage.tsx';
 import BannerClientsPage from '@/pages/admin/BannerClientsPage.tsx';
 import MercadoPagoPage from '@/pages/admin/MercadoPagoPage.tsx';
 import LegalCenterPage from '@/pages/admin/LegalCenterPage.tsx';
+import PrivacyRequestsPage from '@/pages/admin/PrivacyRequestsPage.tsx';
 
 // Route Guards
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -194,6 +196,7 @@ function AppContent() {
           <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
           <Route path="/politica-de-cookies" element={<CookiesPolicyPage />} />
           <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
+          <Route path="/excluir-minha-conta" element={<DataDeletionPage />} />
         </Route>
 
         {/* Protected Dashboard Routes */}
@@ -234,6 +237,7 @@ function AppContent() {
             <Route path="/admin/mercadopago" element={<MercadoPagoPage />} />
             <Route path="/admin/banner-clients" element={<BannerClientsPage />} />
             <Route path="/admin/legal" element={<LegalCenterPage />} />
+            <Route path="/admin/privacy-requests" element={<PrivacyRequestsPage />} />
           </Route>
         </Route>
 
