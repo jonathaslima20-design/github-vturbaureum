@@ -68,6 +68,3 @@ function ScreenContent({ screenType, config }: MockupRendererProps) {
       return <MockupCustom config={config} />;
   }
 }
-
-
-export { MockupRenderer }
