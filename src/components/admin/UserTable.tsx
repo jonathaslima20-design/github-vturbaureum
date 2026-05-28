@@ -20,6 +20,7 @@ import { getInitials, formatWhatsAppForDisplay, generateWhatsAppUrl } from '@/li
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PlanTypeBadge from '@/components/subscription/PlanTypeBadge';
+import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import type { User } from '@/types';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
 import { EditImageLimitDialog } from './EditImageLimitDialog';
@@ -231,7 +232,7 @@ export function UserTable({
                       {user.is_blocked ? (
                         <Badge variant="destructive" className="text-xs">Bloqueado</Badge>
                       ) : (
-                        <Badge className="bg-green-500 text-xs">Ativo</Badge>
+                        <PlanStatusBadge status={user.plan_status} className="text-xs" />
                       )}
                     </TableCell>
                     <TableCell className="w-24">
