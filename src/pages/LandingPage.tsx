@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plus, Package, MessageCircle, Gift, Globe as Globe2, ChartBar as BarChart3, Check, Zap, TrendingUp, Users, LogIn, ShoppingCart, Radio } from 'lucide-react';
+import { ArrowRight, Plus, Package, MessageCircle, Gift, Globe as Globe2, ChartBar as BarChart3, Check, Zap, TrendingUp, Users, LogIn, ShoppingCart, Radio, Box, ClipboardList, Tag, Code as Code2, Palette, Globe, Shield, TriangleAlert as AlertTriangle, Percent, Timer } from 'lucide-react';
 import HeroPhoneCarousel from '@/components/landing/HeroPhoneCarousel';
 import { supabase } from '@/lib/supabase';
 
@@ -22,7 +22,6 @@ function useLandingTracking() {
 
       if (!data) return;
 
-      // ── Meta Pixel ──────────────────────────────────────────────
       const pixelId = data.meta_pixel_id?.trim();
       if (pixelId) {
         metaScript = document.createElement('script');
@@ -46,11 +45,9 @@ function useLandingTracking() {
         document.body.insertBefore(metaNoScript, document.body.firstChild);
       }
 
-      // ── Google Tag (GTM or GA4) ──────────────────────────────────
       const tagId = data.google_tag_id?.trim();
       if (tagId) {
         if (tagId.startsWith('GTM-')) {
-          // Google Tag Manager
           gtmDataLayer = document.createElement('script');
           gtmDataLayer.id = 'gtm-datalayer';
           gtmDataLayer.innerHTML = `window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});`;
@@ -67,7 +64,6 @@ function useLandingTracking() {
           gtmNoScript.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${tagId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
           document.body.insertBefore(gtmNoScript, document.body.firstChild);
         } else {
-          // GA4 / gtag.js
           gtmScript = document.createElement('script');
           gtmScript.id = 'ga4-script';
           gtmScript.async = true;
@@ -149,8 +145,9 @@ function Header() {
           />
         </a>
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#recursos" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Recursos</a>
+          <a href="#recursos" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Funcionalidades</a>
           <a href="#analytics" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Analytics</a>
+          <a href="#integracoes" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Integracoes</a>
           <a href="#precos" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Planos</a>
           <a href="#faq" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">FAQ</a>
         </nav>
@@ -176,22 +173,36 @@ function Hero() {
         <div className="stagger max-w-4xl">
           <div className="inline-flex items-center gap-2 border hairline bg-white rounded-full px-3 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="font-mono-label uppercase text-[11px] text-ink-700">VitrineTurbo — v2.5</span>
+            <span className="font-mono-label uppercase text-[11px] text-ink-700">VitrineTurbo — v3.0</span>
           </div>
           <h1 className="font-display font-semibold text-[44px] sm:text-[64px] lg:text-[84px] leading-[1.02] tracking-[-0.035em] text-ink-900 mt-6">
-            Seu Catálogo Digital em Minutos.
+            A Plataforma Completa para Vender Online.
           </h1>
           <p className="text-ink-500 text-[18px] lg:text-[20px] max-w-2xl mt-6 leading-[1.5]">
-            Pare de perder vendas por falta de organização. Tenha sua vitrine online e venda muito mais.
+            Catalogo, estoque, pedidos, cupons, dominio proprio e API de integracao. Tudo que voce precisa em um unico lugar, sem taxa sobre vendas.
           </p>
           <div className="flex flex-wrap items-center gap-3 mt-8">
             <a href="/register" className="btn-primary rounded-full px-7 py-4 font-display font-medium text-[15px] inline-flex items-center gap-2">
-              Criar Agora
+              Criar Minha Loja
               <ArrowRight size={16} />
             </a>
             <a href="#precos" className="btn-ghost rounded-full px-7 py-4 font-display font-medium text-[15px] inline-flex items-center">
               Ver Planos
             </a>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 mt-10">
+            {[
+              { label: '+3.000 lojas ativas' },
+              { label: '0% taxa sobre vendas' },
+              { label: 'Suporte via WhatsApp' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                  <Check size={10} strokeWidth={3} className="text-emerald-600" />
+                </div>
+                <span className="text-[13px] text-ink-600 font-medium">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
         <div className="reveal mt-16 lg:mt-20">
@@ -221,12 +232,14 @@ function BentoCard({
   title,
   Icon,
   className = '',
+  badge,
   children,
 }: {
   idx: string;
   title: string;
   Icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
   className?: string;
+  badge?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -235,7 +248,14 @@ function BentoCard({
         <div className="w-9 h-9 rounded-lg border hairline bg-white flex items-center justify-center">
           <Icon size={18} className="text-ink-900" strokeWidth={2} />
         </div>
-        <span className="font-mono-label text-[10px] text-ink-400">{idx}</span>
+        <div className="flex items-center gap-2">
+          {badge && (
+            <span className="font-mono-label text-[9px] uppercase px-2 py-0.5 rounded-full bg-ink-900 text-white">
+              {badge}
+            </span>
+          )}
+          <span className="font-mono-label text-[10px] text-ink-400">{idx}</span>
+        </div>
       </div>
       <h3 className="font-display font-semibold text-[20px] lg:text-[22px] text-ink-900 tracking-[-0.02em] mt-6">
         {title}
@@ -247,13 +267,14 @@ function BentoCard({
 
 function BentoGrid() {
   return (
-    <section id="recursos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
+    <section id="recursos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1200px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ recursos" title="Tudo que você precisa para impulsionar suas vendas" />
+        <SectionHeading kicker="/ funcionalidades" title="Tudo que voce precisa para vender como profissional" />
         <div className="grid grid-cols-1 lg:grid-cols-3 auto-rows-[minmax(200px,auto)] gap-4 mt-14">
+          {/* Card 01 - Gestao de Produtos */}
           <BentoCard
             idx="01"
-            title="Gestão Completa de Produtos"
+            title="Gestao Completa de Produtos"
             Icon={Package}
             className="lg:col-span-2 lg:row-span-2"
           >
@@ -295,35 +316,96 @@ function BentoGrid() {
             </div>
           </BentoCard>
 
-          <BentoCard idx="02" title="WhatsApp Integrado" Icon={MessageCircle}>
+          {/* Card 02 - Controle de Estoque */}
+          <BentoCard idx="02" title="Controle de Estoque" Icon={Box}>
             <div className="space-y-2">
-              <div className="max-w-[85%] bg-surface rounded-2xl rounded-bl-sm px-3 py-2 text-[12px] text-ink-900 leading-snug">
-                Olá, gostaria de mais informações sobre o produto Camiseta Reserva Orleans Masculina.
-              </div>
-              <div className="max-w-[85%] ml-auto bg-ink-900 text-white rounded-2xl rounded-br-sm px-3 py-2 text-[12px] leading-snug">
-                Perfeito, me chamo Letícia e vou prosseguir com o seu atendimento!
+              {[
+                { name: 'Camiseta Oversized', stock: 47, status: 'ok' },
+                { name: 'Chuteira Mercurial', stock: 3, status: 'low' },
+                { name: 'Bola Nike Pitch', stock: 0, status: 'out' },
+              ].map((item) => (
+                <div key={item.name} className="flex items-center gap-2.5 rounded-xl border hairline bg-white px-3 py-2">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    item.status === 'ok' ? 'bg-emerald-500' : item.status === 'low' ? 'bg-amber-500' : 'bg-red-500'
+                  }`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-medium text-ink-900 truncate">{item.name}</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {item.status === 'low' && <AlertTriangle size={10} className="text-amber-500" />}
+                    <span className={`text-[11px] font-semibold ${
+                      item.status === 'ok' ? 'text-ink-900' : item.status === 'low' ? 'text-amber-600' : 'text-red-600'
+                    }`}>{item.stock} un</span>
+                  </div>
+                </div>
+              ))}
+              <div className="rounded-xl border hairline bg-ink-50 px-3 py-2 flex items-center gap-2">
+                <Timer size={11} className="text-ink-400 flex-shrink-0" />
+                <span className="text-[10px] text-ink-500">Reserva automatica por 15min no carrinho</span>
               </div>
             </div>
           </BentoCard>
 
-          <BentoCard idx="03" title="Indique e ganhe" Icon={Gift}>
-            <div className="flex items-end justify-between">
-              <div>
-                <div className="font-mono-label uppercase text-[10px] text-ink-400 mb-1">Ganhe até</div>
-                <div className="font-display font-semibold text-[44px] leading-none tracking-[-0.03em] text-ink-900">R$ <span className="text-[52px]">100</span><span className="text-[28px]">,00</span></div>
-                <div className="font-mono-label uppercase text-[10px] text-ink-400 mt-2">por usuário indicado</div>
-              </div>
-              <div className="flex -space-x-2">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-surface flex items-center justify-center">
-                    <Users size={14} className="text-ink-500" />
+          {/* Card 03 - Gestao de Pedidos */}
+          <BentoCard idx="03" title="Gestao de Pedidos" Icon={ClipboardList}>
+            <div className="space-y-3">
+              <div className="flex items-center gap-1.5">
+                {['Pendente', 'Confirmado', 'Preparando', 'Enviado', 'Entregue'].map((step, i) => (
+                  <div key={step} className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-ink-900' : 'bg-ink-200'}`} />
+                    {i < 4 && <div className={`w-3 h-px ${i < 2 ? 'bg-ink-900' : 'bg-ink-200'}`} />}
                   </div>
                 ))}
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg border hairline bg-white px-2.5 py-2 text-center">
+                  <div className="font-display font-semibold text-[18px] text-ink-900">156</div>
+                  <div className="font-mono-label uppercase text-[8px] text-ink-400 mt-0.5">Pedidos/mes</div>
+                </div>
+                <div className="rounded-lg border hairline bg-white px-2.5 py-2 text-center">
+                  <div className="font-display font-semibold text-[18px] text-emerald-600">R$ 24k</div>
+                  <div className="font-mono-label uppercase text-[8px] text-ink-400 mt-0.5">Receita</div>
+                </div>
+              </div>
             </div>
           </BentoCard>
 
-          <BentoCard idx="04" title="Carrinho de Compras" Icon={ShoppingCart}>
+          {/* Card 04 - Sistema de Cupons */}
+          <BentoCard idx="04" title="Cupons de Desconto" Icon={Tag}>
+            <div className="space-y-2">
+              {[
+                { code: 'PRIMEIRACOMPRA', discount: '-15%', uses: '234 usos' },
+                { code: 'FRETEGRATIS', discount: '-R$ 25', uses: '89 usos' },
+                { code: 'BLACKFRIDAY', discount: '-30%', uses: '567 usos' },
+              ].map((coupon) => (
+                <div key={coupon.code} className="flex items-center gap-2.5 rounded-xl border hairline bg-white px-3 py-2">
+                  <div className="w-7 h-7 rounded-lg bg-ink-50 flex items-center justify-center flex-shrink-0">
+                    <Percent size={12} className="text-ink-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] font-mono-label font-medium text-ink-900 truncate">{coupon.code}</div>
+                    <div className="text-[9px] text-ink-400">{coupon.uses}</div>
+                  </div>
+                  <span className="font-display font-semibold text-[12px] text-emerald-600 flex-shrink-0">{coupon.discount}</span>
+                </div>
+              ))}
+            </div>
+          </BentoCard>
+
+          {/* Card 05 - WhatsApp Integrado */}
+          <BentoCard idx="05" title="WhatsApp Integrado" Icon={MessageCircle}>
+            <div className="space-y-2">
+              <div className="max-w-[85%] bg-surface rounded-2xl rounded-bl-sm px-3 py-2 text-[12px] text-ink-900 leading-snug">
+                Ola, gostaria de mais informacoes sobre o produto Camiseta Reserva Orleans Masculina.
+              </div>
+              <div className="max-w-[85%] ml-auto bg-ink-900 text-white rounded-2xl rounded-br-sm px-3 py-2 text-[12px] leading-snug">
+                Perfeito, me chamo Leticia e vou prosseguir com o seu atendimento!
+              </div>
+            </div>
+          </BentoCard>
+
+          {/* Card 06 - Carrinho de Compras */}
+          <BentoCard idx="06" title="Carrinho de Compras" Icon={ShoppingCart}>
             <div className="space-y-2">
               {[
                 { name: 'Camiseta Oversized Preta', qty: 2, price: 'R$ 89,90' },
@@ -348,11 +430,12 @@ function BentoGrid() {
             </div>
           </BentoCard>
 
-          <BentoCard idx="05" title="Pixel Meta & Google Tag" Icon={Radio}>
+          {/* Card 07 - Pixel Meta & Google Tag */}
+          <BentoCard idx="07" title="Pixel Meta & Google Tag" Icon={Radio}>
             <div className="space-y-3">
               {[
-                { platform: 'Meta Pixel', label: 'Facebook & Instagram Ads', color: 'bg-blue-500', dot: 'bg-blue-500' },
-                { platform: 'Google Tag', label: 'Google Ads & Analytics', color: 'bg-red-500', dot: 'bg-red-500' },
+                { platform: 'Meta Pixel', label: 'Facebook & Instagram Ads', dot: 'bg-blue-500' },
+                { platform: 'Google Tag', label: 'Google Ads & Analytics', dot: 'bg-red-500' },
               ].map((item) => (
                 <div key={item.platform} className="rounded-xl border hairline bg-white px-3 py-3 flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.dot}`} />
@@ -366,14 +449,29 @@ function BentoGrid() {
                   </div>
                 </div>
               ))}
-              <div className="rounded-xl border hairline bg-ink-50 px-3 py-2 flex items-center gap-2">
-                <Zap size={11} className="text-ink-400 flex-shrink-0" />
-                <span className="text-[10px] text-ink-500">Rastreie conversões em tempo real</span>
+            </div>
+          </BentoCard>
+
+          {/* Card 08 - Indique e Ganhe */}
+          <BentoCard idx="08" title="Indique e Ganhe" Icon={Gift}>
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="font-mono-label uppercase text-[10px] text-ink-400 mb-1">Ganhe ate</div>
+                <div className="font-display font-semibold text-[44px] leading-none tracking-[-0.03em] text-ink-900">R$ <span className="text-[52px]">100</span><span className="text-[28px]">,00</span></div>
+                <div className="font-mono-label uppercase text-[10px] text-ink-400 mt-2">por usuario indicado</div>
+              </div>
+              <div className="flex -space-x-2">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-surface flex items-center justify-center">
+                    <Users size={14} className="text-ink-500" />
+                  </div>
+                ))}
               </div>
             </div>
           </BentoCard>
 
-          <BentoCard idx="06" title="Multi Idiomas e Moedas" Icon={Globe2}>
+          {/* Card 09 - Multi Idiomas */}
+          <BentoCard idx="09" title="Multi Idiomas e Moedas" Icon={Globe2}>
             <div className="flex flex-wrap gap-2">
               {['PT-BR', 'EN-US', 'ES-ES', 'BRL', 'USD', 'EUR'].map((p) => (
                 <span key={p} className="font-mono-label text-[10px] uppercase px-2.5 py-1 rounded-full border hairline bg-white text-ink-700">
@@ -388,12 +486,177 @@ function BentoGrid() {
   );
 }
 
+function ProFeaturesSection() {
+  return (
+    <section id="integracoes" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <SectionHeading kicker="/ profissional" title="Recursos avancados para quem leva vendas a serio" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-14">
+          {/* Personalizacao Visual */}
+          <div className="reveal card-hover rounded-2xl border hairline bg-white p-6 lg:p-7 flex flex-col">
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-lg border hairline bg-surface flex items-center justify-center">
+                <Palette size={18} className="text-ink-900" strokeWidth={2} />
+              </div>
+              <span className="font-mono-label text-[10px] text-ink-400">Aparencia</span>
+            </div>
+            <h3 className="font-display font-semibold text-[20px] lg:text-[22px] text-ink-900 tracking-[-0.02em] mt-6">
+              Personalize Sua Vitrine
+            </h3>
+            <div className="mt-5 flex-1">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-1.5">
+                    {['bg-ink-900', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'].map((color) => (
+                      <div key={color} className={`w-6 h-6 rounded-full border-2 border-white ${color}`} />
+                    ))}
+                  </div>
+                  <span className="text-[11px] text-ink-500">Cores personalizadas</span>
+                </div>
+                <div className="rounded-xl border hairline bg-surface p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded bg-sky-500" />
+                    <span className="text-[10px] font-medium text-ink-700">Fundo, Texto, Botoes, Bordas</span>
+                  </div>
+                  <div className="h-8 rounded-lg bg-gradient-to-r from-sky-50 via-sky-100 to-sky-200 border border-sky-200" />
+                </div>
+                <div className="rounded-xl border hairline bg-surface px-3 py-2 flex items-center gap-2">
+                  <span className="text-[12px] font-medium text-ink-700" style={{ fontFamily: 'serif' }}>Aa</span>
+                  <span className="text-[10px] text-ink-500">Fontes personalizadas via Google Fonts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dominio Proprio */}
+          <div className="reveal card-hover rounded-2xl border hairline bg-white p-6 lg:p-7 flex flex-col">
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-lg border hairline bg-surface flex items-center justify-center">
+                <Globe size={18} className="text-ink-900" strokeWidth={2} />
+              </div>
+              <span className="font-mono-label text-[9px] uppercase px-2 py-0.5 rounded-full bg-ink-900 text-white">Plano Anual</span>
+            </div>
+            <h3 className="font-display font-semibold text-[20px] lg:text-[22px] text-ink-900 tracking-[-0.02em] mt-6">
+              Dominio Proprio
+            </h3>
+            <div className="mt-5 flex-1">
+              <div className="space-y-3">
+                <div className="rounded-xl border hairline bg-surface px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[11px] font-mono-label text-ink-900">www.sualoja.com.br</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-1">
+                  <Shield size={12} className="text-emerald-600" />
+                  <span className="text-[11px] text-ink-500">SSL gratuito incluso</span>
+                </div>
+                <div className="flex items-center gap-2 px-1">
+                  <Check size={12} strokeWidth={3} className="text-emerald-600" />
+                  <span className="text-[11px] text-ink-500">DNS verificado automaticamente</span>
+                </div>
+                <div className="flex items-center gap-2 px-1">
+                  <Zap size={12} className="text-emerald-600" />
+                  <span className="text-[11px] text-ink-500">Configuracao simples via CNAME</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* API de Integracao */}
+          <div className="reveal card-hover rounded-2xl border hairline bg-white p-6 lg:p-7 flex flex-col">
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-lg border hairline bg-surface flex items-center justify-center">
+                <Code2 size={18} className="text-ink-900" strokeWidth={2} />
+              </div>
+              <span className="font-mono-label text-[9px] uppercase px-2 py-0.5 rounded-full bg-ink-900 text-white">Plano Anual</span>
+            </div>
+            <h3 className="font-display font-semibold text-[20px] lg:text-[22px] text-ink-900 tracking-[-0.02em] mt-6">
+              API REST Completa
+            </h3>
+            <div className="mt-5 flex-1">
+              <div className="space-y-3">
+                <div className="rounded-xl border hairline bg-ink-900 px-3 py-2.5 font-mono text-[10px] text-emerald-400 leading-relaxed overflow-hidden">
+                  <div className="text-ink-400">GET /api-gateway/products</div>
+                  <div className="text-white mt-1">{'{ "data": [...], "meta": { "total": 847 } }'}</div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {['Produtos', 'Estoque', 'Pedidos', 'Cupons'].map((ep) => (
+                    <span key={ep} className="font-mono-label text-[9px] uppercase px-2 py-0.5 rounded-full border hairline bg-surface text-ink-600">
+                      {ep}
+                    </span>
+                  ))}
+                </div>
+                <div className="rounded-xl border hairline bg-surface px-3 py-2 flex items-center gap-2">
+                  <Zap size={11} className="text-ink-400 flex-shrink-0" />
+                  <span className="text-[10px] text-ink-500">Integre com Bling, Tiny e outros ERPs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DifferentiationSection() {
+  const features = [
+    'Sem taxa sobre vendas — pague apenas o plano',
+    'Estoque automatizado com alertas de nivel baixo',
+    'Pedidos organizados por status em tempo real',
+    'Cupons para fidelizar e atrair clientes',
+    'API REST para conectar com ERPs externos',
+    'Dominio proprio com SSL gratuito',
+    'Personalize cores, fontes e aparencia da loja',
+    'Analytics completo com funil de conversao',
+  ];
+
+  return (
+    <section className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="reveal">
+            <div className="font-mono-label uppercase text-[11px] text-ink-500">/ diferencial</div>
+            <h2 className="font-display font-semibold text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.035em] text-ink-900 mt-4">
+              Para quem leva o negocio a serio.
+            </h2>
+            <p className="text-ink-500 text-[16px] lg:text-[18px] mt-6 leading-[1.5] max-w-xl">
+              Nao e so um catalogo. E uma plataforma completa para gerenciar e escalar suas vendas online, com ferramentas que normalmente custam centenas de reais em outros sistemas.
+            </p>
+            <div className="mt-8">
+              <a href="/register" className="btn-primary rounded-full px-7 py-3.5 font-display font-medium text-[14px] inline-flex items-center gap-2">
+                Criar Minha Loja
+                <ArrowRight size={14} />
+              </a>
+            </div>
+          </div>
+          <div className="reveal">
+            <div className="rounded-2xl border hairline bg-surface p-6 lg:p-8">
+              <ul className="space-y-4">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check size={10} strokeWidth={3} className="text-emerald-600" />
+                    </span>
+                    <span className="text-[14px] lg:text-[15px] text-ink-700 leading-snug">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AnalyticsSection() {
   const metrics = [
     { Icon: Package, l: 'Total de Produtos', v: '1.847' },
-    { Icon: BarChart3, l: 'Visualizações', v: '+58,3k' },
+    { Icon: BarChart3, l: 'Visualizacoes', v: '+58,3k' },
     { Icon: Users, l: 'Visitantes', v: '+12.490' },
-    { Icon: TrendingUp, l: 'Conversões', v: '+3,7%' },
+    { Icon: TrendingUp, l: 'Conversoes', v: '+3,7%' },
   ];
   return (
     <section id="analytics" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
@@ -402,10 +665,10 @@ function AnalyticsSection() {
           <div className="reveal">
             <div className="font-mono-label uppercase text-[11px] text-ink-500">/ analytics</div>
             <h2 className="font-display font-semibold text-[36px] sm:text-[48px] lg:text-[64px] leading-[1.05] tracking-[-0.035em] text-ink-900 mt-4">
-              Decisões baseadas em dados reais.
+              Decisoes baseadas em dados reais.
             </h2>
             <p className="text-ink-500 text-[16px] lg:text-[18px] mt-6 leading-[1.5] max-w-xl">
-              Tenha uma visão geral do seu negócio e acompanhe suas vendas de forma simples e intuitiva.
+              Tenha uma visao geral do seu negocio e acompanhe suas vendas de forma simples e intuitiva.
             </p>
             <div className="grid grid-cols-2 gap-4 mt-10">
               {metrics.map(({ Icon, l, v }) => (
@@ -425,9 +688,9 @@ function AnalyticsSection() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <BarChart3 size={16} className="text-ink-900" />
-                  <span className="font-display font-medium text-[14px] text-ink-900">Visão geral</span>
+                  <span className="font-display font-medium text-[14px] text-ink-900">Visao geral</span>
                 </div>
-                <span className="font-mono-label uppercase text-[10px] text-ink-400">últimos 30d</span>
+                <span className="font-mono-label uppercase text-[10px] text-ink-400">ultimos 30d</span>
               </div>
               <svg viewBox="0 0 400 160" className="w-full h-auto">
                 <defs>
@@ -450,7 +713,7 @@ function AnalyticsSection() {
               </svg>
               <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t hairline">
                 {[
-                  { l: 'Visualizações', v: '58.3k' },
+                  { l: 'Visualizacoes', v: '58.3k' },
                   { l: 'Leads', v: '2.184' },
                 ].map((m) => (
                   <div key={m.l}>
@@ -473,23 +736,17 @@ function PricingCard({
   price,
   period,
   featured = false,
+  benefits,
+  exclusives = [],
 }: {
   tag: string;
   name: string;
   price: string;
   period: string;
   featured?: boolean;
+  benefits: string[];
+  exclusives?: string[];
 }) {
-  const benefits = [
-    'Produtos ilimitados',
-    'Categorias ilimitadas',
-    'Catálogo Digital via Link',
-    'Painel Administrativo',
-    'Funcionalidade de carrinho de compras',
-    'Configuração de links externos',
-    'Integração com Meta Pixel e Google Tag',
-    'Programa de Indicação ("Indique e Ganhe")',
-  ];
   return (
     <div
       className={`reveal card-hover rounded-2xl p-7 lg:p-8 border hairline flex flex-col ${
@@ -525,6 +782,18 @@ function PricingCard({
             <span className={`text-[14px] ${featured ? 'text-white/90' : 'text-ink-700'}`}>{b}</span>
           </li>
         ))}
+        {exclusives.map((b) => (
+          <li key={b} className="flex items-center gap-3">
+            <span
+              className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                featured ? 'bg-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'
+              }`}
+            >
+              <Zap size={10} strokeWidth={3} className={featured ? 'text-emerald-300' : 'text-emerald-600'} />
+            </span>
+            <span className={`text-[14px] font-medium ${featured ? 'text-white' : 'text-ink-900'}`}>{b}</span>
+          </li>
+        ))}
       </ul>
       <a
         href="/register"
@@ -543,9 +812,9 @@ function PricingCard({
 
 function SocialProofSection() {
   return (
-    <section id="usuários" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
+    <section id="usuarios" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ usuários" title="Junte-se a milhares de usuários do VitrineTurbo" />
+        <SectionHeading kicker="/ usuarios" title="Junte-se a milhares de usuarios do VitrineTurbo" />
         <Suspense fallback={<div className="mt-14 h-32 rounded-2xl border hairline bg-surface animate-pulse" />}>
           <LandingSocialProof />
         </Suspense>
@@ -555,14 +824,61 @@ function SocialProofSection() {
 }
 
 function PricingSection() {
+  const baseBenefits = [
+    'Produtos ilimitados',
+    'Categorias e tags ilimitadas',
+    'Catalogo Digital via Link',
+    'Painel Administrativo completo',
+    'Carrinho de compras',
+    'Integracao com Meta Pixel e Google Tag',
+    'Programa de Indicacao',
+  ];
+
+  const semestralBenefits = [
+    ...baseBenefits,
+    'Gestao de Pedidos',
+    'Sistema de Cupons',
+    'Controle de Estoque',
+    'Personalizacao de cores e fontes',
+  ];
+
+  const anualBenefits = [
+    ...semestralBenefits,
+  ];
+
+  const anualExclusives = [
+    'API REST de Integracao',
+    'Dominio proprio com SSL',
+  ];
+
   return (
     <section id="precos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ planos" title="Escolha o plano ideal pra você" />
+        <SectionHeading kicker="/ planos" title="Escolha o plano ideal pra voce" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-14">
-          <PricingCard tag="Flexível" name="Trimestral" price="R$ 149,00" period="pagamento único" />
-          <PricingCard tag="Mais escolhido" name="Semestral" price="R$ 229,00" period="pagamento único" featured />
-          <PricingCard tag="Melhor valor" name="Anual" price="R$ 336,00" period="pagamento único" />
+          <PricingCard
+            tag="Flexivel"
+            name="Trimestral"
+            price="R$ 149,00"
+            period="pagamento unico"
+            benefits={baseBenefits}
+          />
+          <PricingCard
+            tag="Mais escolhido"
+            name="Semestral"
+            price="R$ 229,00"
+            period="pagamento unico"
+            featured
+            benefits={semestralBenefits}
+          />
+          <PricingCard
+            tag="Melhor valor"
+            name="Anual"
+            price="R$ 336,00"
+            period="pagamento unico"
+            benefits={anualBenefits}
+            exclusives={anualExclusives}
+          />
         </div>
       </div>
     </section>
@@ -572,30 +888,46 @@ function PricingSection() {
 function FaqSection() {
   const items = [
     {
-      q: 'Preciso de cartão de crédito para começar?',
-      a: 'Não. Você pode criar sua vitrine e explorar a plataforma sem nenhum compromisso inicial.',
+      q: 'Preciso de cartao de credito para comecar?',
+      a: 'Nao. Voce pode criar sua vitrine e explorar a plataforma sem nenhum compromisso inicial.',
     },
     {
       q: 'Existe taxa sobre as vendas?',
-      a: 'Não cobramos nenhuma comissão sobre suas vendas. Você paga apenas o plano escolhido.',
+      a: 'Nao cobramos nenhuma comissao sobre suas vendas. Voce paga apenas o plano escolhido.',
     },
     {
       q: 'Funciona para qualquer nicho?',
-      a: 'Sim. Moda, calçados, cosméticos, alimentos, serviços, decoração... A plataforma é flexível e se adapta ao seu negócio.',
+      a: 'Sim. Moda, calcados, cosmeticos, alimentos, servicos, decoracao... A plataforma e flexivel e se adapta ao seu negocio.',
+    },
+    {
+      q: 'Como funciona o controle de estoque?',
+      a: 'O sistema rastreia automaticamente a quantidade de cada produto. Voce recebe alertas quando o estoque esta baixo, pode bloquear vendas de itens esgotados e o sistema reserva produtos no carrinho por 15 minutos para evitar vendas duplicadas.',
+    },
+    {
+      q: 'Posso usar meu proprio dominio?',
+      a: 'Sim. No plano Anual, voce pode conectar seu dominio personalizado (ex: www.sualoja.com.br) com SSL gratuito. Basta apontar o DNS e o sistema verifica automaticamente.',
+    },
+    {
+      q: 'A API funciona com Bling, Tiny e outros ERPs?',
+      a: 'Sim. A API REST permite integracao com qualquer sistema que suporte requisicoes HTTP. Voce pode sincronizar produtos, estoque, pedidos e cupons com ERPs como Bling, Tiny e outros.',
+    },
+    {
+      q: 'Posso criar cupons de desconto?',
+      a: 'Sim. Voce pode criar cupons com desconto percentual ou valor fixo, definir limite de uso, data de expiracao e valor minimo de compra. Ideal para campanhas promocionais e fidelizacao.',
     },
     {
       q: 'Como funciona o Indique e Ganhe?',
-      a: 'Cada usuário recebe um link de indicação. Quando alguém assina por meio dele, você ganha comissão e crédito direto na conta.',
+      a: 'Cada usuario recebe um link de indicacao. Quando alguem assina por meio dele, voce ganha comissao e credito direto na conta.',
     },
     {
       q: 'Posso cancelar a qualquer momento?',
-      a: 'Sim. O cancelamento é imediato e sem burocracia, diretamente no painel administrativo.',
+      a: 'Sim. O cancelamento e imediato e sem burocracia, diretamente no painel administrativo.',
     },
   ];
   return (
-    <section id="faq" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
+    <section id="faq" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       <div className="max-w-4xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ dúvidas" title="Perguntas frequentes." />
+        <SectionHeading kicker="/ duvidas" title="Perguntas frequentes." />
         <div className="mt-12 divide-y hairline border-t border-b hairline">
           {items.map((it) => (
             <details key={it.q} className="reveal group py-6">
@@ -621,11 +953,14 @@ function FinalCTA() {
     <section id="cta" className="py-24 lg:py-32 bg-white border-t hairline">
       <div className="max-w-5xl mx-auto px-6 lg:px-10 text-center">
         <h2 className="reveal font-display font-semibold text-[40px] sm:text-[56px] lg:text-[80px] leading-[1.04] tracking-[-0.035em] text-ink-900">
-          Pronto para acelerar suas vendas?
+          Tudo que voce precisa. Num unico lugar.
         </h2>
+        <p className="reveal text-ink-500 text-[16px] lg:text-[18px] mt-6 max-w-2xl mx-auto leading-[1.5]">
+          Estoque, pedidos, cupons, dominio proprio e API de integracao. Sem taxa sobre vendas.
+        </p>
         <div className="reveal mt-10">
-          <a href="#top" className="btn-primary rounded-full px-8 py-4 text-[15px] font-display font-medium inline-flex items-center gap-2">
-            Começar Agora
+          <a href="/register" className="btn-primary rounded-full px-8 py-4 text-[15px] font-display font-medium inline-flex items-center gap-2">
+            Comecar Agora
             <ArrowRight size={16} />
           </a>
         </div>
@@ -649,7 +984,7 @@ function FooterLanding() {
           />
         </div>
         <span className="font-mono-label uppercase text-[11px] text-ink-400">
-          © 2026 — Todos os direitos reservados.
+          &copy; 2026 — Todos os direitos reservados.
         </span>
       </div>
     </footer>
@@ -664,6 +999,8 @@ export default function LandingPage() {
       <Header />
       <Hero />
       <BentoGrid />
+      <ProFeaturesSection />
+      <DifferentiationSection />
       <AnalyticsSection />
       <SocialProofSection />
       <PricingSection />
