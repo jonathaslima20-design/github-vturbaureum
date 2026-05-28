@@ -118,17 +118,10 @@ export function MockupMyProducts({ config }: { config: MyProductsConfig }) {
 
 function GridProductCard({ product }: { product: MyProductItem }) {
   const isVisible = product.status === 'visible';
-  const stockLevel = product.stock_qty === 0 ? 'out' : product.stock_qty <= 3 ? 'low' : 'ok';
-  const stockBorderStyle = stockLevel === 'out'
-    ? { borderLeft: '3px solid #ef4444' }
-    : stockLevel === 'low'
-      ? { borderLeft: '3px solid #f59e0b' }
-      : {};
 
   return (
     <div
       className={`rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden ${!isVisible ? 'opacity-60' : ''}`}
-      style={stockBorderStyle}
     >
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-white">
