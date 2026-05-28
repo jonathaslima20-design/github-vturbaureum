@@ -91,6 +91,8 @@ export default function HeroPhoneCarousel() {
 
   const shadowStyle = getShadowStyle(config.mockup_shadow);
   const interval = config.slide_interval_ms;
+  const scale = config.mockup_scale ?? 1;
+  const sectionHeight = `clamp(${Math.round(540 * scale)}px, ${Math.round(104 * scale)}vw, ${Math.round(620 * scale)}px)`;
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -141,7 +143,7 @@ export default function HeroPhoneCarousel() {
 
   if (isLoading) {
     return (
-      <div className="relative mx-auto w-full overflow-hidden" style={{ height: 'clamp(540px, 104vw, 620px)' }}>
+      <div className="relative mx-auto w-full overflow-hidden" style={{ height: sectionHeight }}>
         <div className="flex items-center justify-center h-full">
           <div className="w-[170px] aspect-[393/852] rounded-[14%/6.4%] bg-gray-100 animate-pulse" />
         </div>
@@ -163,7 +165,7 @@ export default function HeroPhoneCarousel() {
     >
       <div
         className="relative flex items-center justify-center"
-        style={{ height: 'clamp(540px, 104vw, 620px)' }}
+        style={{ height: sectionHeight }}
       >
         {slides.map((slide, i) => {
           const total = slides.length;
