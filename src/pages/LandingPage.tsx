@@ -980,7 +980,7 @@ function FooterLanding() {
             <img
               src="/logos/vitrinelogo-black.png"
               alt="VitrineTurbo"
-              className="h-10 w-auto"
+              className="h-10 w-auto max-w-[160px] object-contain object-left"
               onError={(e) => {
                 e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
               }}
@@ -1002,7 +1002,15 @@ function FooterLanding() {
           <div className="flex flex-col gap-3">
             <p className="font-mono-label uppercase text-[10px] tracking-wider text-ink-400 mb-1">Suporte</p>
             <Link to="/ajuda" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Central de ajuda</Link>
-            <a href="mailto:contato@vitrine.app" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">contato@vitrine.app</a>
+            <a
+              href="https://wa.me/5591982465495?text=Olá!%20Preciso%20de%20ajuda%20com%20o%20VitrineTurbo."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors"
+            >
+              WhatsApp
+            </a>
+            <a href="mailto:contato@vitrineturbo.com" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">contato@vitrineturbo.com</a>
           </div>
 
           {/* Legal */}
