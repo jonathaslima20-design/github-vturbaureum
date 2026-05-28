@@ -95,7 +95,7 @@ export function PhoneMockup({
           >
             {/* Scrollable content */}
             <div
-              className="absolute inset-0 overflow-y-auto overflow-x-hidden mockup-scrollbar"
+              className="absolute inset-0 overflow-y-auto overflow-x-hidden mockup-scrollbar flex flex-col"
               style={{
                 fontFamily: `'${appearance.font_family}', sans-serif`,
                 color: appearance.text_color,
@@ -244,8 +244,8 @@ export function PhoneMockup({
 
               {/* Product Grid */}
               <div
-                className="px-3 grid grid-cols-2"
-                style={{ gap: cardGap, marginBottom: sectionGap }}
+                className="px-3 grid grid-cols-2 flex-1 content-start"
+                style={{ gap: cardGap, paddingBottom: sectionGap }}
               >
                 {(products.length > 0 ? products.slice(0, 4) : PLACEHOLDER_PRODUCTS).map((product) => (
                   <ProductMockupCard
