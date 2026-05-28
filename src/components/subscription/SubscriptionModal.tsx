@@ -246,7 +246,7 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
           </div>
         )}
 
-        {(isUserOnFree || isExpired) && <BannerClients />}
+        {isUserOnFree && !isExpired && <BannerClients />}
 
         {isSuspended ? (
           <div className="mt-4 p-6 text-center bg-muted/30 rounded-lg border">
