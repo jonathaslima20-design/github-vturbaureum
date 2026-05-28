@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Cookie, ShieldCheck, ExternalLink, Copy, Check, RefreshCw, Loader as Loader2, Clock, Tag } from 'lucide-react';
+import { FileText, Cookie, ShieldCheck, ExternalLink, Copy, Check, RefreshCw, Loader as Loader2, Clock, Tag, Pencil } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
+import { LegalDocumentEditorDialog } from '@/components/admin/LegalDocumentEditorDialog';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -20,8 +21,6 @@ interface LegalDocument {
 }
 
 // ── Static document definitions ───────────────────────────────────────────────
-// These provide defaults when no DB record exists yet, so the page is
-// functional from day one even before content is saved in Supabase.
 
 interface DocDef {
   type: string;
@@ -86,9 +85,10 @@ interface DocumentCardProps {
   doc: LegalDocument | null;
   onCopy: (type: string, content: string) => void;
   copiedType: string | null;
+  onEdit: (type: string) => void;
 }
 
-function DocumentCard({ def, doc, onCopy, copiedType }: DocumentCardProps) {
+function DocumentCard({ def, doc, onCopy, copiedType, onEdit }: DocumentCardProps) {
   const version = doc?.version ?? def.defaultVersion;
   const updatedAt = doc?.updated_at ?? null;
   const isActive = doc?.is_active ?? false;
@@ -144,6 +144,15 @@ function DocumentCard({ def, doc, onCopy, copiedType }: DocumentCardProps) {
 
         {/* Actions */}
         <div className="flex flex-col gap-2 mt-auto">
+          <Button
+            size="sm"
+            className="w-full justify-start gap-2"
+            onClick={() => onEdit(def.type)}
+          >
+            <Pencil className="h-4 w-4" />
+            Editar conteúdo
+          </Button>
+
           <Button variant="outline" size="sm" className="w-full justify-start gap-2" asChild>
             <Link to={def.publicPath} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
@@ -183,6 +192,7 @@ export default function LegalCenterPage() {
   const [documents, setDocuments] = useState<LegalDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedType, setCopiedType] = useState<string | null>(null);
+  const [editingType, setEditingType] = useState<string | null>(null);
 
   async function loadDocuments() {
     setLoading(true);
@@ -212,6 +222,9 @@ export default function LegalCenterPage() {
       // clipboard not available — no-op
     }
   }
+
+  const editingDef = editingType ? DOC_DEFINITIONS.find((d) => d.type === editingType) ?? null : null;
+  const editingDoc = editingType ? getActiveDoc(editingType) : null;
 
   const totalActive = documents.filter((d) => d.is_active).length;
   const totalVersions = documents.length;
@@ -270,6 +283,7 @@ export default function LegalCenterPage() {
               doc={getActiveDoc(def.type)}
               onCopy={handleCopy}
               copiedType={copiedType}
+              onEdit={setEditingType}
             />
           ))}
         </div>
@@ -335,10 +349,21 @@ export default function LegalCenterPage() {
           <FileText className="h-8 w-8 mx-auto text-muted-foreground/50 mb-3" />
           <p className="text-sm font-medium text-foreground">Nenhum documento cadastrado</p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-            Os documentos legais ainda não foram registrados no banco de dados. As páginas públicas
-            continuam funcionando com o conteúdo estático atual.
+            Clique em "Editar conteúdo" em qualquer documento para criar o primeiro registro.
           </p>
         </div>
+      )}
+
+      {/* Editor dialog */}
+      {editingDef && (
+        <LegalDocumentEditorDialog
+          open={!!editingType}
+          documentType={editingDef.type}
+          documentTitle={editingDef.title}
+          currentDoc={editingDoc}
+          onClose={() => setEditingType(null)}
+          onSaved={loadDocuments}
+        />
       )}
     </div>
   );
