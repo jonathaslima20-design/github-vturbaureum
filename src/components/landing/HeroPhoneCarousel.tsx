@@ -39,7 +39,7 @@ function IPhone16ProMax({ children, shadow }: { children: React.ReactNode; shado
         }}
       >
         <div
-          className="relative w-full h-full overflow-hidden bg-white"
+          className="relative w-full h-full overflow-hidden bg-transparent"
           style={{ borderRadius: '9.5% / 4.4%' }}
         >
           {children}
