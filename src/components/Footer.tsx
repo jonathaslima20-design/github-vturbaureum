@@ -42,6 +42,17 @@ export default function Footer() {
             Crie sua Vitrine Digital
           </Link>
         </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground/70 mt-1">
+          <Link to="/politica-de-privacidade" className="hover:text-muted-foreground transition-colors">
+            Privacidade
+          </Link>
+          <Link to="/politica-de-cookies" className="hover:text-muted-foreground transition-colors">
+            Cookies
+          </Link>
+          <Link to="/termos-de-uso" className="hover:text-muted-foreground transition-colors">
+            Termos de Uso
+          </Link>
+        </div>
       </div>
     </footer>
   );

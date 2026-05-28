@@ -30,6 +30,9 @@ import ProductDetailsPage from '@/pages/ProductDetailsPage.tsx';
 import HelpCenterPage from '@/pages/HelpCenterPage.tsx';
 import HelpCategoryPage from '@/pages/HelpCategoryPage.tsx';
 import HelpArticlePage from '@/pages/HelpArticlePage.tsx';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage.tsx';
+import CookiesPolicyPage from '@/pages/CookiesPolicyPage.tsx';
+import TermsOfUsePage from '@/pages/TermsOfUsePage.tsx';
 
 // Dashboard Pages
 import DashboardPage from '@/pages/dashboard/DashboardPage.tsx';
@@ -184,6 +187,11 @@ function AppContent() {
           <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/help/category/:categorySlug" element={<HelpCategoryPage />} />
           <Route path="/help/category/:categorySlug/:articleSlug" element={<HelpArticlePage />} />
+
+          {/* Legal Pages */}
+          <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+          <Route path="/politica-de-cookies" element={<CookiesPolicyPage />} />
+          <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
         </Route>
 
         {/* Protected Dashboard Routes */}
