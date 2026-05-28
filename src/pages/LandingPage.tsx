@@ -971,21 +971,63 @@ function FinalCTA() {
 
 function FooterLanding() {
   return (
-    <footer className="border-t hairline bg-white py-10">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center">
-          <img
-            src="/logos/vitrinelogo-black.png"
-            alt="VitrineTurbo"
-            className="h-12 w-auto"
-            onError={(e) => {
-              e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
-            }}
-          />
+    <footer className="border-t hairline bg-white pt-14 pb-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        {/* Top grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+          {/* Brand */}
+          <div className="col-span-2 sm:col-span-1 flex flex-col gap-3">
+            <img
+              src="/logos/vitrinelogo-black.png"
+              alt="VitrineTurbo"
+              className="h-10 w-auto"
+              onError={(e) => {
+                e.currentTarget.src = 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/vitrinelogo-black.png.png';
+              }}
+            />
+            <p className="text-[13px] text-ink-400 leading-relaxed max-w-[200px]">
+              Crie sua vitrine online em minutos e venda mais.
+            </p>
+          </div>
+
+          {/* Links rápidos */}
+          <div className="flex flex-col gap-3">
+            <p className="font-mono-label uppercase text-[10px] tracking-wider text-ink-400 mb-1">Plataforma</p>
+            <Link to="/login" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Entrar</Link>
+            <Link to="/cadastro" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Criar conta</Link>
+            <a href="#pricing" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Planos e preços</a>
+          </div>
+
+          {/* Suporte */}
+          <div className="flex flex-col gap-3">
+            <p className="font-mono-label uppercase text-[10px] tracking-wider text-ink-400 mb-1">Suporte</p>
+            <Link to="/ajuda" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Central de ajuda</Link>
+            <a href="mailto:contato@vitrine.app" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">contato@vitrine.app</a>
+          </div>
+
+          {/* Legal */}
+          <div className="flex flex-col gap-3">
+            <p className="font-mono-label uppercase text-[10px] tracking-wider text-ink-400 mb-1">Legal</p>
+            <Link to="/termos-de-uso" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Termos de Uso</Link>
+            <Link to="/politica-de-privacidade" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Política de Privacidade</Link>
+            <Link to="/politica-de-cookies" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Política de Cookies</Link>
+            <Link to="/excluir-minha-conta" className="text-[13px] text-ink-600 hover:text-ink-900 transition-colors">Meus Dados (LGPD)</Link>
+          </div>
         </div>
-        <span className="font-mono-label uppercase text-[11px] text-ink-400">
-          &copy; 2026 — Todos os direitos reservados.
-        </span>
+
+        {/* Bottom bar */}
+        <div className="border-t hairline pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="font-mono-label uppercase text-[11px] text-ink-400">
+            &copy; {new Date().getFullYear()} VitrineTurbo — Todos os direitos reservados.
+          </span>
+          <div className="flex items-center gap-4">
+            <Link to="/politica-de-privacidade" className="text-[11px] text-ink-400 hover:text-ink-600 transition-colors">Privacidade</Link>
+            <span className="text-ink-200 text-[11px]">·</span>
+            <Link to="/termos-de-uso" className="text-[11px] text-ink-400 hover:text-ink-600 transition-colors">Termos</Link>
+            <span className="text-ink-200 text-[11px]">·</span>
+            <Link to="/politica-de-cookies" className="text-[11px] text-ink-400 hover:text-ink-600 transition-colors">Cookies</Link>
+          </div>
+        </div>
       </div>
     </footer>
   );
