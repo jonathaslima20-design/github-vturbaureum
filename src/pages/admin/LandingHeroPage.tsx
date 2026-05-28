@@ -368,7 +368,8 @@ function getDefaultConfig(screenType: string): Record<string, any> {
       };
     case 'product_detail':
       return {
-        product_image_url: '', product_title: 'Nome do Produto',
+        product_image_url: '', product_images: ['', '', '', ''],
+        product_title: 'Nome do Produto',
         product_description: 'Descricao do produto',
         price: 199.90, discount_price: null, discount_badge: '',
         color_options: ['#000000', '#ffffff'], size_options: ['P', 'M', 'G'],

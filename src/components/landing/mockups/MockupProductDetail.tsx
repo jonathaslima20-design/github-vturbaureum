@@ -1,5 +1,8 @@
+import { useState } from 'react';
+
 interface ProductDetailConfig {
   product_image_url?: string;
+  product_images?: string[];
   product_title?: string;
   product_description?: string;
   price?: number;
@@ -17,6 +20,21 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
   const buttonColor = config.button_color || '#0f172a';
   const hasDiscount = config.discount_price && config.discount_price < (config.price || 0);
 
+  const allImages: (string | null)[] = (() => {
+    const imgs: (string | null)[] = [null, null, null, null];
+    if (config.product_images && config.product_images.length > 0) {
+      config.product_images.slice(0, 4).forEach((url, i) => { imgs[i] = url || null; });
+    } else if (config.product_image_url) {
+      imgs[0] = config.product_image_url;
+    }
+    return imgs;
+  })();
+
+  const firstValidIndex = allImages.findIndex(img => !!img);
+  const [selectedIndex, setSelectedIndex] = useState(firstValidIndex >= 0 ? firstValidIndex : 0);
+
+  const mainImage = allImages[selectedIndex] || allImages.find(img => !!img) || null;
+
   return (
     <div className="w-full relative bg-white">
       <div style={{ width: 393 }}>
@@ -32,11 +50,11 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
 
         {/* Main content section */}
         <section className="px-4">
-          {/* Image Gallery - exact aspect-square rounded-lg */}
+          {/* Image Gallery */}
           <div className="mb-8">
             <div className="aspect-square overflow-hidden rounded-lg relative bg-gray-100">
-              {config.product_image_url ? (
-                <img src={config.product_image_url} alt="" className="w-full h-full object-cover" />
+              {mainImage ? (
+                <img src={mainImage} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                   <svg className="h-16 w-16 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -47,7 +65,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
                 </div>
               )}
 
-              {/* Discount badge - exact bg-green-600 */}
+              {/* Discount badge */}
               {config.discount_badge && (
                 <div className="absolute top-3 left-3">
                   <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-md font-bold">
@@ -57,25 +75,29 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
               )}
             </div>
 
-            {/* Thumbnail row - col-span-3 aspect-[4/3] rounded-lg border-2 */}
+            {/* Thumbnail row */}
             <div className="grid grid-cols-12 gap-4 mt-4">
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} className="col-span-3">
-                  <div className={`aspect-[4/3] overflow-hidden rounded-lg border-2 ${
-                    i === 0 ? 'border-gray-900 shadow-md' : 'border-transparent'
-                  }`}>
-                    {i === 0 && config.product_image_url ? (
-                      <img src={config.product_image_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100" />
-                    )}
+              {[0, 1, 2, 3].map(i => {
+                const thumbImg = allImages[i];
+                const isSelected = i === selectedIndex;
+                return (
+                  <div key={i} className="col-span-3" onClick={() => thumbImg && setSelectedIndex(i)} style={{ cursor: thumbImg ? 'pointer' : 'default' }}>
+                    <div className={`aspect-[4/3] overflow-hidden rounded-lg border-2 ${
+                      isSelected && thumbImg ? 'border-gray-900 shadow-md' : 'border-transparent'
+                    }`}>
+                      {thumbImg ? (
+                        <img src={thumbImg} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100" />
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* Badges row - exact flex gap-2 mb-3 */}
+          {/* Badges row */}
           <div className="flex gap-2 mb-3">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
               Categoria
@@ -87,12 +109,12 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
             )}
           </div>
 
-          {/* Title - exact text-2xl font-bold */}
+          {/* Title */}
           <h1 className="text-2xl font-bold text-gray-900">
             {config.product_title || 'Nome do Produto'}
           </h1>
 
-          {/* Price section - exact mt-6 mb-8 */}
+          {/* Price section */}
           <div className="mt-6 mb-8">
             {hasDiscount ? (
               <div className="space-y-2">
@@ -122,7 +144,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
             )}
           </div>
 
-          {/* Color selector - exact structure: space-y-3, flex flex-wrap gap-3 */}
+          {/* Color selector */}
           {config.color_options && config.color_options.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-gray-900">Cores Disponiveis</h3>
@@ -145,7 +167,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
             </div>
           )}
 
-          {/* Size selector - exact structure: w-12 h-12 rounded-full border-2 */}
+          {/* Size selector */}
           {config.size_options && config.size_options.length > 0 && (
             <div className="space-y-3 mt-6">
               <h3 className="text-lg font-semibold text-gray-900">Tamanhos Disponiveis</h3>
@@ -164,7 +186,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
             </div>
           )}
 
-          {/* Seller info - exact flex items-center gap-2 border-t */}
+          {/* Seller info */}
           {config.seller_name && (
             <div className="flex items-center gap-3 mt-6 pt-4 border-t border-gray-100">
               <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
@@ -183,7 +205,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
             </div>
           )}
 
-          {/* CTA Button - exact size="lg" w-full mt-8 */}
+          {/* CTA Button */}
           <div className="mt-8">
             <div
               className="w-full h-11 rounded-md flex items-center justify-center text-sm font-medium text-white"

@@ -141,7 +141,31 @@ export function HeroScreenEditor({ screen, isNew, onSave, onCancel }: Props) {
             <StorefrontEditor config={config} updateConfig={updateConfig} onImageUpload={handleImageUpload} onProductImageUpload={handleProductImageUpload} uploading={uploading} />
           )}
           {screenType === 'product_detail' && (
-            <ProductDetailEditor config={config} updateConfig={updateConfig} onImageUpload={handleImageUpload} uploading={uploading} />
+            <ProductDetailEditor
+              config={config}
+              updateConfig={updateConfig}
+              onImageUpload={handleImageUpload}
+              onGalleryImageUpload={async (index: number, file: File) => {
+                setUploading(`product_gallery_${index}`);
+                try {
+                  const screenId = screen.id || 'new';
+                  const { uploadHeroMockupImage: upload } = await import('@/lib/heroMockupUpload');
+                  const url = await upload(file, screenId);
+                  setConfig(prev => {
+                    const imgs = [...(prev.product_images || ['', '', '', ''])];
+                    while (imgs.length < 4) imgs.push('');
+                    imgs[index] = url;
+                    return { ...prev, product_images: imgs };
+                  });
+                  toast.success('Imagem enviada!');
+                } catch (err: any) {
+                  toast.error(err.message || 'Erro no upload');
+                } finally {
+                  setUploading(null);
+                }
+              }}
+              uploading={uploading}
+            />
           )}
           {screenType === 'dashboard' && (
             <DashboardEditor config={config} updateConfig={updateConfig} />
@@ -571,16 +595,72 @@ function ProductItemEditor({ index, product, onUpdate, onRemove, onImageUpload, 
   );
 }
 
-function ProductDetailEditor({ config, updateConfig, onImageUpload, uploading }: any) {
+function ProductGalleryImageField({ index, value, uploading, onUpload }: { index: number; value: string; uploading: string | null; onUpload: (file: File) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isUploading = uploading === `product_gallery_${index}`;
+
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs text-muted-foreground">Foto {index + 1}</Label>
+      <div
+        className="relative aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer overflow-hidden hover:border-gray-400 transition-colors"
+        onClick={() => inputRef.current?.click()}
+      >
+        {value ? (
+          <>
+            <img src={value} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Upload className="w-5 h-5 text-white" />
+            </div>
+          </>
+        ) : isUploading ? (
+          <span className="text-xs text-gray-400">Enviando...</span>
+        ) : (
+          <>
+            <Upload className="w-4 h-4 text-gray-400" />
+            <span className="text-[10px] text-gray-400">Upload</span>
+          </>
+        )}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); e.target.value = ''; }}
+      />
+    </div>
+  );
+}
+
+function ProductDetailEditor({ config, updateConfig, onImageUpload, onGalleryImageUpload, uploading }: any) {
   const colors = config.color_options || [];
   const sizes = config.size_options || [];
+  const productImages: string[] = (() => {
+    const imgs = [...(config.product_images || [])];
+    while (imgs.length < 4) imgs.push('');
+    return imgs.slice(0, 4);
+  })();
 
   return (
     <>
       <Card>
         <CardHeader><CardTitle className="text-base">Produto</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <ImageUploadField label="Imagem do Produto" value={config.product_image_url} field="product_image_url" onUpload={onImageUpload} uploading={uploading} />
+          <div className="space-y-2">
+            <Label>Fotos do Produto (até 4)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[0, 1, 2, 3].map(i => (
+                <ProductGalleryImageField
+                  key={i}
+                  index={i}
+                  value={productImages[i]}
+                  uploading={uploading}
+                  onUpload={(file) => onGalleryImageUpload(i, file)}
+                />
+              ))}
+            </div>
+          </div>
           <div className="space-y-1.5">
             <Label>Titulo</Label>
             <Input value={config.product_title || ''} onChange={(e) => updateConfig('product_title', e.target.value)} />
