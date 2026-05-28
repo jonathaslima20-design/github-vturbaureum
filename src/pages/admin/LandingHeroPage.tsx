@@ -328,6 +328,7 @@ function getDefaultConfig(screenType: string): Record<string, any> {
         button_bg_color: '#0f172a', button_text_color: '#f8fafc',
         icon_color: '#0a0a0a', border_color: '#e4e4e7',
         font_family: 'Inter', heading_font_family: 'Inter Tight', font_size_base: 'md',
+        promotional_banner_url: '',
         category_name: 'Destaques',
         products: [
           { title: 'Produto 1', image_url: '', price: 99.90, discount_price: null },

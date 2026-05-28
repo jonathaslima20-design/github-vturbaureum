@@ -504,6 +504,20 @@ function StorefrontEditor({ config, updateConfig, onImageUpload, onProductImageU
         </CardContent>
       </Card>
 
+      {/* Promotional Banner */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Banner Promocional</CardTitle></CardHeader>
+        <CardContent>
+          <ImageUploadField
+            label="Banner (entre botoes sociais e produtos)"
+            value={config.promotional_banner_url}
+            field="promotional_banner_url"
+            onUpload={onImageUpload}
+            uploading={uploading}
+          />
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Produtos ({products.length}/4)</CardTitle>

@@ -24,6 +24,7 @@ interface StorefrontConfig {
   font_family?: string;
   heading_font_family?: string;
   font_size_base?: 'sm' | 'md' | 'lg';
+  promotional_banner_url?: string;
   category_name?: string;
   products?: StorefrontProduct[];
 }
@@ -111,6 +112,17 @@ export function MockupStorefront({ config }: { config: StorefrontConfig }) {
             </div>
           </div>
         </div>
+
+        {/* Promotional Banner */}
+        {config.promotional_banner_url && (
+          <div className="px-4 mb-3 mt-1">
+            <img
+              src={config.promotional_banner_url}
+              alt="Banner"
+              className="w-full h-auto object-contain rounded-xl"
+            />
+          </div>
+        )}
 
         {/* Category title + Product Grid */}
         <div className="px-4 mt-2">
