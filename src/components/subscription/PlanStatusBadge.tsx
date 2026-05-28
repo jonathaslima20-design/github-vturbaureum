@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Crown, CircleAlert as AlertCircle, Ban, Sparkles } from 'lucide-react';
+import { Crown, CircleAlert as AlertCircle, Ban, Sparkles, Clock } from 'lucide-react';
 import type { PlanStatus } from '@/types';
 
 interface PlanStatusBadgeProps {
@@ -23,6 +23,13 @@ export default function PlanStatusBadge({ status, className }: PlanStatusBadgePr
           Plano Free
         </Badge>
       );
+    case 'expired':
+      return (
+        <Badge variant="outline" className={`border-amber-300 bg-amber-50 text-amber-800 ${className || ''}`}>
+          <Clock className="h-3 w-3 mr-1" />
+          Plano Expirado
+        </Badge>
+      );
     case 'suspended':
       return (
         <Badge variant="destructive" className={className}>
@@ -34,7 +41,7 @@ export default function PlanStatusBadge({ status, className }: PlanStatusBadgePr
       return (
         <Badge variant="outline" className={className}>
           <AlertCircle className="h-3 w-3 mr-1" />
-          Plano Inativo
+          Sem Plano
         </Badge>
       );
   }

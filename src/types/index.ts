@@ -1,8 +1,8 @@
 export type UserRole = 'corretor' | 'admin' | 'parceiro';
 export type NicheType = 'diversos';
-export type PlanStatus = 'active' | 'inactive' | 'suspended' | 'free';
+export type PlanStatus = 'active' | 'expired' | 'suspended' | 'free';
 
-export type BillingCycle = 'monthly' | 'semiannually' | 'annually';
+export type BillingCycle = 'monthly' | 'quarterly' | 'semiannually' | 'annually';
 
 export type CustomDomainStatus = 'pending_dns' | 'dns_verified' | 'active' | 'error';
 
@@ -189,7 +189,7 @@ export interface StorefrontSettings {
 export type SubscriptionStatus = 'active' | 'pending' | 'cancelled' | 'suspended';
 export type PaymentStatus = 'paid' | 'pending' | 'overdue';
 export type PaymentMethodStatus = 'completed' | 'pending' | 'failed' | 'refunded';
-export type BillingCycle = 'monthly' | 'semiannually' | 'annually';
+export type BillingCycle = 'monthly' | 'quarterly' | 'semiannually' | 'annually';
 
 export interface Subscription {
   id: string;

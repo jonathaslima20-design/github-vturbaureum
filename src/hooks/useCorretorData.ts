@@ -80,11 +80,12 @@ export function useCorretorData({ slug }: UseCorretorDataProps): UseCorretorData
             location_url,
             theme,
             currency,
-            language
+            language,
+            plan_status,
+            billing_cycle
           `)
           .eq('slug', slug)
           .eq('role', 'corretor')
-          .eq('is_blocked', false)
           .maybeSingle(),
         loadTrackingSettings(slug) // We'll get the user ID from the first query
       ]);
@@ -147,20 +148,19 @@ export function useCorretorData({ slug }: UseCorretorDataProps): UseCorretorData
         // Don't fail the page load for global pixel errors
       }
 
-      // Handle tracking settings result (non-blocking)
-      if (trackingResult.status === 'fulfilled') {
+      // Handle tracking settings result (non-blocking) - only for paid plans
+      if (trackingResult.status === 'fulfilled' && corretorData.plan_status === 'active') {
         const trackingSettings = trackingResult.value;
-        
+
         if (trackingSettings?.meta_pixel_id) {
           injectMetaPixel(trackingSettings.meta_pixel_id);
         }
-        
+
         if (trackingSettings?.ga_measurement_id) {
           injectGoogleAnalytics(trackingSettings.ga_measurement_id);
         }
-      } else {
+      } else if (trackingResult.status === 'rejected') {
         console.warn('Error loading tracking settings:', trackingResult.reason);
-        // Don't fail the entire page load for tracking errors
       }
 
     } catch (err: any) {

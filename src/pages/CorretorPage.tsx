@@ -66,7 +66,19 @@ export default function CorretorPage({ customDomainSlug }: CorretorPageProps = {
   // Load corretor data
   const { corretor, loading: corretorLoading, error: corretorError } = useCorretorData({ slug });
 
-  const isPaidPlan = corretor?.plan_status !== 'free';
+  const isPaidPlan = corretor?.plan_status === 'active';
+  const hideFooterBranding = isPaidPlan && corretor?.billing_cycle === 'annually';
+
+  useEffect(() => {
+    if (hideFooterBranding) {
+      document.documentElement.setAttribute('data-hide-branding', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-hide-branding');
+    }
+    return () => {
+      document.documentElement.removeAttribute('data-hide-branding');
+    };
+  }, [hideFooterBranding]);
 
   const language: SupportedLanguage = corretor?.language || 'pt-BR';
   const currency: SupportedCurrency = corretor?.currency || 'BRL';
@@ -403,6 +415,25 @@ export default function CorretorPage({ customDomainSlug }: CorretorPageProps = {
         </p>
         <Button asChild>
           <a href="/">{t('messages.back_to_home')}</a>
+        </Button>
+      </div>
+    );
+  }
+
+  if (corretor.is_blocked || corretor.plan_status === 'expired' || corretor.plan_status === 'suspended') {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-screen gap-6 px-4">
+        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+          <AlertCircle className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold mb-2">Catálogo Indisponível</h1>
+          <p className="text-muted-foreground">
+            Este catálogo está temporariamente indisponível. O responsável foi notificado.
+          </p>
+        </div>
+        <Button variant="outline" asChild>
+          <a href="/">Voltar ao Início</a>
         </Button>
       </div>
     );

@@ -8,6 +8,8 @@ const corsHeaders = {
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+const GRACE_PERIOD_DAYS = 2;
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -25,22 +27,27 @@ Deno.serve(async (req: Request) => {
     );
     const todayStr = now.toISOString().split("T")[0];
     const futureStr = sevenDaysFromNow.toISOString().split("T")[0];
+    const graceCutoff = new Date(
+      now.getTime() - GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000
+    );
+    const graceCutoffStr = graceCutoff.toISOString().split("T")[0];
 
-    // Find users with subscriptions expiring in the next 7 days
+    let notificationsCreated = 0;
+    let notificationsSkipped = 0;
+    let usersBlocked = 0;
+
+    // 1. Notify users with subscriptions expiring in the next 7 days
     const { data: expiringUsers, error: queryError } = await supabase
       .from("users")
       .select("id, name, subscription_end_date, plan_status")
-      .in("plan_status", ["active"])
+      .eq("plan_status", "active")
+      .not("subscription_end_date", "is", null)
       .gte("subscription_end_date", todayStr)
       .lte("subscription_end_date", futureStr);
 
     if (queryError) throw queryError;
 
-    let created = 0;
-    let skipped = 0;
-
     for (const user of expiringUsers || []) {
-      // Check if we already sent an expiry notification for this period
       const { data: existing } = await supabase
         .from("notifications")
         .select("id")
@@ -53,7 +60,7 @@ Deno.serve(async (req: Request) => {
         .limit(1);
 
       if (existing && existing.length > 0) {
-        skipped++;
+        notificationsSkipped++;
         continue;
       }
 
@@ -62,76 +69,112 @@ Deno.serve(async (req: Request) => {
         (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      const { error: insertError } = await supabase
-        .from("notifications")
-        .insert({
-          user_id: user.id,
-          type: "subscription_expiring",
-          title: "Assinatura expirando",
-          message:
-            daysLeft <= 1
-              ? "Sua assinatura expira hoje! Renove para manter sua vitrine ativa."
-              : `Sua assinatura expira em ${daysLeft} dias. Renove para manter sua vitrine ativa.`,
-          related_entity_type: "subscription",
-        });
+      await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: "subscription_expiring",
+        title: "Assinatura expirando",
+        message:
+          daysLeft <= 1
+            ? "Sua assinatura expira hoje! Renove para manter sua vitrine ativa."
+            : `Sua assinatura expira em ${daysLeft} dias. Renove para manter sua vitrine ativa.`,
+        related_entity_type: "subscription",
+      });
 
-      if (insertError) {
-        console.error(
-          `Failed to notify user ${user.id}:`,
-          insertError.message
-        );
-      } else {
-        created++;
-      }
+      notificationsCreated++;
     }
 
-    // Also check for already expired subscriptions
-    const { data: expiredUsers, error: expiredError } = await supabase
+    // 2. Notify users whose subscription just expired (within grace period)
+    const { data: recentlyExpiredUsers } = await supabase
       .from("users")
       .select("id, name, subscription_end_date, plan_status")
-      .in("plan_status", ["active"])
-      .lt("subscription_end_date", todayStr);
+      .eq("plan_status", "active")
+      .not("subscription_end_date", "is", null)
+      .lt("subscription_end_date", todayStr)
+      .gte("subscription_end_date", graceCutoffStr);
 
-    if (!expiredError) {
-      for (const user of expiredUsers || []) {
-        const { data: existing } = await supabase
-          .from("notifications")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("type", "subscription_expired")
-          .gte(
-            "created_at",
-            new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
-          )
-          .limit(1);
+    for (const user of recentlyExpiredUsers || []) {
+      const { data: existing } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("type", "subscription_expired")
+        .gte(
+          "created_at",
+          new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString()
+        )
+        .limit(1);
 
-        if (existing && existing.length > 0) {
-          skipped++;
-          continue;
-        }
-
-        const { error: insertError } = await supabase
-          .from("notifications")
-          .insert({
-            user_id: user.id,
-            type: "subscription_expired",
-            title: "Assinatura expirada",
-            message:
-              "Sua assinatura expirou. Renove agora para continuar usando todos os recursos.",
-            related_entity_type: "subscription",
-          });
-
-        if (!insertError) created++;
+      if (existing && existing.length > 0) {
+        notificationsSkipped++;
+        continue;
       }
+
+      const endDate = new Date(user.subscription_end_date);
+      const daysOverdue = Math.ceil(
+        (now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const daysRemaining = GRACE_PERIOD_DAYS - daysOverdue;
+
+      await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: "subscription_expired",
+        title: "Assinatura vencida",
+        message:
+          daysRemaining > 0
+            ? `Sua assinatura venceu. Voce tem mais ${daysRemaining} dia(s) para renovar antes do bloqueio automatico.`
+            : "Sua assinatura venceu. Renove agora para evitar o bloqueio da sua vitrine.",
+        related_entity_type: "subscription",
+      });
+
+      notificationsCreated++;
+    }
+
+    // 3. Auto-block users whose subscription expired beyond the grace period
+    const { data: usersToBlock } = await supabase
+      .from("users")
+      .select("id, name, subscription_end_date")
+      .eq("plan_status", "active")
+      .not("subscription_end_date", "is", null)
+      .lt("subscription_end_date", graceCutoffStr);
+
+    for (const user of usersToBlock || []) {
+      await supabase
+        .from("users")
+        .update({ plan_status: "expired" })
+        .eq("id", user.id);
+
+      await supabase
+        .from("subscriptions")
+        .update({
+          status: "cancelled",
+          payment_status: "overdue",
+          updated_at: now.toISOString(),
+        })
+        .eq("user_id", user.id)
+        .eq("status", "active");
+
+      await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: "subscription_expired",
+        title: "Vitrine bloqueada",
+        message:
+          "Sua vitrine foi bloqueada por falta de pagamento. Renove seu plano para reativar o acesso completo.",
+        related_entity_type: "subscription",
+      });
+
+      usersBlocked++;
+      notificationsCreated++;
     }
 
     return new Response(
       JSON.stringify({
         success: true,
+        grace_period_days: GRACE_PERIOD_DAYS,
         expiring_users_found: expiringUsers?.length || 0,
-        expired_users_found: expiredUsers?.length || 0,
-        notifications_created: created,
-        notifications_skipped: skipped,
+        recently_expired_in_grace: recentlyExpiredUsers?.length || 0,
+        users_blocked: usersBlocked,
+        notifications_created: notificationsCreated,
+        notifications_skipped: notificationsSkipped,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

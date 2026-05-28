@@ -99,7 +99,7 @@ export default function UsersManagementPage() {
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'active'),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'free'),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'suspended'),
-        supabase.from('users').select('id', { count: 'exact', head: true }).or('plan_status.is.null,plan_status.eq.inactive'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).or('plan_status.is.null,plan_status.eq.expired'),
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo),
       ]);
@@ -141,7 +141,7 @@ export default function UsersManagementPage() {
       }
       if (planFilter !== 'all') {
         if (planFilter === 'no-plan') {
-          query = query.or('plan_status.is.null,plan_status.eq.inactive');
+          query = query.or('plan_status.is.null,plan_status.eq.expired');
         } else {
           query = query.eq('plan_status', planFilter);
         }

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { User, Mail, Building2, Phone, Calendar, CreditCard, Link2, Loader, Camera } from 'lucide-react';
+import { User, Mail, Building2, Phone, Calendar, CreditCard, Link2, Loader, Camera, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function AccountPage() {
   const { user, updateUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
@@ -74,7 +76,7 @@ export default function AccountPage() {
     switch (status) {
       case 'active': return 'Ativo';
       case 'free': return 'Gratuito';
-      case 'inactive': return 'Inativo';
+      case 'expired': return 'Expirado';
       case 'suspended': return 'Suspenso';
       default: return 'Gratuito';
     }
@@ -83,6 +85,7 @@ export default function AccountPage() {
   const getBillingLabel = (cycle?: string) => {
     switch (cycle) {
       case 'monthly': return 'Mensal';
+      case 'quarterly': return 'Trimestral';
       case 'semiannually': return 'Semestral';
       case 'annually': return 'Anual';
       default: return '-';
@@ -262,6 +265,56 @@ export default function AccountPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Subscription Status & Renewal */}
+      {user?.plan_status === 'expired' && (
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-amber-900">Plano Expirado</h3>
+                <p className="text-sm text-amber-800 mt-1">
+                  Seu plano venceu e sua vitrine está inativa. Renove agora para recuperar o acesso completo e reativar sua vitrine para seus clientes.
+                </p>
+                {user.subscription_end_date && (
+                  <p className="text-xs text-amber-700 mt-2">
+                    Venceu em: {formatDate(user.subscription_end_date)}
+                  </p>
+                )}
+                <Button
+                  className="mt-4"
+                  onClick={() => navigate('/dashboard/checkout')}
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Renovar Plano
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {user?.plan_status === 'active' && user?.subscription_end_date && (
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-base font-semibold mb-3">Assinatura</h3>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Próxima renovação</p>
+                <p className="text-sm font-medium">{formatDate(user.subscription_end_date)}</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/checkout')}
+              >
+                Renovar Antecipado
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

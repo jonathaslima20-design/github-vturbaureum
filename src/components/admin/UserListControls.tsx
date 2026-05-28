@@ -198,7 +198,7 @@ export function UserListControls({
                       <SelectItem value="all">Todos os status</SelectItem>
                       <SelectItem value="active">Plano Ativo</SelectItem>
                       <SelectItem value="free">Plano Free</SelectItem>
-                      <SelectItem value="inactive">Plano Inativo</SelectItem>
+                      <SelectItem value="expired">Plano Expirado</SelectItem>
                       <SelectItem value="suspended">Plano Suspenso</SelectItem>
                       <SelectItem value="no-plan">Sem Plano</SelectItem>
                     </SelectContent>

@@ -29,7 +29,7 @@ export function AppearanceSettings() {
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const isFreePlan = user?.plan_status === 'free';
+  const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
 
   useEffect(() => {
     if (!loading) {

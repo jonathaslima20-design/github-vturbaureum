@@ -14,6 +14,8 @@ export default function SubscriptionBlocker() {
     const isParceiro = user.role === 'parceiro';
     const hasActivePlan = user.plan_status === 'active';
     const isFreePlan = user.plan_status === 'free';
+    const isExpired = user.plan_status === 'expired';
+    const isSuspended = user.plan_status === 'suspended';
     const isCorretor = user.role === 'corretor';
 
     if (isAdmin || isParceiro || !isCorretor || isFreePlan) {
@@ -24,7 +26,17 @@ export default function SubscriptionBlocker() {
       return;
     }
 
-    if (!hasActivePlan && !isOpen) {
+    if (isSuspended && !isOpen) {
+      openModal(true);
+      setForced(true);
+    }
+
+    if (isExpired && !isOpen) {
+      openModal(true);
+      setForced(false);
+    }
+
+    if (!hasActivePlan && !isExpired && !isSuspended && !isOpen) {
       openModal(true);
       setForced(true);
     }
@@ -41,6 +53,7 @@ export default function SubscriptionBlocker() {
       onOpenChange={(open) => { if (!open) closeModal(); }}
       isForced={isForced}
       limitReason={limitReason}
+      planStatus={user?.plan_status}
     />
   );
 }

@@ -4,26 +4,32 @@ import Logo from '@/components/Logo';
 
 export default function Footer() {
   const [bgColor, setBgColor] = useState<string | undefined>(undefined);
+  const [hideBranding, setHideBranding] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
 
-    const readBgColor = () => {
+    const readState = () => {
       if (root.classList.contains('sf-themed')) {
         const sfBg = getComputedStyle(root).getPropertyValue('--sf-bg').trim();
         setBgColor(sfBg || undefined);
       } else {
         setBgColor(undefined);
       }
+      setHideBranding(root.hasAttribute('data-hide-branding'));
     };
 
-    readBgColor();
+    readState();
 
-    const observer = new MutationObserver(readBgColor);
-    observer.observe(root, { attributes: true, attributeFilter: ['class', 'style'] });
+    const observer = new MutationObserver(readState);
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'style', 'data-hide-branding'] });
 
     return () => observer.disconnect();
   }, []);
+
+  if (hideBranding) {
+    return null;
+  }
 
   return (
     <footer className="mt-auto py-6 border-t border-border/50">

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Info, Loader2 } from 'lucide-react';
+import { Info, Loader as Loader2, Lock } from 'lucide-react';
 
 import {
   Card,
@@ -184,10 +184,38 @@ export default function TrackingSettingsContent() {
     }
   };
 
+  const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isFreePlan) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Lock className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Funcionalidade Premium</h3>
+            <p className="text-muted-foreground max-w-md mb-4">
+              A configuração de Meta Pixel e Google Analytics está disponível apenas para planos pagos. Faça upgrade para rastrear suas campanhas e otimizar suas vendas.
+            </p>
+            <Button
+              onClick={() => {
+                const event = new CustomEvent('open-subscription-modal');
+                window.dispatchEvent(event);
+              }}
+            >
+              Fazer Upgrade
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

@@ -25,6 +25,7 @@ export function usePlanLimits(): PlanLimits {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const isFreePlan = user?.plan_status === 'free';
+  const isExpired = user?.plan_status === 'expired';
   const isActivePlan = user?.plan_status === 'active';
   const isAdminOrParceiro = user?.role === 'admin' || user?.role === 'parceiro';
 
@@ -83,6 +84,20 @@ export function usePlanLimits(): PlanLimits {
       canAddProduct: true,
       canAddCategory: true,
       loading: false,
+      refresh,
+    };
+  }
+
+  if (isExpired) {
+    return {
+      productCount,
+      categoryCount,
+      productLimit: 0,
+      categoryLimit: 0,
+      isFreePlan: false,
+      canAddProduct: false,
+      canAddCategory: false,
+      loading,
       refresh,
     };
   }

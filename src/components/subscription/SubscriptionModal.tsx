@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, CreditCard, Crown, Zap, Star, LogOut, Package, FolderOpen, CircleArrowUp as ArrowUpCircle, Lock } from 'lucide-react';
+import { Check, CreditCard, Crown, Zap, Star, LogOut, Package, FolderOpen, CircleArrowUp as ArrowUpCircle, Lock, TriangleAlert as AlertTriangle, Ban } from 'lucide-react';
 import BannerClients from '@/components/subscription/BannerClients';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { formatCurrencyI18n } from '@/lib/i18n';
 import { useAuth } from '@/contexts/AuthContext';
-import type { SubscriptionPlan, LimitReason } from '@/types';
+import type { SubscriptionPlan, LimitReason, PlanStatus } from '@/types';
 import { FREE_PLAN_PRODUCT_LIMIT, FREE_PLAN_CATEGORY_LIMIT } from '@/hooks/usePlanLimits';
 
 interface SubscriptionModalProps {
@@ -24,9 +24,10 @@ interface SubscriptionModalProps {
   onOpenChange: (open: boolean) => void;
   isForced?: boolean;
   limitReason?: LimitReason;
+  planStatus?: PlanStatus;
 }
 
-export default function SubscriptionModal({ open, onOpenChange, isForced = false, limitReason }: SubscriptionModalProps) {
+export default function SubscriptionModal({ open, onOpenChange, isForced = false, limitReason, planStatus }: SubscriptionModalProps) {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, signOut } = useAuth();
@@ -132,13 +133,20 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
   const isUserOnFree = user?.plan_status === 'free';
   const isUserActive = user?.plan_status === 'active';
 
+  const isExpired = planStatus === 'expired';
+  const isSuspended = planStatus === 'suspended';
+
   const getModalTitle = () => {
+    if (isSuspended) return 'Conta Suspensa';
+    if (isExpired) return 'Plano Expirado';
     if (isUserActive) return 'Gerenciar Plano';
     if (limitReason) return 'Faça Upgrade do seu Plano';
     return 'Escolha seu Plano';
   };
 
   const getModalDescription = () => {
+    if (isSuspended) return 'Sua conta foi suspensa pelo administrador. Entre em contato com o suporte para mais informações.';
+    if (isExpired) return 'Seu plano venceu. Renove agora para recuperar o acesso completo à sua vitrine e ao painel.';
     if (isUserActive) return 'Seu plano está ativo. Você tem acesso completo à plataforma VitrineTurbo.';
     if (limitReason) return 'Você atingiu um limite do plano Free. Escolha um plano pago para continuar crescendo.';
     if (isUserOnFree) return 'Você está no Plano Free. Faça upgrade para desbloquear recursos ilimitados.';
@@ -190,7 +198,36 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
           </Alert>
         )}
 
-        {isForced && !isUserActive && !isUserOnFree && (
+        {isSuspended && (
+          <Alert className="bg-red-50 border-red-200">
+            <div className="flex items-start gap-3">
+              <Ban className="h-5 w-5 text-red-600 mt-0.5" />
+              <AlertDescription className="text-red-800">
+                Sua conta foi suspensa. Você não pode realizar alterações. Entre em contato com o suporte para resolver esta situação.
+              </AlertDescription>
+            </div>
+          </Alert>
+        )}
+
+        {isExpired && (
+          <Alert className="bg-amber-50 border-amber-200">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+              <div>
+                <AlertDescription className="text-amber-800">
+                  Seu plano venceu por falta de pagamento. Sua vitrine está inativa. Renove abaixo para reativar imediatamente.
+                </AlertDescription>
+                {user?.billing_cycle === 'monthly' && (
+                  <AlertDescription className="text-amber-700 text-xs mt-2">
+                    O plano mensal não está mais disponível. Escolha uma das opções abaixo para renovar.
+                  </AlertDescription>
+                )}
+              </div>
+            </div>
+          </Alert>
+        )}
+
+        {isForced && !isUserActive && !isUserOnFree && !isExpired && !isSuspended && (
           <Alert className="bg-blue-50 border-blue-200">
             <AlertDescription className="text-blue-800">
               Para utilizar a plataforma, você precisa ativar um plano de assinatura.
@@ -209,9 +246,16 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
           </div>
         )}
 
-        {isUserOnFree && <BannerClients />}
+        {(isUserOnFree || isExpired) && <BannerClients />}
 
-        {loading ? (
+        {isSuspended ? (
+          <div className="mt-4 p-6 text-center bg-muted/30 rounded-lg border">
+            <Ban className="h-12 w-12 text-red-400 mx-auto mb-3" />
+            <p className="text-muted-foreground">
+              Sua conta está suspensa e você não pode selecionar ou renovar planos. Entre em contato com o suporte para resolver esta situação.
+            </p>
+          </div>
+        ) : loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
