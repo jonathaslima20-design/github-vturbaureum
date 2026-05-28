@@ -133,7 +133,7 @@ export function MockupStorefront({ config }: { config: StorefrontConfig }) {
             {config.category_name || 'Produtos'}
           </h2>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 pb-10">
             {products.slice(0, 4).map((product, i) => (
               <ProductCardReplica
                 key={i}
