@@ -117,23 +117,37 @@ export function MockupMyProducts({ config }: { config: MyProductsConfig }) {
 }
 
 function GridProductCard({ product }: { product: MyProductItem }) {
+  const isVisible = product.status === 'visible';
+  const stockLevel = product.stock_qty === 0 ? 'out' : product.stock_qty <= 3 ? 'low' : 'ok';
+  const stockBorderStyle = stockLevel === 'out'
+    ? { borderLeft: '3px solid #ef4444' }
+    : stockLevel === 'low'
+      ? { borderLeft: '3px solid #f59e0b' }
+      : {};
+
   return (
-    <div className={`rounded-lg border bg-white shadow-sm overflow-hidden transition-all ${
-      product.status === 'hidden' ? 'opacity-60' : ''
-    }`} style={{ borderLeftWidth: product.stock_qty <= 3 ? 3 : undefined, borderLeftColor: product.stock_qty === 0 ? '#ef4444' : product.stock_qty <= 3 ? '#f59e0b' : undefined }}>
-      {/* Image - exact aspect-square with inner container */}
-      <div className="relative aspect-square overflow-hidden p-1.5">
-        <div className="w-full h-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-          {product.image_url ? (
-            <img src={product.image_url} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
-          )}
+    <div
+      className={`rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden ${!isVisible ? 'opacity-60' : ''}`}
+      style={stockBorderStyle}
+    >
+      {/* Image */}
+      <div className="relative aspect-square overflow-hidden bg-white">
+        {product.image_url ? (
+          <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+            <span className="text-gray-400 text-[10px]">Sem imagem</span>
+          </div>
+        )}
+
+        {/* Checkbox top-left */}
+        <div className="absolute top-2 left-2 z-10">
+          <div className="h-4 w-4 rounded border-2 border-gray-300 bg-white/95" />
         </div>
 
         {/* Hidden overlay */}
-        {product.status === 'hidden' && (
-          <div className="absolute inset-1.5 rounded-lg bg-black/20 flex items-center justify-center">
+        {!isVisible && (
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
             <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
               <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
@@ -141,32 +155,79 @@ function GridProductCard({ product }: { product: MyProductItem }) {
             </svg>
           </div>
         )}
-
-        {/* Selection checkbox area */}
-        <div className="absolute top-3 left-3">
-          <div className="h-4 w-4 rounded border border-gray-300 bg-white" />
-        </div>
       </div>
 
-      {/* Info section */}
-      <div className="p-2 pt-1">
-        <h3 className="font-semibold text-xs leading-tight line-clamp-2 min-h-[28px] text-gray-900">
+      {/* Content */}
+      <div className="p-2.5 space-y-1.5">
+        {/* Title */}
+        <h3 className="font-semibold text-[11px] leading-tight line-clamp-2 text-gray-900">
           {product.title}
         </h3>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-sm font-bold text-gray-900">
-            R$ {product.price.toFixed(2).replace('.', ',')}
-          </span>
+
+        {/* Price */}
+        <div className="text-xs font-bold" style={{ color: '#0f172a' }}>
+          R$ {product.price.toFixed(2).replace('.', ',')}
         </div>
-        {/* Stats row */}
-        <div className="flex items-center gap-2 mt-1.5 text-[10px] text-gray-400">
-          <span className="flex items-center gap-0.5">
-            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
-            </svg>
-            {product.views_count}
+
+        {/* Analytics */}
+        {(product.views_count > 0 || product.stock_qty >= 0) && (
+          <div className="flex items-center gap-2.5 text-[10px] text-gray-400">
+            <span className="flex items-center gap-0.5">
+              {/* Eye icon */}
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+              </svg>
+              {product.views_count}
+            </span>
+            <span className="flex items-center gap-0.5">
+              {/* MessageCircle icon */}
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+              {product.stock_qty}
+            </span>
+          </div>
+        )}
+
+        {/* Footer: visibility badge + toggle */}
+        <div className="flex items-center justify-between pt-1.5 border-t border-gray-100">
+          <span className={`inline-flex items-center px-1.5 py-0 rounded-full text-[9px] font-medium ${
+            isVisible
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-gray-100 text-gray-500'
+          }`}>
+            {isVisible ? (
+              <>
+                <svg className="h-2.5 w-2.5 mr-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Visivel
+              </>
+            ) : (
+              <>
+                <svg className="h-2.5 w-2.5 mr-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                </svg>
+                Oculto
+              </>
+            )}
           </span>
-          <span>{product.stock_qty} un.</span>
+          {/* Toggle switch */}
+          <div
+            className="relative inline-flex items-center rounded-full transition-colors"
+            style={{
+              width: 28, height: 16,
+              backgroundColor: isVisible ? '#10b981' : '#d1d5db',
+            }}
+          >
+            <div
+              className="absolute rounded-full bg-white shadow-sm transition-transform"
+              style={{
+                width: 12, height: 12,
+                transform: isVisible ? 'translateX(14px)' : 'translateX(2px)',
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
