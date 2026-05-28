@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SessionManager from '@/components/auth/SessionManager';
 import FloatingWhatsAppButton from '@/components/FloatingWhatsAppButton';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
 
 // Layouts
 import PublicLayout from '@/components/layouts/PublicLayout';
@@ -256,6 +257,7 @@ export default function App() {
                   <AppContent />
                   <Toaster />
                   <FloatingWhatsAppButton />
+                  <CookieConsentBanner />
                 </CorretorPageStateProvider>
               </CartProvider>
             </SubscriptionModalProvider>
