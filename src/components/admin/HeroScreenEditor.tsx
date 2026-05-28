@@ -133,6 +133,15 @@ export function HeroScreenEditor({ screen, isNew, onSave, onCancel }: Props) {
                 <Label>Tipo de Tela</Label>
                 <Input value={screenType} disabled className="bg-gray-50" />
               </div>
+              <div className="space-y-1.5">
+                <Label>URL exibida no navegador</Label>
+                <Input
+                  value={config.custom_url || ''}
+                  onChange={(e) => updateConfig('custom_url', e.target.value)}
+                  placeholder="Ex: vitrine.app/minha-loja"
+                />
+                <p className="text-xs text-gray-400">Deixe em branco para usar a URL automática baseada no tipo de tela.</p>
+              </div>
             </CardContent>
           </Card>
 

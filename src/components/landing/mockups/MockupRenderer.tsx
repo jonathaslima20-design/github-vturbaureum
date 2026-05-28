@@ -214,6 +214,8 @@ function BrowserBar({ screenType, config }: MockupRendererProps) {
 }
 
 function getBrowserUrl(screenType: string, config: Record<string, any>): string {
+  if (config.custom_url && config.custom_url.trim()) return config.custom_url.trim();
+
   switch (screenType) {
     case 'storefront':
       return `vitrine.app/${(config.store_name || 'loja').toLowerCase().replace(/\s+/g, '')}`;
