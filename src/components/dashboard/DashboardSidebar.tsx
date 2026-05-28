@@ -113,6 +113,16 @@ export default function DashboardSidebar() {
               onItemClick={() => isMobile && toggleMobileSidebar()}
               badge={pendingOrders}
             />
+            {user?.billing_cycle === 'annually' && user?.plan_status === 'active' && (
+              <InkNavItem
+                name="Integracoes"
+                href="/dashboard/integrations"
+                icon={Plug}
+                end
+                isExpanded
+                onClick={() => isMobile && toggleMobileSidebar()}
+              />
+            )}
 
             <div className="h-px bg-foreground/[0.06] my-3 mx-2" />
 
@@ -124,16 +134,6 @@ export default function DashboardSidebar() {
               isExpanded
               onClick={() => isMobile && toggleMobileSidebar()}
             />
-            {user?.billing_cycle === 'annually' && user?.plan_status === 'active' && (
-              <InkNavItem
-                name="Integracoes"
-                href="/dashboard/integrations"
-                icon={Plug}
-                end
-                isExpanded
-                onClick={() => isMobile && toggleMobileSidebar()}
-              />
-            )}
             <InkNavItem
               name="Central de Ajuda"
               href="/help"
