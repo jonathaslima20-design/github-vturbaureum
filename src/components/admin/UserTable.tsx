@@ -20,7 +20,6 @@ import { getInitials, formatWhatsAppForDisplay, generateWhatsAppUrl } from '@/li
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PlanTypeBadge from '@/components/subscription/PlanTypeBadge';
-import PlanStatusBadge from '@/components/subscription/PlanStatusBadge';
 import type { User } from '@/types';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
 import { EditImageLimitDialog } from './EditImageLimitDialog';
@@ -175,7 +174,11 @@ export function UserTable({
                     </TableCell>
                     <TableCell className="w-28">
                       <div className="truncate">
-                        <PlanTypeBadge billingCycle={user.billing_cycle} />
+                        {user.plan_status === 'free' ? (
+                          <Badge variant="outline" className="text-xs">Free</Badge>
+                        ) : (
+                          <PlanTypeBadge billingCycle={user.billing_cycle} />
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="w-24">
@@ -229,10 +232,12 @@ export function UserTable({
                       )}
                     </TableCell>
                     <TableCell className="w-20">
-                      {user.is_blocked ? (
+                      {user.is_blocked || user.plan_status === 'suspended' ? (
                         <Badge variant="destructive" className="text-xs">Bloqueado</Badge>
+                      ) : user.plan_status === 'expired' ? (
+                        <Badge className="border-amber-300 bg-amber-50 text-amber-800 text-xs">Vencido</Badge>
                       ) : (
-                        <PlanStatusBadge status={user.plan_status} className="text-xs" />
+                        <Badge className="bg-green-500 text-white text-xs">Ativo</Badge>
                       )}
                     </TableCell>
                     <TableCell className="w-24">
