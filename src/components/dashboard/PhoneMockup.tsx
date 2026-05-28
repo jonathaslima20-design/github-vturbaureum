@@ -95,7 +95,7 @@ export function PhoneMockup({
           >
             {/* Scrollable content */}
             <div
-              className="absolute inset-0 overflow-y-auto overflow-x-hidden mockup-scrollbar flex flex-col"
+              className="absolute inset-0 overflow-y-auto overflow-x-hidden mockup-scrollbar"
               style={{
                 fontFamily: `'${appearance.font_family}', sans-serif`,
                 color: appearance.text_color,
@@ -103,6 +103,7 @@ export function PhoneMockup({
                 lineHeight: '1.5',
               }}
             >
+            <div className="flex flex-col" style={{ minHeight: '100%', ...getBackgroundStyle(appearance) }}>
               {/* Cover Image */}
               <div className="px-2 pt-2">
                 <div
@@ -261,6 +262,7 @@ export function PhoneMockup({
                 ))}
               </div>
 
+            </div>{/* end inner flex fill */}
             </div>
           </div>
         </div>
