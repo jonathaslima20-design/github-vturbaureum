@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound, Wallet, ChevronDown, Scale, UserX } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Menu, X, ShieldCheck, Gift, CreditCard, CircleHelp as HelpCircle, UsersRound, Wallet, ChevronDown, Scale, UserX, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +22,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileToggle }: Adm
     { name: 'Mercado Pago', href: '/admin/mercadopago', icon: Wallet, roles: ['admin'] },
     { name: 'Banner de Clientes', href: '/admin/banner-clients', icon: UsersRound, roles: ['admin'] },
     { name: 'Indicações', href: '/admin/referrals', icon: Gift, roles: ['admin', 'parceiro'] },
+    { name: 'Hero Landing', href: '/admin/landing-hero', icon: Smartphone, roles: ['admin'] },
     { name: 'Configurações', href: '/admin/settings', icon: Settings, roles: ['admin'] },
     { name: 'Central de Ajuda', href: '/admin/help', icon: HelpCircle, roles: ['admin'] },
     { name: 'Central Legal', href: '/admin/legal', icon: Scale, roles: ['admin'] },
