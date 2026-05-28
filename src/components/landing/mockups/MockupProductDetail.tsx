@@ -19,10 +19,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
 
   return (
     <div className="w-full h-full overflow-hidden relative bg-white">
-      <div
-        className="origin-top-left"
-        style={{ width: 393, transform: 'scale(0.685)', transformOrigin: 'top left' }}
-      >
+      <div style={{ width: 393 }}>
         {/* Back button area */}
         <div className="px-4 py-4">
           <div className="flex items-center text-gray-600">

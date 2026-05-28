@@ -23,11 +23,7 @@ export function MockupStorefront({ config }: { config: StorefrontConfig }) {
 
   return (
     <div className="w-full h-full overflow-hidden relative bg-background">
-      {/* Render at real scale inside a scaled container */}
-      <div
-        className="origin-top-left"
-        style={{ width: 393, transform: 'scale(0.685)', transformOrigin: 'top left' }}
-      >
+      <div style={{ width: 393 }}>
         {/* CorretorHeader replica */}
         <div className="px-4 pt-4 pb-0">
           <div>

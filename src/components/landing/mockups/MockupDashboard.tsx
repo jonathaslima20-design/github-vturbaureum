@@ -17,10 +17,7 @@ export function MockupDashboard({ config }: { config: DashboardConfig }) {
 
   return (
     <div className="w-full h-full overflow-hidden relative bg-gray-50">
-      <div
-        className="origin-top-left"
-        style={{ width: 393, transform: 'scale(0.685)', transformOrigin: 'top left' }}
-      >
+      <div style={{ width: 393 }}>
         {/* Page container - exact px-4 py-6 space-y-6 */}
         <div className="px-4 py-6 space-y-6">
           {/* Header - exact structure */}

@@ -20,10 +20,7 @@ export function MockupMyProducts({ config }: { config: MyProductsConfig }) {
 
   return (
     <div className="w-full h-full overflow-hidden relative bg-gray-50">
-      <div
-        className="origin-top-left"
-        style={{ width: 393, transform: 'scale(0.685)', transformOrigin: 'top left' }}
-      >
+      <div style={{ width: 393 }}>
         <div className="px-4 py-6 space-y-4">
           {/* Header - exact ListingsHeader structure */}
           <div className="space-y-4">
