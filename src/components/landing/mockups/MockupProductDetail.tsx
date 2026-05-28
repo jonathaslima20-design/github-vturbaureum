@@ -15,110 +15,201 @@ interface ProductDetailConfig {
 
 export function MockupProductDetail({ config }: { config: ProductDetailConfig }) {
   const buttonColor = config.button_color || '#0f172a';
+  const hasDiscount = config.discount_price && config.discount_price < (config.price || 0);
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden bg-white">
-      {/* Product Image */}
-      <div className="w-full aspect-[4/3] bg-slate-100 relative shrink-0">
-        {config.product_image_url && (
-          <img src={config.product_image_url} alt="" className="w-full h-full object-cover" />
-        )}
-        {config.discount_badge && (
-          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-[3px] bg-green-600 text-white text-[7px] font-bold">
-            {config.discount_badge}
+    <div className="w-full h-full overflow-hidden relative bg-white">
+      <div
+        className="origin-top-left"
+        style={{ width: 393, transform: 'scale(0.685)', transformOrigin: 'top left' }}
+      >
+        {/* Back button area */}
+        <div className="px-4 py-4">
+          <div className="flex items-center text-gray-600">
+            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span className="text-sm">Voltar para vitrine</span>
           </div>
-        )}
-      </div>
-
-      {/* Product Info */}
-      <div className="px-3 pt-2 flex-1 flex flex-col">
-        <p className="font-semibold text-[9px] leading-tight text-gray-900">
-          {config.product_title || 'Nome do Produto'}
-        </p>
-        {config.product_description && (
-          <p className="text-[6.5px] text-gray-500 mt-0.5 line-clamp-2 leading-tight">
-            {config.product_description}
-          </p>
-        )}
-
-        {/* Price */}
-        <div className="mt-1.5">
-          {config.discount_price ? (
-            <div className="flex items-baseline gap-1">
-              <span className="text-[7px] text-gray-400 line-through">
-                R$ {(config.price || 0).toFixed(2).replace('.', ',')}
-              </span>
-              <span className="text-[10px] font-bold text-gray-900">
-                R$ {config.discount_price.toFixed(2).replace('.', ',')}
-              </span>
-            </div>
-          ) : (
-            <span className="text-[10px] font-bold text-gray-900">
-              R$ {(config.price || 0).toFixed(2).replace('.', ',')}
-            </span>
-          )}
         </div>
 
-        {/* Color Options */}
-        {config.color_options && config.color_options.length > 0 && (
-          <div className="mt-2">
-            <p className="text-[6px] text-gray-500 mb-1">Cor</p>
-            <div className="flex gap-1">
-              {config.color_options.slice(0, 6).map((color, i) => (
-                <div
-                  key={i}
-                  className="w-[12px] h-[12px] rounded-full border border-gray-200"
-                  style={{ backgroundColor: color, boxShadow: i === 0 ? '0 0 0 1.5px #0f172a' : undefined }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Main content section */}
+        <section className="px-4">
+          {/* Image Gallery - exact aspect-square rounded-lg */}
+          <div className="mb-8">
+            <div className="aspect-square overflow-hidden rounded-lg relative bg-gray-100">
+              {config.product_image_url ? (
+                <img src={config.product_image_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <svg className="h-16 w-16 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                </div>
+              )}
 
-        {/* Size Options */}
-        {config.size_options && config.size_options.length > 0 && (
-          <div className="mt-2">
-            <p className="text-[6px] text-gray-500 mb-1">Tamanho</p>
-            <div className="flex gap-0.5 flex-wrap">
-              {config.size_options.slice(0, 6).map((size, i) => (
-                <div
-                  key={i}
-                  className="px-1.5 py-0.5 rounded-[3px] text-[6px] font-medium border"
-                  style={{
-                    borderColor: i === 0 ? buttonColor : '#e5e7eb',
-                    backgroundColor: i === 0 ? buttonColor : 'transparent',
-                    color: i === 0 ? '#ffffff' : '#374151',
-                  }}
-                >
-                  {size}
+              {/* Discount badge - exact bg-green-600 */}
+              {config.discount_badge && (
+                <div className="absolute top-3 left-3">
+                  <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-md font-bold">
+                    {config.discount_badge}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnail row - col-span-3 aspect-[4/3] rounded-lg border-2 */}
+            <div className="grid grid-cols-12 gap-4 mt-4">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="col-span-3">
+                  <div className={`aspect-[4/3] overflow-hidden rounded-lg border-2 ${
+                    i === 0 ? 'border-gray-900 shadow-md' : 'border-transparent'
+                  }`}>
+                    {i === 0 && config.product_image_url ? (
+                      <img src={config.product_image_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100" />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Seller Info */}
-        {config.seller_name && (
-          <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-gray-100">
-            <div className="w-[16px] h-[16px] rounded-full bg-slate-200 overflow-hidden shrink-0">
-              {config.seller_avatar_url && (
-                <img src={config.seller_avatar_url} alt="" className="w-full h-full object-cover" />
-              )}
+          {/* Badges row - exact flex gap-2 mb-3 */}
+          <div className="flex gap-2 mb-3">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+              Categoria
+            </span>
+            {hasDiscount && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">
+                {config.discount_badge || `-${Math.round(((config.price! - config.discount_price!) / config.price!) * 100)}% OFF`}
+              </span>
+            )}
+          </div>
+
+          {/* Title - exact text-2xl font-bold */}
+          <h1 className="text-2xl font-bold text-gray-900">
+            {config.product_title || 'Nome do Produto'}
+          </h1>
+
+          {/* Price section - exact mt-6 mb-8 */}
+          <div className="mt-6 mb-8">
+            {hasDiscount ? (
+              <div className="space-y-2">
+                <div className="text-lg text-gray-400 line-through">
+                  R$ {(config.price || 0).toFixed(2).replace('.', ',')}
+                </div>
+                <div className="text-3xl font-bold text-gray-900">
+                  R$ {config.discount_price!.toFixed(2).replace('.', ',')}
+                </div>
+                {config.product_description && (
+                  <div className="text-sm text-green-600 font-medium">
+                    {config.product_description}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-3xl font-bold text-gray-900">
+                  R$ {(config.price || 0).toFixed(2).replace('.', ',')}
+                </div>
+                {config.product_description && (
+                  <div className="text-sm text-green-600 font-medium">
+                    {config.product_description}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Color selector - exact structure: space-y-3, flex flex-wrap gap-3 */}
+          {config.color_options && config.color_options.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-gray-900">Cores Disponiveis</h3>
+              <div className="flex flex-wrap gap-3">
+                {config.color_options.map((color, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white"
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="text-sm capitalize text-gray-900">
+                      {getColorName(color)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="text-[6.5px] text-gray-600 truncate">{config.seller_name}</p>
-          </div>
-        )}
+          )}
 
-        {/* CTA Button */}
-        <div className="mt-auto pb-3 pt-2">
-          <div
-            className="w-full py-1.5 rounded-[4px] text-center text-[7px] font-semibold text-white"
-            style={{ backgroundColor: buttonColor }}
-          >
-            {config.button_text || 'Adicionar ao Carrinho'}
+          {/* Size selector - exact structure: w-12 h-12 rounded-full border-2 */}
+          {config.size_options && config.size_options.length > 0 && (
+            <div className="space-y-3 mt-6">
+              <h3 className="text-lg font-semibold text-gray-900">Tamanhos Disponiveis</h3>
+              <div className="flex flex-wrap gap-3">
+                {config.size_options.map((size, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-sm ${
+                      i === 0 ? 'border-gray-900 bg-white' : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <span className="text-sm font-semibold text-gray-900">{size}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Seller info - exact flex items-center gap-2 border-t */}
+          {config.seller_name && (
+            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-gray-100">
+              <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+                {config.seller_avatar_url ? (
+                  <img src={config.seller_avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-sm font-bold text-gray-500">
+                    {config.seller_name[0].toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">{config.seller_name}</p>
+                <p className="text-xs text-gray-500">Vendedor</p>
+              </div>
+            </div>
+          )}
+
+          {/* CTA Button - exact size="lg" w-full mt-8 */}
+          <div className="mt-8">
+            <div
+              className="w-full h-11 rounded-md flex items-center justify-center text-sm font-medium text-white"
+              style={{ backgroundColor: buttonColor }}
+            >
+              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
+              </svg>
+              {config.button_text || 'Adicionar ao Carrinho'}
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
+}
+
+function getColorName(hex: string): string {
+  const map: Record<string, string> = {
+    '#000000': 'preto', '#ffffff': 'branco', '#ff0000': 'vermelho',
+    '#00ff00': 'verde', '#0000ff': 'azul', '#1e40af': 'azul',
+    '#dc2626': 'vermelho', '#f59e0b': 'amarelo', '#10b981': 'verde',
+  };
+  return map[hex.toLowerCase()] || hex;
 }

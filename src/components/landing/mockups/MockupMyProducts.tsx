@@ -19,125 +19,203 @@ export function MockupMyProducts({ config }: { config: MyProductsConfig }) {
   const viewMode = config.view_mode || 'grid';
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden bg-[#f8f9fb]">
-      {/* Header */}
-      <div className="px-3 pt-4 pb-2 bg-white border-b border-gray-100 shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold text-gray-900">
-              {config.page_title || 'Meus Produtos'}
-            </p>
-            <p className="text-[6px] text-gray-500 mt-0.5">
-              {config.product_count || products.length} produto(s) cadastrado(s)
-            </p>
+    <div className="w-full h-full overflow-hidden relative bg-gray-50">
+      <div
+        className="origin-top-left"
+        style={{ width: 393, transform: 'scale(0.685)', transformOrigin: 'top left' }}
+      >
+        <div className="px-4 py-6 space-y-4">
+          {/* Header - exact ListingsHeader structure */}
+          <div className="space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                  {config.page_title || 'Meus Produtos'}
+                </h1>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {config.product_count || products.length} produto(s) cadastrado(s)
+                </p>
+              </div>
+              <div className="h-8 px-3 rounded-md bg-gray-900 text-white text-xs flex items-center gap-1.5 font-medium shadow-sm">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Novo Produto
+              </div>
+            </div>
+
+            {/* Toolbar - exact view toggle + reorder */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* View mode toggle - exact bg-muted/60 rounded-lg p-0.5 */}
+              <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200/50">
+                <button className={`p-1.5 rounded-md transition-all ${
+                  viewMode === 'grid' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400'
+                }`}>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+                  </svg>
+                </button>
+                <button className={`p-1.5 rounded-md transition-all ${
+                  viewMode === 'list' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400'
+                }`}>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Reorder button */}
+              <div className="h-8 px-3 rounded-md border border-gray-200 bg-white text-xs flex items-center gap-1.5 text-gray-700 font-medium">
+                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="2" x2="12" y2="22" /><path d="M17 7l-5-5-5 5M7 17l5 5 5-5" />
+                </svg>
+                Reordenar
+              </div>
+            </div>
           </div>
-          <div className="px-1.5 py-0.5 rounded-[3px] bg-gray-900 text-white text-[6px] font-medium flex items-center gap-0.5">
-            <svg className="w-[6px] h-[6px]" viewBox="0 0 12 12" fill="none">
-              <path d="M6 2V10M2 6H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+
+          {/* Search bar - exact pl-9 h-9 structure */}
+          <div className="relative max-w-full">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            Novo
+            <div className="w-full h-9 pl-9 rounded-md border border-gray-200 bg-white flex items-center">
+              <span className="text-sm text-gray-400">Buscar por nome, categoria ou marca...</span>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Toolbar */}
-      <div className="px-3 py-1.5 flex items-center gap-1.5 shrink-0">
-        <div className="flex-1 flex items-center gap-0.5 px-1.5 py-[3px] rounded-[3px] bg-white border border-gray-200">
-          <svg className="w-[7px] h-[7px] text-gray-400" viewBox="0 0 12 12" fill="none">
-            <circle cx="5" cy="5" r="3.5" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M8 8L10.5 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-          </svg>
-          <span className="text-[5.5px] text-gray-400">Buscar...</span>
-        </div>
-        <div className="flex items-center gap-0.5 px-1 py-[3px] rounded-[3px] bg-white border border-gray-200">
-          <ViewIcon mode={viewMode} />
-        </div>
-      </div>
+          {/* Filter pills - exact rounded-full px-3 py-1 text-xs */}
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-900 text-white shadow-sm">
+              Todos
+            </span>
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200/50">
+              Visiveis
+            </span>
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200/50">
+              Ocultos
+            </span>
+          </div>
 
-      {/* Products */}
-      <div className="flex-1 min-h-0 px-3 overflow-hidden">
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 gap-1.5">
-            {products.slice(0, 6).map((product, i) => (
-              <ProductGridCard key={i} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1">
-            {products.slice(0, 5).map((product, i) => (
-              <ProductListRow key={i} product={product} />
-            ))}
-          </div>
-        )}
+          {/* Product Grid/List */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-2 gap-3">
+              {products.slice(0, 6).map((product, i) => (
+                <GridProductCard key={i} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {products.slice(0, 5).map((product, i) => (
+                <ListProductRow key={i} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function ProductGridCard({ product }: { product: MyProductItem }) {
+function GridProductCard({ product }: { product: MyProductItem }) {
   return (
-    <div className="bg-white rounded-[4px] overflow-hidden border border-gray-100 shadow-sm">
-      <div className="w-full aspect-square bg-slate-100 relative">
-        {product.image_url && (
-          <img src={product.image_url} alt="" className="w-full h-full object-cover" />
-        )}
+    <div className={`rounded-lg border bg-white shadow-sm overflow-hidden transition-all ${
+      product.status === 'hidden' ? 'opacity-60' : ''
+    }`} style={{ borderLeftWidth: product.stock_qty <= 3 ? 3 : undefined, borderLeftColor: product.stock_qty === 0 ? '#ef4444' : product.stock_qty <= 3 ? '#f59e0b' : undefined }}>
+      {/* Image - exact aspect-square with inner container */}
+      <div className="relative aspect-square overflow-hidden p-1.5">
+        <div className="w-full h-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+          {product.image_url ? (
+            <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
+          )}
+        </div>
+
+        {/* Hidden overlay */}
         {product.status === 'hidden' && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-            <svg className="w-[10px] h-[10px] text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+          <div className="absolute inset-1.5 rounded-lg bg-black/20 flex items-center justify-center">
+            <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+              <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
               <line x1="1" y1="1" x2="23" y2="23" />
             </svg>
           </div>
         )}
+
+        {/* Selection checkbox area */}
+        <div className="absolute top-3 left-3">
+          <div className="h-4 w-4 rounded border border-gray-300 bg-white" />
+        </div>
       </div>
-      <div className="p-1">
-        <p className="text-[6px] font-medium text-gray-900 truncate">{product.title}</p>
-        <div className="flex items-center justify-between mt-0.5">
-          <span className="text-[7px] font-bold text-gray-900">
+
+      {/* Info section */}
+      <div className="p-2 pt-1">
+        <h3 className="font-semibold text-xs leading-tight line-clamp-2 min-h-[28px] text-gray-900">
+          {product.title}
+        </h3>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-sm font-bold text-gray-900">
             R$ {product.price.toFixed(2).replace('.', ',')}
           </span>
-          <span className="text-[5px] text-gray-400">{product.views_count} views</span>
+        </div>
+        {/* Stats row */}
+        <div className="flex items-center gap-2 mt-1.5 text-[10px] text-gray-400">
+          <span className="flex items-center gap-0.5">
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
+            </svg>
+            {product.views_count}
+          </span>
+          <span>{product.stock_qty} un.</span>
         </div>
       </div>
     </div>
   );
 }
 
-function ProductListRow({ product }: { product: MyProductItem }) {
+function ListProductRow({ product }: { product: MyProductItem }) {
   return (
-    <div className="flex items-center gap-1.5 bg-white rounded-[3px] p-1 border border-gray-100">
-      <div className="w-[22px] h-[22px] rounded-[2px] bg-slate-100 overflow-hidden shrink-0">
-        {product.image_url && (
+    <div className={`flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white ${
+      product.status === 'hidden' ? 'opacity-60' : ''
+    }`}>
+      {/* Checkbox */}
+      <div className="h-4 w-4 rounded border border-gray-300 bg-white shrink-0" />
+
+      {/* Thumbnail */}
+      <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
+        {product.image_url ? (
           <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
         )}
       </div>
+
+      {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-[6px] font-medium text-gray-900 truncate">{product.title}</p>
-        <p className="text-[5.5px] text-gray-500">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+        <h3 className="text-sm font-medium text-gray-900 truncate">{product.title}</h3>
+        <p className="text-xs text-gray-500">R$ {product.price.toFixed(2).replace('.', ',')}</p>
       </div>
-      <div className="text-[5px] text-gray-400 shrink-0">
-        {product.stock_qty} un.
+
+      {/* Stats */}
+      <div className="flex items-center gap-3 text-xs text-gray-400 shrink-0">
+        <span className="flex items-center gap-1">
+          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
+          </svg>
+          {product.views_count}
+        </span>
+        <span>{product.stock_qty} un.</span>
+      </div>
+
+      {/* More button */}
+      <div className="shrink-0">
+        <svg className="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
+        </svg>
       </div>
     </div>
-  );
-}
-
-function ViewIcon({ mode }: { mode: string }) {
-  if (mode === 'grid') {
-    return (
-      <svg className="w-[8px] h-[8px] text-gray-600" viewBox="0 0 12 12" fill="currentColor">
-        <rect x="0" y="0" width="5" height="5" rx="1" />
-        <rect x="7" y="0" width="5" height="5" rx="1" />
-        <rect x="0" y="7" width="5" height="5" rx="1" />
-        <rect x="7" y="7" width="5" height="5" rx="1" />
-      </svg>
-    );
-  }
-  return (
-    <svg className="w-[8px] h-[8px] text-gray-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <line x1="0" y1="2" x2="12" y2="2" />
-      <line x1="0" y1="6" x2="12" y2="6" />
-      <line x1="0" y1="10" x2="12" y2="10" />
-    </svg>
   );
 }
