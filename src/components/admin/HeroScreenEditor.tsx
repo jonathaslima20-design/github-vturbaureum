@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import { supabase } from '@/lib/supabase';
 import { uploadHeroMockupImage } from '@/lib/heroMockupUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,8 @@ import { toast } from 'sonner';
 import { ArrowLeft, Upload, X, Plus, RotateCcw } from 'lucide-react';
 import { MockupRenderer } from '@/components/landing/mockups/MockupRenderer';
 import { getMaxScrollForScreenType } from '@/components/landing/mockups/mockupScrollUtils';
+import { FONT_OPTIONS, HEADING_FONT_OPTIONS, loadGoogleFont } from '@/lib/appearanceDefaults';
+import { cn } from '@/lib/utils';
 import type { HeroScreen } from '@/hooks/useLandingHeroScreens';
 
 interface Props {
@@ -303,8 +306,53 @@ function ImageUploadField({ label, value, field, onUpload, uploading }: { label:
   );
 }
 
+function MockupColorPicker({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <Label className="text-xs text-muted-foreground mb-1.5 block">{label}</Label>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-8 h-8 rounded-md border border-gray-200 shadow-sm shrink-0 transition-transform hover:scale-105"
+          style={{ backgroundColor: value }}
+        />
+        <Input
+          value={value}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (/^#[0-9a-fA-F]{0,6}$/.test(v) || v === '') {
+              onChange(v || '#000000');
+            }
+          }}
+          className="h-8 text-xs font-mono"
+          placeholder="#000000"
+        />
+      </div>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute z-50 mt-2 p-3 rounded-lg border bg-popover shadow-lg">
+            <HexColorPicker color={value} onChange={onChange} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+const SOCIAL_BUTTON_OPTIONS = [
+  { value: 'cart', label: 'Carrinho' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'phone', label: 'Telefone' },
+  { value: 'location', label: 'Localizacao' },
+];
+
 function StorefrontEditor({ config, updateConfig, onImageUpload, onProductImageUpload, uploading }: any) {
   const products = config.products || [];
+  const socialButtons: string[] = config.social_buttons || [];
 
   const addProduct = () => {
     updateConfig('products', [...products, { title: 'Novo Produto', image_url: '', price: 99.90, discount_price: null }]);
@@ -318,6 +366,19 @@ function StorefrontEditor({ config, updateConfig, onImageUpload, onProductImageU
     const updated = [...products];
     updated[i] = { ...updated[i], [key]: value };
     updateConfig('products', updated);
+  };
+
+  const toggleSocialButton = (btn: string) => {
+    if (socialButtons.includes(btn)) {
+      updateConfig('social_buttons', socialButtons.filter((b: string) => b !== btn));
+    } else {
+      updateConfig('social_buttons', [...socialButtons, btn]);
+    }
+  };
+
+  const handleFontChange = (field: string, value: string) => {
+    loadGoogleFont(value);
+    updateConfig(field, value);
   };
 
   return (
@@ -341,19 +402,104 @@ function StorefrontEditor({ config, updateConfig, onImageUpload, onProductImageU
             <Label>Bio</Label>
             <Input value={config.bio || ''} onChange={(e) => updateConfig('bio', e.target.value)} />
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label>Cor Fundo</Label>
-              <Input type="color" value={config.bg_color || '#ffffff'} onChange={(e) => updateConfig('bg_color', e.target.value)} className="h-9" />
+        </CardContent>
+      </Card>
+
+      {/* Colors - same structure as AppearanceSettings */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Cores</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <MockupColorPicker label="Cor do fundo" value={config.bg_color || '#ffffff'} onChange={(v) => updateConfig('bg_color', v)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <MockupColorPicker label="Cor do texto" value={config.text_color || '#0a0a0a'} onChange={(v) => updateConfig('text_color', v)} />
+            <MockupColorPicker label="Cor dos botoes" value={config.button_bg_color || '#0f172a'} onChange={(v) => updateConfig('button_bg_color', v)} />
+            <MockupColorPicker label="Texto dos botoes" value={config.button_text_color || '#f8fafc'} onChange={(v) => updateConfig('button_text_color', v)} />
+            <MockupColorPicker label="Cor dos icones" value={config.icon_color || '#0a0a0a'} onChange={(v) => updateConfig('icon_color', v)} />
+            <MockupColorPicker label="Cor de destaque" value={config.accent_color || '#0f172a'} onChange={(v) => updateConfig('accent_color', v)} />
+            <MockupColorPicker label="Cor das bordas" value={config.border_color || '#e4e4e7'} onChange={(v) => updateConfig('border_color', v)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Typography */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Tipografia</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Fonte do corpo</Label>
+            <Select value={config.font_family || 'Inter'} onValueChange={(v) => handleFontChange('font_family', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {FONT_OPTIONS.map(f => (
+                  <SelectItem key={f.value} value={f.value}>
+                    <span style={{ fontFamily: `'${f.value}', sans-serif` }}>{f.label}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Fonte dos titulos</Label>
+            <Select value={config.heading_font_family || 'Inter Tight'} onValueChange={(v) => handleFontChange('heading_font_family', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {HEADING_FONT_OPTIONS.map(f => (
+                  <SelectItem key={f.value} value={f.value}>
+                    <span style={{ fontFamily: `'${f.value}', sans-serif` }}>{f.label}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Tamanho base</Label>
+            <div className="flex gap-2">
+              {(['sm', 'md', 'lg'] as const).map(size => (
+                <button
+                  key={size}
+                  onClick={() => updateConfig('font_size_base', size)}
+                  className={cn(
+                    'flex-1 py-2 rounded-md border text-sm font-medium transition-all',
+                    (config.font_size_base || 'md') === size
+                      ? 'border-gray-900 bg-gray-900 text-white'
+                      : 'border-gray-200 hover:border-gray-400'
+                  )}
+                >
+                  {size === 'sm' ? 'P' : size === 'md' ? 'M' : 'G'}
+                </button>
+              ))}
             </div>
-            <div className="space-y-1.5">
-              <Label>Cor Texto</Label>
-              <Input type="color" value={config.text_color || '#0a0a0a'} onChange={(e) => updateConfig('text_color', e.target.value)} className="h-9" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Cor Accent</Label>
-              <Input type="color" value={config.accent_color || '#0f172a'} onChange={(e) => updateConfig('accent_color', e.target.value)} className="h-9" />
-            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Social Buttons */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Botoes Sociais</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-2">
+            {SOCIAL_BUTTON_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => toggleSocialButton(opt.value)}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all',
+                  socialButtons.includes(opt.value)
+                    ? 'border-gray-900 bg-gray-900 text-white'
+                    : 'border-gray-200 hover:border-gray-400 text-gray-700'
+                )}
+              >
+                <span className={cn(
+                  'w-4 h-4 rounded border flex items-center justify-center',
+                  socialButtons.includes(opt.value) ? 'bg-white border-white' : 'border-gray-300'
+                )}>
+                  {socialButtons.includes(opt.value) && (
+                    <svg className="w-3 h-3 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 13l4 4L19 7" /></svg>
+                  )}
+                </span>
+                {opt.label}
+              </button>
+            ))}
           </div>
         </CardContent>
       </Card>

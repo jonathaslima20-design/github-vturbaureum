@@ -323,8 +323,11 @@ function getDefaultConfig(screenType: string): Record<string, any> {
     case 'storefront':
       return {
         cover_url: '', avatar_url: '', store_name: 'Minha Loja', bio: '',
-        social_buttons: ['cart', 'whatsapp', 'instagram'],
+        social_buttons: ['cart', 'whatsapp', 'instagram', 'phone', 'location'],
         bg_color: '#ffffff', text_color: '#0a0a0a', accent_color: '#0f172a',
+        button_bg_color: '#0f172a', button_text_color: '#f8fafc',
+        icon_color: '#0a0a0a', border_color: '#e4e4e7',
+        font_family: 'Inter', heading_font_family: 'Inter Tight', font_size_base: 'md',
         category_name: 'Destaques',
         products: [
           { title: 'Produto 1', image_url: '', price: 99.90, discount_price: null },
