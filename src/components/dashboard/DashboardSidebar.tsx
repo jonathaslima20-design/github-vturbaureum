@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3, Ticket } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, Menu, X, Settings, Settings2, FolderTree, Gift, CircleHelp as HelpCircle, ShoppingBag, ClipboardList, CreditCard, ChevronDown, BookOpen, ArrowLeftRight, Warehouse, ChartBar as BarChart3, Ticket, Plug } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -124,6 +124,16 @@ export default function DashboardSidebar() {
               isExpanded
               onClick={() => isMobile && toggleMobileSidebar()}
             />
+            {user?.billing_cycle === 'annually' && user?.plan_status === 'active' && (
+              <InkNavItem
+                name="Integracoes"
+                href="/dashboard/integrations"
+                icon={Plug}
+                end
+                isExpanded
+                onClick={() => isMobile && toggleMobileSidebar()}
+              />
+            )}
             <InkNavItem
               name="Central de Ajuda"
               href="/help"
