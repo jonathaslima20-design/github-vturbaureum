@@ -131,6 +131,7 @@ export function MockupStorefront({ config }: { config: StorefrontConfig }) {
                 buttonBgColor={buttonBgColor}
                 buttonTextColor={buttonTextColor}
                 borderColor={borderColor}
+                bgColor={bgColor}
                 scale={scale}
               />
             ))}
@@ -148,6 +149,7 @@ function ProductCardReplica({
   buttonBgColor,
   buttonTextColor,
   borderColor,
+  bgColor,
   scale,
 }: {
   product: StorefrontProduct;
@@ -156,6 +158,7 @@ function ProductCardReplica({
   buttonBgColor: string;
   buttonTextColor: string;
   borderColor: string;
+  bgColor: string;
   scale: number;
 }) {
   const hasDiscount = product.discount_price && product.discount_price < product.price;
@@ -164,9 +167,9 @@ function ProductCardReplica({
     : null;
 
   return (
-    <div className="rounded-xl border bg-white shadow overflow-hidden flex flex-col" style={{ borderColor }}>
+    <div className="rounded-xl border shadow overflow-hidden flex flex-col" style={{ borderColor, backgroundColor: bgColor }}>
       <div className="relative aspect-square overflow-hidden p-2">
-        <div className="w-full h-full bg-white rounded-lg overflow-hidden border shadow-sm" style={{ borderColor }}>
+        <div className="w-full h-full rounded-lg overflow-hidden border shadow-sm" style={{ borderColor, backgroundColor: bgColor }}>
           {product.image_url ? (
             <img src={product.image_url} alt="" className="w-full h-full object-cover" />
           ) : (
