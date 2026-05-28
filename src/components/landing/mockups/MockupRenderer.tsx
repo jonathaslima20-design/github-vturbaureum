@@ -9,7 +9,7 @@ import { getMaxScrollForScreenType } from './mockupScrollUtils';
 export const REAL_WIDTH = 393;
 export const REAL_HEIGHT = 852;
 export const STATUS_BAR_HEIGHT = 54;
-export const BROWSER_BAR_HEIGHT = 40;
+export const BROWSER_BAR_HEIGHT = 52;
 export const CHROME_HEIGHT = STATUS_BAR_HEIGHT + BROWSER_BAR_HEIGHT;
 export const CONTENT_HEIGHT = REAL_HEIGHT - CHROME_HEIGHT;
 
@@ -108,35 +108,49 @@ function MockupScrollIndicator({ scrollY, maxScroll }: { scrollY: number; maxScr
 function StatusBar() {
   return (
     <div
-      className="absolute top-0 left-0 right-0 flex items-center justify-between px-8 bg-white"
-      style={{ height: STATUS_BAR_HEIGHT, paddingTop: 14 }}
+      className="absolute top-0 left-0 right-0 bg-white"
+      style={{ height: STATUS_BAR_HEIGHT }}
     >
-      {/* Time */}
-      <span className="text-[15px] font-semibold text-gray-900 tracking-tight">9:41</span>
+      {/* Dynamic Island */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 bg-black rounded-full"
+        style={{ top: 12, width: 120, height: 34 }}
+      />
 
-      {/* Right indicators */}
-      <div className="flex items-center gap-[6px]">
+      {/* Left: time — positioned below the island */}
+      <span
+        className="absolute text-[15px] font-semibold text-gray-900 tracking-tight"
+        style={{ left: 28, bottom: 10 }}
+      >
+        9:41
+      </span>
+
+      {/* Right indicators — positioned below the island */}
+      <div
+        className="absolute flex items-center gap-[6px]"
+        style={{ right: 28, bottom: 10 }}
+      >
         {/* Signal bars */}
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
-          <rect x="0" y="8" width="3" height="4" rx="0.5" fill="#0a0a0a" />
-          <rect x="4" y="5.5" width="3" height="6.5" rx="0.5" fill="#0a0a0a" />
-          <rect x="8" y="3" width="3" height="9" rx="0.5" fill="#0a0a0a" />
-          <rect x="12" y="0" width="3" height="12" rx="0.5" fill="#0a0a0a" />
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+          <rect x="0" y="7.5" width="3" height="4.5" rx="0.8" fill="#0a0a0a" />
+          <rect x="4.5" y="5" width="3" height="7" rx="0.8" fill="#0a0a0a" />
+          <rect x="9" y="2.5" width="3" height="9.5" rx="0.8" fill="#0a0a0a" />
+          <rect x="13.5" y="0" width="3" height="12" rx="0.8" fill="#0a0a0a" />
         </svg>
 
         {/* WiFi */}
         <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-          <path d="M8 10.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5z" fill="#0a0a0a" />
-          <path d="M4.93 8.76a4.36 4.36 0 016.14 0" stroke="#0a0a0a" strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M2.4 6.23a7.64 7.64 0 0111.2 0" stroke="#0a0a0a" strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M.1 3.6a10.96 10.96 0 0115.8 0" stroke="#0a0a0a" strokeWidth="1.4" strokeLinecap="round" />
+          <circle cx="8" cy="11" r="1.4" fill="#0a0a0a" />
+          <path d="M4.6 8.4a4.8 4.8 0 016.8 0" stroke="#0a0a0a" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+          <path d="M2 5.8a8.2 8.2 0 0112 0" stroke="#0a0a0a" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+          <path d="M0 3a11.5 11.5 0 0116 0" stroke="#0a0a0a" strokeWidth="1.5" strokeLinecap="round" fill="none" />
         </svg>
 
         {/* Battery */}
-        <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
-          <rect x="0.5" y="0.5" width="22" height="12" rx="3" stroke="#0a0a0a" strokeWidth="1" opacity="0.35" />
-          <rect x="2" y="2" width="18" height="9" rx="1.5" fill="#0a0a0a" />
-          <path d="M24 4.5v4a2 2 0 000-4z" fill="#0a0a0a" opacity="0.4" />
+        <svg width="28" height="13" viewBox="0 0 28 13" fill="none">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#0a0a0a" strokeWidth="1" opacity="0.35" />
+          <rect x="2" y="2" width="19" height="9" rx="2" fill="#0a0a0a" />
+          <path d="M25 4v5a2.5 2.5 0 000-5z" fill="#0a0a0a" opacity="0.4" />
         </svg>
       </div>
     </div>
@@ -148,16 +162,52 @@ function BrowserBar({ screenType, config }: MockupRendererProps) {
 
   return (
     <div
-      className="absolute left-0 right-0 flex items-center justify-center px-6 bg-white border-b border-gray-200/40"
+      className="absolute left-0 right-0 bg-white border-b border-gray-200/60"
       style={{ top: STATUS_BAR_HEIGHT, height: BROWSER_BAR_HEIGHT }}
     >
-      <div className="flex items-center gap-2 bg-gray-100/90 rounded-full px-3 h-[28px] w-full max-w-[320px]">
-        {/* Lock icon */}
-        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" className="shrink-0">
-          <rect x="0.5" y="4.5" width="9" height="6" rx="1.5" stroke="#6b7280" strokeWidth="1" />
-          <path d="M2.5 4.5V3a2.5 2.5 0 015 0v1.5" stroke="#6b7280" strokeWidth="1" fill="none" />
-        </svg>
-        <span className="text-[12px] text-gray-500 truncate">{url}</span>
+      {/* Main row: back/forward + address pill + share/tabs */}
+      <div className="flex items-center px-4 gap-2" style={{ height: BROWSER_BAR_HEIGHT }}>
+
+        {/* Back button */}
+        <button className="flex items-center justify-center w-8 h-8 shrink-0">
+          <svg width="11" height="18" viewBox="0 0 11 18" fill="none">
+            <path d="M9.5 1.5L2 9l7.5 7.5" stroke="#007AFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        {/* Forward button (dimmed) */}
+        <button className="flex items-center justify-center w-6 h-8 shrink-0 opacity-30">
+          <svg width="11" height="18" viewBox="0 0 11 18" fill="none">
+            <path d="M1.5 1.5L9 9l-7.5 7.5" stroke="#007AFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        {/* Address pill */}
+        <div className="flex-1 flex items-center gap-[6px] bg-gray-100 rounded-[10px] px-3 h-[36px] min-w-0">
+          {/* Lock */}
+          <svg width="11" height="13" viewBox="0 0 11 13" fill="none" className="shrink-0">
+            <rect x="0.5" y="5" width="10" height="7.5" rx="2" stroke="#3c3c43" strokeOpacity="0.6" strokeWidth="1.1" />
+            <path d="M2.5 5V3.5a3 3 0 016 0V5" stroke="#3c3c43" strokeOpacity="0.6" strokeWidth="1.1" fill="none" />
+          </svg>
+          <span className="text-[12.5px] text-gray-600 truncate font-normal">{url}</span>
+        </div>
+
+        {/* Share button */}
+        <button className="flex items-center justify-center w-8 h-8 shrink-0">
+          <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
+            <path d="M8 1v11M4 4.5L8 1l4 3.5" stroke="#007AFF" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1 10v5.5A1.5 1.5 0 002.5 17h11a1.5 1.5 0 001.5-1.5V10" stroke="#007AFF" strokeWidth="1.9" strokeLinecap="round" />
+          </svg>
+        </button>
+
+        {/* Tabs button */}
+        <button className="flex items-center justify-center w-8 h-8 shrink-0">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="4.5" y="1" width="12.5" height="12.5" rx="3" stroke="#007AFF" strokeWidth="1.9" />
+            <rect x="1" y="4.5" width="12.5" height="12.5" rx="3" fill="white" stroke="#007AFF" strokeWidth="1.9" />
+            <text x="7.25" y="13.5" fontSize="7" fontWeight="600" fill="#007AFF" fontFamily="system-ui">2</text>
+          </svg>
+        </button>
       </div>
     </div>
   );
