@@ -148,7 +148,7 @@ function BrowserBar({ screenType, config }: MockupRendererProps) {
 
   return (
     <div
-      className="absolute left-0 right-0 flex items-center justify-center px-6 bg-transparent border-b border-gray-200/20"
+      className="absolute left-0 right-0 flex items-center justify-center px-6 bg-white border-b border-gray-200/40"
       style={{ top: STATUS_BAR_HEIGHT, height: BROWSER_BAR_HEIGHT }}
     >
       <div className="flex items-center gap-2 bg-gray-100/90 rounded-full px-3 h-[28px] w-full max-w-[320px]">
