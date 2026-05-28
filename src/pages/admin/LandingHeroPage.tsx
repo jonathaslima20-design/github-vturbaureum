@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
-import { GripVertical, Plus, Pencil, Trash2, Eye, EyeOff, Smartphone } from 'lucide-react';
+import { GripVertical, Plus, Pencil, Trash2, Eye, EyeOff, Smartphone, Copy } from 'lucide-react';
 import { HeroScreenEditor } from '@/components/admin/HeroScreenEditor';
 import type { HeroConfig, HeroScreen } from '@/hooks/useLandingHeroScreens';
 
@@ -101,6 +101,27 @@ export default function LandingHeroPage() {
     if (error) { toast.error('Erro ao excluir'); return; }
     setScreens(prev => prev.filter(s => s.id !== screen.id));
     toast.success('Tela excluida');
+  };
+
+  const duplicateScreen = async (screen: HeroScreen) => {
+    const newScreen: Omit<HeroScreen, 'id'> = {
+      display_order: screens.length + 1,
+      is_active: false,
+      label: `${screen.label} (copia)`,
+      screen_type: screen.screen_type,
+      config: { ...screen.config },
+      scroll_y: screen.scroll_y,
+    };
+
+    const { data, error } = await supabase
+      .from('landing_hero_screens')
+      .insert(newScreen)
+      .select()
+      .single();
+
+    if (error) { toast.error('Erro ao duplicar tela'); return; }
+    setScreens(prev => [...prev, data]);
+    toast.success('Tela duplicada com sucesso');
   };
 
   const createNewScreen = (screenType: string) => {
@@ -296,14 +317,24 @@ export default function LandingHeroPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => { setEditingScreen(screen); setIsNewScreen(false); }}
+                      title="Editar"
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => duplicateScreen(screen)}
+                      title="Duplicar"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="text-red-500 hover:text-red-700"
                       onClick={() => deleteScreen(screen)}
+                      title="Excluir"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
