@@ -280,12 +280,12 @@ function BentoGrid() {
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
-                { name: 'Camiseta Mith', price: 'R$ 149', tag: 'Novo', img: '/Camiseta_Oversized_Treino_Preta_Mith.png' },
-                { name: 'Chuteira Mercurial', price: 'R$ 389', tag: '-20%', img: '/Chuteira_Nike_Campo_Mercurial.png' },
-                { name: 'Bola Nike Pitch', price: 'R$ 219', img: '/Bola_de_Futebol_Campo_Nike_Pitch_Tea.png' },
-                { name: 'Creatine 300g', price: 'R$ 129', img: '/Creatine_Pura_Black_Skull_300g.png' },
-                { name: 'Mouse Redragon', price: 'R$ 279', tag: 'Top', img: '/Mouse_Gamer_Redragon_Nix_RGB.png' },
-                { name: 'Raquete Shark Elite', price: 'R$ 649', img: '/Raquete_Beach_Tennis_Shark_Elite.png' },
+                { name: 'Camiseta Mith', price: 'R$ 149', tag: 'Novo', img: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/landing/Camiseta_Oversized_Treino_Preta_Mith.png' },
+                { name: 'Chuteira Mercurial', price: 'R$ 389', tag: '-20%', img: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/landing/Chuteira_Nike_Campo_Mercurial.png' },
+                { name: 'Bola Nike Pitch', price: 'R$ 219', img: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/landing/Bola_de_Futebol_Campo_Nike_Pitch_Tea.png' },
+                { name: 'Creatine 300g', price: 'R$ 129', img: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/landing/Creatine_Pura_Black_Skull_300g.png' },
+                { name: 'Mouse Redragon', price: 'R$ 279', tag: 'Top', img: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/landing/Mouse_Gamer_Redragon_Nix_RGB.png' },
+                { name: 'Raquete Shark Elite', price: 'R$ 649', img: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/landing/Raquete_Beach_Tennis_Shark_Elite.png' },
               ].map(({ name, price, tag, img }) => (
                 <div
                   key={name}
