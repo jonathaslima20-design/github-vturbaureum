@@ -171,14 +171,14 @@ function BrowserBar({ screenType, config }: MockupRendererProps) {
         {/* Back button */}
         <button className="flex items-center justify-center w-8 h-8 shrink-0">
           <svg width="11" height="18" viewBox="0 0 11 18" fill="none">
-            <path d="M9.5 1.5L2 9l7.5 7.5" stroke="#4da3ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9.5 1.5L2 9l7.5 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 
         {/* Forward button (dimmed) */}
         <button className="flex items-center justify-center w-6 h-8 shrink-0 opacity-30">
           <svg width="11" height="18" viewBox="0 0 11 18" fill="none">
-            <path d="M1.5 1.5L9 9l-7.5 7.5" stroke="#4da3ff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1.5 1.5L9 9l-7.5 7.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 
@@ -195,17 +195,17 @@ function BrowserBar({ screenType, config }: MockupRendererProps) {
         {/* Share button */}
         <button className="flex items-center justify-center w-8 h-8 shrink-0">
           <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-            <path d="M8 1v11M4 4.5L8 1l4 3.5" stroke="#4da3ff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M1 10v5.5A1.5 1.5 0 002.5 17h11a1.5 1.5 0 001.5-1.5V10" stroke="#4da3ff" strokeWidth="1.9" strokeLinecap="round" />
+            <path d="M8 1v11M4 4.5L8 1l4 3.5" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1 10v5.5A1.5 1.5 0 002.5 17h11a1.5 1.5 0 001.5-1.5V10" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" />
           </svg>
         </button>
 
         {/* Tabs button */}
         <button className="flex items-center justify-center w-8 h-8 shrink-0">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <rect x="4.5" y="1" width="12.5" height="12.5" rx="3" stroke="#4da3ff" strokeWidth="1.9" />
-            <rect x="1" y="4.5" width="12.5" height="12.5" rx="3" fill="#111" stroke="#4da3ff" strokeWidth="1.9" />
-            <text x="7.25" y="13.5" fontSize="7" fontWeight="600" fill="#4da3ff" fontFamily="system-ui">2</text>
+            <rect x="4.5" y="1" width="12.5" height="12.5" rx="3" stroke="#fff" strokeWidth="1.9" />
+            <rect x="1" y="4.5" width="12.5" height="12.5" rx="3" fill="#111" stroke="#fff" strokeWidth="1.9" />
+            <text x="7.25" y="13.5" fontSize="7" fontWeight="600" fill="#fff" fontFamily="system-ui">2</text>
           </svg>
         </button>
       </div>
