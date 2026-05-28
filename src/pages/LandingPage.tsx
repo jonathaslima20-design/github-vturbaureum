@@ -457,7 +457,7 @@ function BentoGrid() {
             <div className="flex items-end justify-between">
               <div>
                 <div className="font-mono-label uppercase text-[10px] text-ink-400 mb-1">Ganhe ate</div>
-                <div className="font-display font-semibold text-[44px] leading-none tracking-[-0.03em] text-ink-900">R$ <span className="text-[52px]">100</span><span className="text-[28px]">,00</span></div>
+                <div className="font-display font-semibold text-[32px] leading-none tracking-[-0.03em] text-ink-900">R$ <span className="text-[38px]">100</span><span className="text-[22px]">,00</span></div>
                 <div className="font-mono-label uppercase text-[10px] text-ink-400 mt-2">por usuario indicado</div>
               </div>
               <div className="flex -space-x-2">
