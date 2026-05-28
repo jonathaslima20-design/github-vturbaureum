@@ -327,11 +327,21 @@ export async function authenticateUser(email: string, password: string): Promise
   }
 }
 
+const TERMS_VERSION = '2026-05-28';
+const PRIVACY_VERSION = '2026-05-28';
+
 // Register new user
 export async function registerUser(
   email: string,
   password: string,
-  userData: { name: string; owner_name?: string; niche_type?: string; country_code?: string; whatsapp?: string }
+  userData: {
+    name: string;
+    owner_name?: string;
+    niche_type?: string;
+    country_code?: string;
+    whatsapp?: string;
+    accepted_terms?: boolean;
+  }
 ): Promise<{
   user: StoredUser | null;
   error: string | null;
@@ -382,6 +392,7 @@ export async function registerUser(
     // Create user profile in the users table
     console.log('📝 Creating user with WhatsApp:', userData.whatsapp);
 
+    const now = new Date().toISOString();
     const { data: userProfile, error: createError } = await supabase
       .from('users')
       .upsert({
@@ -394,7 +405,13 @@ export async function registerUser(
         role: 'corretor',
         is_blocked: false,
         plan_status: 'free',
-        created_at: new Date().toISOString()
+        created_at: now,
+        ...(userData.accepted_terms ? {
+          accepted_terms_at: now,
+          accepted_privacy_policy_at: now,
+          terms_version: TERMS_VERSION,
+          privacy_policy_version: PRIVACY_VERSION,
+        } : {}),
       }, {
         onConflict: 'email'
       })

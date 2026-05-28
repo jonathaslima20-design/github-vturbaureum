@@ -33,6 +33,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PhoneInputWithCountry } from '@/components/ui/phone-input-with-country';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cleanWhatsAppNumber, generateWhatsAppUrl } from '@/lib/utils';
 import Logo from '@/components/Logo';
 import { supabase } from '@/lib/supabase';
@@ -46,6 +47,9 @@ const formSchema = z.object({
   confirmPassword: z.string(),
   country_code: z.string().default('55'),
   whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
+  accepted_terms: z.boolean().refine((v) => v === true, {
+    message: 'Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.',
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'As senhas não coincidem',
   path: ['confirmPassword'],
@@ -87,6 +91,7 @@ export default function RegisterPage() {
       confirmPassword: '',
       country_code: '55',
       whatsapp: '',
+      accepted_terms: false,
     },
   });
 
@@ -106,7 +111,8 @@ export default function RegisterPage() {
           owner_name: data.owner_name,
           niche_type: 'diversos',
           country_code: data.country_code,
-          whatsapp: cleanedWhatsApp
+          whatsapp: cleanedWhatsApp,
+          accepted_terms: data.accepted_terms,
         }
       );
 
@@ -323,9 +329,54 @@ export default function RegisterPage() {
                   )}
                 />
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <FormField
+                  control={form.control}
+                  name="accepted_terms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+                        <FormControl>
+                          <Checkbox
+                            id="accepted_terms"
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={isLoading}
+                            className="mt-0.5 shrink-0"
+                          />
+                        </FormControl>
+                        <FormLabel
+                          htmlFor="accepted_terms"
+                          className="text-sm font-normal text-foreground/80 leading-relaxed cursor-pointer"
+                        >
+                          Li e aceito os{' '}
+                          <Link
+                            to="/termos-de-uso"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+                          >
+                            Termos de Uso
+                          </Link>
+                          {' '}e a{' '}
+                          <Link
+                            to="/politica-de-privacidade"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+                          >
+                            Política de Privacidade
+                          </Link>
+                          {' '}do VitrineTurbo.
+                        </FormLabel>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={isLoading}
                 >
                   {isLoading ? (
