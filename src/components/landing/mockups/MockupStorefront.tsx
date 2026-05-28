@@ -50,7 +50,7 @@ export function MockupStorefront({ config }: { config: StorefrontConfig }) {
   }, [fontFamily, headingFontFamily]);
 
   return (
-    <div className="w-full relative" style={{ backgroundColor: bgColor, fontFamily: `'${fontFamily}', sans-serif` }}>
+    <div className="w-full relative" style={{ backgroundColor: bgColor, fontFamily: `'${fontFamily}', sans-serif`, minHeight: 758 }}>
       <div style={{ width: 393 }}>
         {/* CorretorHeader replica */}
         <div className="px-4 pt-4 pb-0">
