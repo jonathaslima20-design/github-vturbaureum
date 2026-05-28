@@ -18,6 +18,7 @@ export interface HeroScreen {
   label: string;
   screen_type: 'storefront' | 'product_detail' | 'dashboard' | 'my_products' | 'custom';
   config: Record<string, any>;
+  scroll_y: number;
 }
 
 const DEFAULT_CONFIG: HeroConfig = {

@@ -25,7 +25,7 @@ export function MockupStorefront({ config }: { config: StorefrontConfig }) {
   const accentColor = config.accent_color || '#0f172a';
 
   return (
-    <div className="w-full h-full overflow-hidden relative" style={{ backgroundColor: bgColor }}>
+    <div className="w-full relative" style={{ backgroundColor: bgColor }}>
       <div style={{ width: 393 }}>
         {/* CorretorHeader replica */}
         <div className="px-4 pt-4 pb-0">

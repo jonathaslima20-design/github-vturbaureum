@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { uploadHeroMockupImage } from '@/lib/heroMockupUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, X, Plus } from 'lucide-react';
+import { ArrowLeft, Upload, X, Plus, RotateCcw } from 'lucide-react';
 import { MockupRenderer } from '@/components/landing/mockups/MockupRenderer';
+import { getMaxScrollForScreenType } from '@/components/landing/mockups/mockupScrollUtils';
 import type { HeroScreen } from '@/hooks/useLandingHeroScreens';
 
 interface Props {
@@ -23,6 +24,7 @@ export function HeroScreenEditor({ screen, isNew, onSave, onCancel }: Props) {
   const [screenType] = useState(screen.screen_type);
   const [config, setConfig] = useState<Record<string, any>>(screen.config);
   const [displayOrder, setDisplayOrder] = useState(screen.display_order);
+  const [scrollY, setScrollY] = useState(screen.scroll_y || 0);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
 
@@ -72,6 +74,7 @@ export function HeroScreenEditor({ screen, isNew, onSave, onCancel }: Props) {
             screen_type: screenType,
             config,
             display_order: displayOrder,
+            scroll_y: scrollY,
             is_active: true,
           })
           .select()
@@ -82,11 +85,11 @@ export function HeroScreenEditor({ screen, isNew, onSave, onCancel }: Props) {
       } else {
         const { error } = await supabase
           .from('landing_hero_screens')
-          .update({ label, config, display_order: displayOrder, updated_at: new Date().toISOString() })
+          .update({ label, config, display_order: displayOrder, scroll_y: scrollY, updated_at: new Date().toISOString() })
           .eq('id', screen.id);
 
         if (error) throw error;
-        onSave({ ...screen, label, config, display_order: displayOrder });
+        onSave({ ...screen, label, config, display_order: displayOrder, scroll_y: scrollY });
       }
       toast.success('Tela salva!');
     } catch (err: any) {
@@ -155,31 +158,110 @@ export function HeroScreenEditor({ screen, isNew, onSave, onCancel }: Props) {
           </div>
         </div>
 
-        {/* Preview Column */}
+        {/* Preview Column with Drag-to-Scroll */}
         <div className="lg:sticky lg:top-6 self-start">
           <Card>
-            <CardHeader><CardTitle className="text-sm">Preview em tempo real</CardTitle></CardHeader>
-            <CardContent className="flex justify-center">
-              <div className="relative" style={{ width: 220, aspectRatio: '393/852' }}>
-                <div
-                  className="absolute inset-0 overflow-hidden"
-                  style={{ borderRadius: '14% / 6.4%', background: '#1a1a1a', padding: '3.2%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
-                >
-                  <div className="relative w-full h-full overflow-hidden bg-white" style={{ borderRadius: '9.5% / 4.4%' }}>
-                    <MockupRenderer screenType={screenType} config={config} />
-                    <div
-                      className="absolute left-1/2 -translate-x-1/2 pointer-events-none flex items-center justify-end"
-                      style={{ top: '1.6%', width: '32%', height: '4%', borderRadius: '50px', background: '#000', zIndex: 30, paddingRight: '10%' }}
-                    >
-                      <span className="block rounded-full" style={{ width: '18%', height: '52%', background: 'radial-gradient(circle at 38% 38%, #243040 0%, #08121c 55%, #000 100%)' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-sm">Preview em tempo real</CardTitle>
+              {scrollY > 0 && (
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-gray-500" onClick={() => setScrollY(0)}>
+                  <RotateCcw className="w-3 h-3 mr-1" /> Reset
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-3">
+              <DraggableMockupPreview
+                screenType={screenType}
+                config={config}
+                scrollY={scrollY}
+                onScrollYChange={setScrollY}
+              />
+              <p className="text-[11px] text-gray-400 text-center">
+                Arraste para cima/baixo para ajustar o scroll
+              </p>
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+// --- Draggable Preview ---
+
+function DraggableMockupPreview({
+  screenType,
+  config,
+  scrollY,
+  onScrollYChange,
+}: {
+  screenType: string;
+  config: Record<string, any>;
+  scrollY: number;
+  onScrollYChange: (v: number) => void;
+}) {
+  const dragRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const lastY = useRef(0);
+  const [dragging, setDragging] = useState(false);
+
+  const maxScroll = getMaxScrollForScreenType(screenType, config);
+  const previewScale = 220 / 393;
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    isDragging.current = true;
+    lastY.current = e.clientY;
+    setDragging(true);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const deltaY = lastY.current - e.clientY;
+    lastY.current = e.clientY;
+    const scaledDelta = deltaY / previewScale;
+    onScrollYChange(Math.round(Math.max(0, Math.min(maxScroll, scrollY + scaledDelta))));
+  }, [scrollY, maxScroll, previewScale, onScrollYChange]);
+
+  const handlePointerUp = useCallback(() => {
+    isDragging.current = false;
+    setDragging(false);
+  }, []);
+
+  return (
+    <div
+      ref={dragRef}
+      className="relative select-none"
+      style={{ width: 220, aspectRatio: '393/852', cursor: dragging ? 'grabbing' : 'grab' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ borderRadius: '14% / 6.4%', background: '#1a1a1a', padding: '3.2%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
+      >
+        <div className="relative w-full h-full overflow-hidden bg-white" style={{ borderRadius: '9.5% / 4.4%' }}>
+          <MockupRenderer screenType={screenType} config={config} scrollY={scrollY} />
+          <div
+            className="absolute left-1/2 -translate-x-1/2 pointer-events-none flex items-center justify-end"
+            style={{ top: '1.6%', width: '32%', height: '4%', borderRadius: '50px', background: '#000', zIndex: 30, paddingRight: '10%' }}
+          >
+            <span className="block rounded-full" style={{ width: '18%', height: '52%', background: 'radial-gradient(circle at 38% 38%, #243040 0%, #08121c 55%, #000 100%)' }} />
+          </div>
+        </div>
+      </div>
+
+      {dragging && (
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap z-50">
+          scroll: {scrollY}px
+        </div>
+      )}
+
+      {dragging && (
+        <div className="absolute inset-0 rounded-[14%/6.4%] border-2 border-blue-400/50 pointer-events-none z-40" />
+      )}
     </div>
   );
 }

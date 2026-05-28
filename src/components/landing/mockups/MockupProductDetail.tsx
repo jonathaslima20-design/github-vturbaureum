@@ -18,7 +18,7 @@ export function MockupProductDetail({ config }: { config: ProductDetailConfig })
   const hasDiscount = config.discount_price && config.discount_price < (config.price || 0);
 
   return (
-    <div className="w-full h-full overflow-hidden relative bg-white">
+    <div className="w-full relative bg-white">
       <div style={{ width: 393 }}>
         {/* Back button area */}
         <div className="px-4 py-4">

@@ -4,7 +4,7 @@ interface CustomConfig {
 
 export function MockupCustom({ config }: { config: CustomConfig }) {
   return (
-    <div className="w-full h-full bg-slate-100 overflow-hidden">
+    <div className="w-full h-full bg-slate-100">
       {config.image_url ? (
         <img src={config.image_url} alt="" className="w-full h-full object-cover" />
       ) : (

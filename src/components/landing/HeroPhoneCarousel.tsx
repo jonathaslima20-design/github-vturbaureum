@@ -4,9 +4,9 @@ import { useLandingHeroScreens, type HeroConfig, type HeroScreen } from '@/hooks
 import { MockupRenderer } from './mockups/MockupRenderer';
 
 const FALLBACK_SLIDES: HeroScreen[] = [
-  { id: '1', display_order: 1, is_active: true, label: 'Vitrine personalizada', screen_type: 'storefront', config: { store_name: 'Minha Loja', bio: 'Os melhores produtos', social_buttons: ['cart', 'whatsapp'], bg_color: '#ffffff', text_color: '#0a0a0a', accent_color: '#0f172a', category_name: 'Destaques', products: [{ title: 'Tenis Esportivo', image_url: '', price: 299.9, discount_price: 199.9 }, { title: 'Camiseta Casual', image_url: '', price: 89.9, discount_price: null }, { title: 'Relogio Digital', image_url: '', price: 450, discount_price: 359.9 }, { title: 'Mochila Urbana', image_url: '', price: 159.9, discount_price: null }] } },
-  { id: '2', display_order: 2, is_active: true, label: 'Detalhes do produto', screen_type: 'product_detail', config: { product_title: 'Tenis Esportivo Premium', product_description: 'Conforto e estilo para o seu dia a dia', price: 299.9, discount_price: 199.9, discount_badge: '-33%', color_options: ['#000000', '#ffffff', '#1e40af', '#dc2626'], size_options: ['38', '39', '40', '41', '42'], button_text: 'Adicionar ao Carrinho', button_color: '#0f172a', seller_name: 'Loja Premium' } },
-  { id: '3', display_order: 3, is_active: true, label: 'Dashboard', screen_type: 'dashboard', config: { user_name: 'Joao', period_label: 'Ultimos 30 dias', accent_color: '#0f172a', stats: [{ label: 'Produtos', value: '48', icon_name: 'Package' }, { label: 'Visualizacoes', value: '1.2k', icon_name: 'TrendingUp' }, { label: 'Visitantes', value: '384', icon_name: 'Users' }, { label: 'Conversoes', value: '27', icon_name: 'DollarSign' }] } },
+  { id: '1', display_order: 1, is_active: true, label: 'Vitrine personalizada', screen_type: 'storefront', scroll_y: 0, config: { store_name: 'Minha Loja', bio: 'Os melhores produtos', social_buttons: ['cart', 'whatsapp'], bg_color: '#ffffff', text_color: '#0a0a0a', accent_color: '#0f172a', category_name: 'Destaques', products: [{ title: 'Tenis Esportivo', image_url: '', price: 299.9, discount_price: 199.9 }, { title: 'Camiseta Casual', image_url: '', price: 89.9, discount_price: null }, { title: 'Relogio Digital', image_url: '', price: 450, discount_price: 359.9 }, { title: 'Mochila Urbana', image_url: '', price: 159.9, discount_price: null }] } },
+  { id: '2', display_order: 2, is_active: true, label: 'Detalhes do produto', screen_type: 'product_detail', scroll_y: 0, config: { product_title: 'Tenis Esportivo Premium', product_description: 'Conforto e estilo para o seu dia a dia', price: 299.9, discount_price: 199.9, discount_badge: '-33%', color_options: ['#000000', '#ffffff', '#1e40af', '#dc2626'], size_options: ['38', '39', '40', '41', '42'], button_text: 'Adicionar ao Carrinho', button_color: '#0f172a', seller_name: 'Loja Premium' } },
+  { id: '3', display_order: 3, is_active: true, label: 'Dashboard', screen_type: 'dashboard', scroll_y: 0, config: { user_name: 'Joao', period_label: 'Ultimos 30 dias', accent_color: '#0f172a', stats: [{ label: 'Produtos', value: '48', icon_name: 'Package' }, { label: 'Visualizacoes', value: '1.2k', icon_name: 'TrendingUp' }, { label: 'Visitantes', value: '384', icon_name: 'Users' }, { label: 'Conversoes', value: '27', icon_name: 'DollarSign' }] } },
 ];
 
 function getShadowStyle(shadow: HeroConfig['mockup_shadow']): string {
@@ -194,7 +194,7 @@ export default function HeroPhoneCarousel() {
               }}
             >
               <IPhone16ProMax shadow={shadowStyle}>
-                <MockupRenderer screenType={slide.screen_type} config={slide.config} />
+                <MockupRenderer screenType={slide.screen_type} config={slide.config} scrollY={slide.scroll_y} />
               </IPhone16ProMax>
             </div>
           );

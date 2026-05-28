@@ -111,6 +111,7 @@ export default function LandingHeroPage() {
       label: SCREEN_TYPE_LABELS[screenType] || 'Nova Tela',
       screen_type: screenType as HeroScreen['screen_type'],
       config: getDefaultConfig(screenType),
+      scroll_y: 0,
     };
     setEditingScreen(newScreen);
     setIsNewScreen(true);

@@ -16,7 +16,7 @@ export function MockupDashboard({ config }: { config: DashboardConfig }) {
   const stats = config.stats || [];
 
   return (
-    <div className="w-full h-full overflow-hidden relative bg-gray-50">
+    <div className="w-full relative bg-gray-50">
       <div style={{ width: 393 }}>
         {/* Page container - exact px-4 py-6 space-y-6 */}
         <div className="px-4 py-6 space-y-6">

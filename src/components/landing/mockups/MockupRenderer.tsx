@@ -4,19 +4,22 @@ import { MockupProductDetail } from './MockupProductDetail';
 import { MockupDashboard } from './MockupDashboard';
 import { MockupMyProducts } from './MockupMyProducts';
 import { MockupCustom } from './MockupCustom';
+import { getMaxScrollForScreenType } from './mockupScrollUtils';
 
-const REAL_WIDTH = 393;
-const REAL_HEIGHT = 852;
-const STATUS_BAR_HEIGHT = 54;
-const BROWSER_BAR_HEIGHT = 40;
-const CHROME_HEIGHT = STATUS_BAR_HEIGHT + BROWSER_BAR_HEIGHT;
+export const REAL_WIDTH = 393;
+export const REAL_HEIGHT = 852;
+export const STATUS_BAR_HEIGHT = 54;
+export const BROWSER_BAR_HEIGHT = 40;
+export const CHROME_HEIGHT = STATUS_BAR_HEIGHT + BROWSER_BAR_HEIGHT;
+export const CONTENT_HEIGHT = REAL_HEIGHT - CHROME_HEIGHT;
 
 interface MockupRendererProps {
   screenType: string;
   config: Record<string, any>;
+  scrollY?: number;
 }
 
-export function MockupRenderer({ screenType, config }: MockupRendererProps) {
+export function MockupRenderer({ screenType, config, scrollY = 0 }: MockupRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
 
@@ -40,6 +43,8 @@ export function MockupRenderer({ screenType, config }: MockupRendererProps) {
     return () => observer.disconnect();
   }, []);
 
+  const maxScroll = getMaxScrollForScreenType(screenType, config);
+
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden">
       <div
@@ -50,20 +55,52 @@ export function MockupRenderer({ screenType, config }: MockupRendererProps) {
           transform: `scale(${scale})`,
         }}
       >
-        {/* iOS Status Bar */}
         <StatusBar />
-
-        {/* Browser Chrome */}
         <BrowserBar screenType={screenType} config={config} />
 
-        {/* Screen content */}
         <div
           className="absolute left-0 right-0 bottom-0 overflow-hidden"
           style={{ top: CHROME_HEIGHT }}
         >
-          <ScreenContent screenType={screenType} config={config} />
+          <div
+            style={{
+              transform: `translateY(-${scrollY}px)`,
+              transition: 'transform 150ms ease-out',
+            }}
+          >
+            <ScreenContent screenType={screenType} config={config} />
+          </div>
+
+          {maxScroll > 0 && (
+            <MockupScrollIndicator scrollY={scrollY} maxScroll={maxScroll} />
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function MockupScrollIndicator({ scrollY, maxScroll }: { scrollY: number; maxScroll: number }) {
+  const trackHeight = CONTENT_HEIGHT - 16;
+  const totalContentHeight = CONTENT_HEIGHT + maxScroll;
+  const thumbHeight = Math.max(30, (CONTENT_HEIGHT / totalContentHeight) * trackHeight);
+  const thumbTop = maxScroll > 0
+    ? (scrollY / maxScroll) * (trackHeight - thumbHeight)
+    : 0;
+
+  return (
+    <div
+      className="absolute right-[3px] pointer-events-none"
+      style={{ top: 8, height: trackHeight, width: 4 }}
+    >
+      <div
+        className="absolute w-full rounded-full bg-gray-400/40"
+        style={{
+          height: thumbHeight,
+          top: thumbTop,
+          transition: 'top 150ms ease-out',
+        }}
+      />
     </div>
   );
 }
