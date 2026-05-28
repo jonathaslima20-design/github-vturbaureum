@@ -33,7 +33,7 @@ export default function SubscriptionBlocker() {
 
     if (isExpired && !isOpen) {
       openModal(true);
-      setForced(false);
+      setForced(true);
     }
 
     if (!hasActivePlan && !isExpired && !isSuspended && !isOpen) {
