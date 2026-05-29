@@ -16,9 +16,9 @@ export default function SubscriptionBlocker() {
     const isFreePlan = user.plan_status === 'free';
     const isExpired = user.plan_status === 'expired';
     const isSuspended = user.plan_status === 'suspended';
-    const isCorretor = user.role === 'corretor';
 
-    if (isAdmin || isParceiro || !isCorretor || isFreePlan) {
+    // Admins and parceiros never get blocked
+    if (isAdmin || isParceiro) {
       if (isForced) {
         setForced(false);
         closeModal();
@@ -26,19 +26,25 @@ export default function SubscriptionBlocker() {
       return;
     }
 
+    // Free plan users can open the modal voluntarily — never force-close it
+    if (isFreePlan) return;
+
     if (isSuspended && !isOpen) {
       openModal(true);
       setForced(true);
+      return;
     }
 
     if (isExpired && !isOpen) {
       openModal(true);
       setForced(true);
+      return;
     }
 
     if (!hasActivePlan && !isExpired && !isSuspended && !isOpen) {
       openModal(true);
       setForced(true);
+      return;
     }
 
     if (hasActivePlan && isForced) {
