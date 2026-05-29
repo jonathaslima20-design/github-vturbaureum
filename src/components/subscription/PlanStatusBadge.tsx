@@ -18,10 +18,8 @@ function getBillingCycleLabel(cycle: BillingCycle): string {
   }
 }
 
-export default function PlanStatusBadge({ status, planName, billingCycle, className }: PlanStatusBadgeProps) {
-  const label = billingCycle
-    ? getBillingCycleLabel(billingCycle)
-    : planName ? planName.replace(/^plano\s+/i, '') : undefined;
+export default function PlanStatusBadge({ status, planName: _planName, billingCycle, className }: PlanStatusBadgeProps) {
+  const label = billingCycle ? getBillingCycleLabel(billingCycle) : undefined;
 
   switch (status) {
     case 'active':

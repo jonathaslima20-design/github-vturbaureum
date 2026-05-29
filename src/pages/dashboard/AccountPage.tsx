@@ -250,8 +250,9 @@ export default function AccountPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground">Plano</p>
                 <p className="text-sm font-medium">
-                  {getPlanLabel(user?.plan_status)}
-                  {user?.billing_cycle && user.plan_status === 'active' && ` - ${getBillingLabel(user.billing_cycle)}`}
+                  {user?.plan_status === 'active' && user?.billing_cycle
+                    ? getBillingLabel(user.billing_cycle)
+                    : getPlanLabel(user?.plan_status)}
                 </p>
               </div>
             </div>
