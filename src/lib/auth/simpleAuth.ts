@@ -638,6 +638,34 @@ export function extendSession(): void {
   }
 }
 
+// Refresh full user profile from database
+export async function refreshUserFromDB(): Promise<StoredUser | null> {
+  try {
+    const currentUser = getStoredUser();
+    if (!currentUser || !currentUser.id) return null;
+
+    const { data: userProfile, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+
+    if (error || !userProfile) return currentUser;
+
+    const refreshedUser: StoredUser = {
+      ...currentUser,
+      ...userProfile,
+      sessionId: currentUser.sessionId,
+      lastActivity: currentUser.lastActivity,
+    };
+
+    storeUser(refreshedUser);
+    return refreshedUser;
+  } catch {
+    return getStoredUser();
+  }
+}
+
 // Refresh user's image limit from database
 export async function refreshUserImageLimit(): Promise<number> {
   try {

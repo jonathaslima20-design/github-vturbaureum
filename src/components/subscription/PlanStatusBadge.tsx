@@ -4,7 +4,6 @@ import type { BillingCycle, PlanStatus } from '@/types';
 
 interface PlanStatusBadgeProps {
   status?: PlanStatus;
-  planName?: string;
   billingCycle?: BillingCycle;
   className?: string;
 }
@@ -18,7 +17,7 @@ function getBillingCycleLabel(cycle: BillingCycle): string {
   }
 }
 
-export default function PlanStatusBadge({ status, planName: _planName, billingCycle, className }: PlanStatusBadgeProps) {
+export default function PlanStatusBadge({ status, billingCycle, className }: PlanStatusBadgeProps) {
   const label = billingCycle ? getBillingCycleLabel(billingCycle) : undefined;
 
   switch (status) {

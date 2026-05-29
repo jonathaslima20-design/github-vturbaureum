@@ -1,16 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { User as AppUser } from '@/types';
-import { 
-  authenticateUser, 
-  registerUser, 
-  logoutUser, 
-  updateUserProfile, 
+import {
+  authenticateUser,
+  registerUser,
+  logoutUser,
+  updateUserProfile,
   autoLogin,
   getStoredUser,
   isAuthenticated,
   validateSession,
   extendSession,
-  type StoredUser 
+  refreshUserFromDB,
+  type StoredUser
 } from '@/lib/auth/simpleAuth';
 
 interface AuthContextType {
@@ -54,6 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(storedUser);
         setLoading(false);
         console.log('✅ User restored from localStorage');
+        // Silently refresh from DB to get latest data (billing_cycle, plan_status, etc.)
+        refreshUserFromDB().then((fresh) => {
+          if (fresh) setUser(fresh);
+        });
         return;
       }
       
@@ -149,9 +154,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const storedUser = getStoredUser();
-      if (storedUser && validateSession()) {
-        setUser(storedUser);
+      if (!validateSession()) {
+        setUser(null);
+        return;
+      }
+      const fresh = await refreshUserFromDB();
+      if (fresh) {
+        setUser(fresh);
       } else {
         setUser(null);
       }
