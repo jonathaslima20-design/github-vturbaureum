@@ -67,18 +67,6 @@ export default function CorretorPage({ customDomainSlug }: CorretorPageProps = {
   const { corretor, loading: corretorLoading, error: corretorError } = useCorretorData({ slug });
 
   const isPaidPlan = corretor?.plan_status === 'active';
-  const hideFooterBranding = isPaidPlan && corretor?.billing_cycle === 'annually';
-
-  useEffect(() => {
-    if (hideFooterBranding) {
-      document.documentElement.setAttribute('data-hide-branding', 'true');
-    } else {
-      document.documentElement.removeAttribute('data-hide-branding');
-    }
-    return () => {
-      document.documentElement.removeAttribute('data-hide-branding');
-    };
-  }, [hideFooterBranding]);
 
   const language: SupportedLanguage = corretor?.language || 'pt-BR';
   const currency: SupportedCurrency = corretor?.currency || 'BRL';
