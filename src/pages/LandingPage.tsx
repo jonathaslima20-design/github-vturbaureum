@@ -735,18 +735,14 @@ function PricingCard({
   tag,
   name,
   price,
-  period,
   featured = false,
   benefits,
-  exclusives = [],
 }: {
   tag: string;
   name: string;
   price: string;
-  period: string;
   featured?: boolean;
   benefits: string[];
-  exclusives?: string[];
 }) {
   return (
     <div
@@ -766,9 +762,8 @@ function PricingCard({
           {tag}
         </span>
       </div>
-      <div className="mt-8 flex items-baseline gap-2">
+      <div className="mt-8">
         <span className="font-display font-semibold text-[44px] lg:text-[52px] tracking-[-0.03em] leading-none">{price}</span>
-        <span className={`font-mono-label text-[12px] ${featured ? 'text-white/60' : 'text-ink-400'}`}>{period}</span>
       </div>
       <ul className="mt-8 space-y-3 flex-1">
         {benefits.map((b) => (
@@ -781,18 +776,6 @@ function PricingCard({
               <Check size={12} strokeWidth={3} className={featured ? 'text-white' : 'text-ink-900'} />
             </span>
             <span className={`text-[14px] ${featured ? 'text-white/90' : 'text-ink-700'}`}>{b}</span>
-          </li>
-        ))}
-        {exclusives.map((b) => (
-          <li key={b} className="flex items-center gap-3">
-            <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                featured ? 'bg-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'
-              }`}
-            >
-              <Zap size={10} strokeWidth={3} className={featured ? 'text-emerald-300' : 'text-emerald-600'} />
-            </span>
-            <span className={`text-[14px] font-medium ${featured ? 'text-white' : 'text-ink-900'}`}>{b}</span>
           </li>
         ))}
       </ul>
@@ -839,7 +822,8 @@ function PricingSection() {
     'Programa de Indicação',
   ];
 
-  const anualExclusives = [
+  const anualBenefits = [
+    ...allPaidBenefits,
     'API REST para integrações externas (Bling, Tiny, ERPs)',
     'Domínio próprio com SSL',
     'Remoção da logomarca VitrineTurbo',
@@ -854,24 +838,20 @@ function PricingSection() {
             tag="Flexível"
             name="Trimestral"
             price="R$ 149,00"
-            period="pagamento único"
             benefits={allPaidBenefits}
           />
           <PricingCard
             tag="Mais escolhido"
             name="Semestral"
             price="R$ 229,00"
-            period="pagamento único"
-            featured
             benefits={allPaidBenefits}
           />
           <PricingCard
             tag="Melhor valor"
             name="Anual"
             price="R$ 336,00"
-            period="pagamento único"
-            benefits={allPaidBenefits}
-            exclusives={anualExclusives}
+            featured
+            benefits={anualBenefits}
           />
         </div>
       </div>

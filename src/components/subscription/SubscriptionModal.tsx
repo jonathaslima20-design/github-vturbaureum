@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, CreditCard, Crown, Zap, Star, LogOut, Package, FolderOpen, CircleArrowUp as ArrowUpCircle, Lock, TriangleAlert as AlertTriangle, Ban } from 'lucide-react';
+import { Check, CreditCard, ArrowRight, LogOut, Package, FolderOpen, CircleArrowUp as ArrowUpCircle, Lock, TriangleAlert as AlertTriangle, Ban } from 'lucide-react';
 import BannerClients from '@/components/subscription/BannerClients';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Dialog,
@@ -62,36 +60,7 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
 
   const paidPlans = plans.filter((p) => p.duration !== 'Free');
 
-  const getPlanIcon = (duration: string) => {
-    switch (duration) {
-      case 'Mensal':
-        return <Zap className="h-6 w-6 text-blue-500" />;
-      case 'Trimestral':
-        return <Star className="h-6 w-6 text-teal-500" />;
-      case 'Semestral':
-        return <Star className="h-6 w-6 text-orange-500" />;
-      case 'Anual':
-        return <Crown className="h-6 w-6 text-yellow-500" />;
-      default:
-        return <Check className="h-6 w-6 text-green-500" />;
-    }
-  };
-
-  const getPlanColor = (duration: string, isPopular = false) => {
-    if (isPopular) return 'border-yellow-300 bg-gradient-to-b from-yellow-50 to-amber-50/30 hover:border-yellow-400 shadow-md';
-    switch (duration) {
-      case 'Mensal':
-        return 'border-blue-200 hover:border-blue-300 bg-blue-50/30';
-      case 'Trimestral':
-        return 'border-teal-200 hover:border-teal-300 bg-teal-50/30';
-      case 'Semestral':
-        return 'border-orange-200 hover:border-orange-300 bg-orange-50/30';
-      default:
-        return 'border-gray-200 hover:border-gray-300';
-    }
-  };
-
-  const isPopularPlan = (duration: string) => duration === 'Anual';
+  const isAnnualPlan = (duration: string) => duration === 'Anual';
 
   const limitMessage = (() => {
     if (limitReason === 'products') {
@@ -328,80 +297,66 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
 
             {/* Paid Plans */}
             {paidPlans.length > 0 && (
-              <div className={`grid grid-cols-1 gap-6 ${paidPlans.length === 1 ? 'md:grid-cols-1 max-w-sm mx-auto' : paidPlans.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+              <div className={`grid grid-cols-1 gap-5 ${paidPlans.length === 1 ? 'md:grid-cols-1 max-w-sm mx-auto' : paidPlans.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
                 {paidPlans.map((plan) => {
-                  const popular = isPopularPlan(plan.duration);
-                  const isAnnual = plan.duration === 'Anual';
+                  const featured = isAnnualPlan(plan.duration);
+                  const planFeatures = featured
+                    ? [...commonPaidFeatures, ...annualExclusiveFeatures]
+                    : commonPaidFeatures;
                   return (
-                    <Card
+                    <div
                       key={plan.id}
-                      className={`relative transition-all duration-300 hover:shadow-lg border-2 ${getPlanColor(plan.duration, popular)}`}
+                      className={`rounded-2xl p-7 border flex flex-col transition-all duration-200 hover:shadow-lg ${
+                        featured ? 'bg-zinc-900 text-white border-zinc-800' : 'bg-white text-zinc-900 border-zinc-200'
+                      }`}
                     >
-                      {popular && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 shadow-sm">
-                            Mais Popular
-                          </Badge>
-                        </div>
-                      )}
-
-                      <CardHeader className="text-center pb-4">
-                        <div className="flex justify-center mb-3">
-                          {getPlanIcon(plan.duration)}
-                        </div>
-                        <CardTitle className="text-xl">{plan.name}</CardTitle>
-                        <div className="text-3xl font-bold text-primary mt-1">
+                      <div className="flex items-center justify-between">
+                        <span className={`font-semibold text-base ${featured ? 'text-white' : 'text-zinc-900'}`}>
+                          {plan.name}
+                        </span>
+                        <span
+                          className={`text-[10px] uppercase tracking-wide px-2.5 py-1 rounded-full border font-medium ${
+                            featured ? 'border-white/30 text-white' : 'border-zinc-200 text-zinc-500'
+                          }`}
+                        >
+                          {plan.duration === 'Anual' ? 'Melhor valor' : plan.duration === 'Semestral' ? 'Mais escolhido' : 'Flexível'}
+                        </span>
+                      </div>
+                      <div className="mt-6">
+                        <span className={`text-4xl font-bold tracking-tight ${featured ? 'text-white' : 'text-zinc-900'}`}>
                           {formatCurrencyI18n(plan.price, user?.currency || 'BRL', user?.language || 'pt-BR')}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Pagamento único por {plan.duration.toLowerCase()}
-                        </p>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                          {commonPaidFeatures.map((feature, index) => (
-                            <div key={index} className="flex items-start gap-2 text-sm">
-                              <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span>{feature}</span>
-                            </div>
-                          ))}
-                          {isAnnual && (
-                            <>
-                              <div className="pt-2 pb-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="flex-1 h-px bg-yellow-200" />
-                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-yellow-700 whitespace-nowrap">
-                                    Exclusivo Anual
-                                  </span>
-                                  <div className="flex-1 h-px bg-yellow-200" />
-                                </div>
-                              </div>
-                              {annualExclusiveFeatures.map((feature, index) => (
-                                <div key={index} className="flex items-start gap-2 text-sm">
-                                  <Crown className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                                  <span className="font-medium">{feature}</span>
-                                </div>
-                              ))}
-                            </>
-                          )}
-                        </div>
-
-                        <div className="pt-2">
-                          <Button
-                            className={`w-full ${popular ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0' : ''}`}
-                            size="lg"
-                            onClick={() => {
-                              onOpenChange(false);
-                              navigate(`/dashboard/checkout?plan=${plan.id}&cycle=${plan.duration}`);
-                            }}
-                          >
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Assinar Agora
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                        </span>
+                      </div>
+                      <ul className="mt-6 space-y-3 flex-1">
+                        {planFeatures.map((feature, index) => (
+                          <li key={index} className="flex items-center gap-3">
+                            <span
+                              className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                featured ? 'bg-white/15' : 'bg-white border border-zinc-200'
+                              }`}
+                            >
+                              <Check size={12} strokeWidth={3} className={featured ? 'text-white' : 'text-zinc-900'} />
+                            </span>
+                            <span className={`text-sm ${featured ? 'text-white/90' : 'text-zinc-700'}`}>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        className={`mt-6 rounded-full px-6 py-3 font-medium text-sm inline-flex items-center justify-center gap-2 transition-colors ${
+                          featured
+                            ? 'bg-white text-zinc-900 hover:bg-white/90'
+                            : 'bg-zinc-900 text-white hover:bg-zinc-800'
+                        }`}
+                        onClick={() => {
+                          onOpenChange(false);
+                          navigate(`/dashboard/checkout?plan=${plan.id}&cycle=${plan.duration}`);
+                        }}
+                      >
+                        <CreditCard size={14} />
+                        Assinar Agora
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
                   );
                 })}
               </div>
