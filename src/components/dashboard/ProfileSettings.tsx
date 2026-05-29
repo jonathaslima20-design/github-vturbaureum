@@ -555,14 +555,6 @@ export function ProfileSettings() {
             )}
           />
 
-          <Separator />
-
-          {/* Theme Toggle */}
-          <ThemeToggleSection
-            user={user}
-            isDarkTheme={isDarkTheme}
-            setIsDarkTheme={setIsDarkTheme}
-          />
 
           <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 pt-6">
             <PasswordChangeDialog
