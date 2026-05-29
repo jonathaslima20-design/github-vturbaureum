@@ -4,6 +4,8 @@ import { Check, CreditCard, ArrowRight, LogOut, Package, FolderOpen, CircleArrow
 import BannerClients from '@/components/subscription/BannerClients';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
