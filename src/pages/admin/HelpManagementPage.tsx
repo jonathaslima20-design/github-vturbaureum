@@ -55,6 +55,7 @@ interface HelpArticle {
 const ICON_OPTIONS = [
   'Rocket', 'Package', 'Settings', 'ShoppingCart', 'Gift',
   'AlertCircle', 'FileText', 'CreditCard', 'TrendingUp',
+  'BarChart2', 'Users', 'Zap',
 ];
 
 export default function HelpManagementPage() {

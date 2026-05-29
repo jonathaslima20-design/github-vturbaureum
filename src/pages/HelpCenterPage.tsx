@@ -1,24 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Search, ArrowRight, TrendingUp, Clock, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Search, ArrowRight, BookOpen, Rocket, Package, ShoppingCart, Gift, ChartBar as BarChart2, CreditCard, Users, Zap, CircleAlert as AlertCircle, FileText, TrendingUp, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { HelpCategoryCard } from '@/components/help/HelpCategoryCard';
-import { HelpArticleCard } from '@/components/help/HelpArticleCard';
-import { HelpSearchResults } from '@/components/help/HelpSearchResults';
+import { HelpLayout } from '@/components/help/HelpLayout';
 
 interface HelpCategory {
   id: string;
   name: string;
+  slug: string;
   description: string;
   icon: string;
-  slug: string;
-  display_order: number;
-  article_count?: number;
+  article_count: number;
 }
 
 interface HelpArticle {
@@ -26,286 +18,293 @@ interface HelpArticle {
   title: string;
   slug: string;
   excerpt: string;
-  category_id: string;
-  category?: {
-    name: string;
-    slug: string;
-  };
   view_count: number;
-  helpful_count: number;
-  is_featured: boolean;
-  created_at: string;
+  category?: { name: string; slug: string };
 }
+
+const iconMap: Record<string, React.ElementType> = {
+  Rocket, Package, ShoppingCart, Gift, BarChart2,
+  CreditCard, Users, Zap, AlertCircle, FileText, TrendingUp,
+};
 
 export default function HelpCenterPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<HelpCategory[]>([]);
   const [featuredArticles, setFeaturedArticles] = useState<HelpArticle[]>([]);
-  const [popularArticles, setPopularArticles] = useState<HelpArticle[]>([]);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [searchResults, setSearchResults] = useState<HelpArticle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [searching, setSearching] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { loadData(); }, []);
 
   useEffect(() => {
-    loadHelpData();
-  }, []);
-
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      performSearch();
-    } else {
-      setSearchResults([]);
-    }
+    if (searchQuery.trim()) performSearch(searchQuery);
+    else setSearchResults([]);
   }, [searchQuery]);
 
-  const loadHelpData = async () => {
+  const loadData = async () => {
     try {
-      // Load categories with article counts
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('help_categories')
-        .select(`
-          *,
-          help_articles!inner(id)
-        `)
-        .eq('is_active', true)
-        .order('display_order');
+      const [catRes, featRes] = await Promise.all([
+        supabase
+          .from('help_categories')
+          .select('*, help_articles(id)')
+          .eq('is_active', true)
+          .order('display_order'),
+        supabase
+          .from('help_articles')
+          .select('id, title, slug, excerpt, view_count, category:help_categories(name, slug)')
+          .eq('is_published', true)
+          .eq('is_featured', true)
+          .order('created_at', { ascending: false })
+          .limit(6),
+      ]);
 
-      if (categoriesError) throw categoriesError;
-
-      // Process categories with article counts
-      const processedCategories = categoriesData?.map(cat => ({
-        ...cat,
-        article_count: cat.help_articles?.length || 0
-      })) || [];
-
-      setCategories(processedCategories);
-
-      // Load featured articles
-      const { data: featuredData, error: featuredError } = await supabase
-        .from('help_articles')
-        .select(`
-          *,
-          category:help_categories(name, slug)
-        `)
-        .eq('is_published', true)
-        .eq('is_featured', true)
-        .order('created_at', { ascending: false })
-        .limit(6);
-
-      if (featuredError) throw featuredError;
-      setFeaturedArticles(featuredData || []);
-
-      // Load popular articles
-      const { data: popularData, error: popularError } = await supabase
-        .from('help_articles')
-        .select(`
-          *,
-          category:help_categories(name, slug)
-        `)
-        .eq('is_published', true)
-        .order('view_count', { ascending: false })
-        .limit(6);
-
-      if (popularError) throw popularError;
-      setPopularArticles(popularData || []);
-
-    } catch (error) {
-      console.error('Error loading help data:', error);
+      setCategories(
+        (catRes.data || []).map(c => ({ ...c, article_count: c.help_articles?.length || 0 }))
+      );
+      setFeaturedArticles(featRes.data || []);
     } finally {
       setLoading(false);
     }
   };
 
-  const performSearch = async () => {
-    if (!searchQuery.trim()) return;
-
+  const performSearch = async (q: string) => {
+    if (!q.trim()) return;
+    setSearching(true);
     try {
-      setSearching(true);
-
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('help_articles')
-        .select(`
-          *,
-          category:help_categories(name, slug)
-        `)
+        .select('id, title, slug, excerpt, view_count, category:help_categories(name, slug)')
         .eq('is_published', true)
-        .textSearch('title', searchQuery, {
-          type: 'websearch',
-          config: 'portuguese'
-        })
+        .ilike('title', `%${q}%`)
         .order('view_count', { ascending: false })
         .limit(20);
-
-      if (error) throw error;
       setSearchResults(data || []);
-    } catch (error) {
-      console.error('Error searching articles:', error);
     } finally {
       setSearching(false);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    performSearch();
+  const handleSearch = (q: string) => {
+    setSearchQuery(q);
+    if (q.trim()) navigate(`/help?q=${encodeURIComponent(q)}`, { replace: true });
+    else navigate('/help', { replace: true });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <HelpLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+        </div>
+      </HelpLayout>
     );
   }
 
+  const showSearch = searchQuery.trim().length > 0;
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-primary/10 via-blue-50 to-purple-50 dark:from-primary/5 dark:via-blue-950/20 dark:to-purple-950/20">
-        <div className="container mx-auto px-4 py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Central de Ajuda
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Encontre respostas para suas dúvidas sobre o VitrineTurbo
-            </p>
+    <HelpLayout onSearch={handleSearch} searchQuery={searchQuery}>
+      <div className="max-w-4xl mx-auto px-6 py-10">
+        {showSearch ? (
+          /* ── Search Results ── */
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-xl font-semibold">
+                {searching ? 'Buscando...' : `${searchResults.length} resultado${searchResults.length !== 1 ? 's' : ''} para "${searchQuery}"`}
+              </h1>
+              <button
+                onClick={() => handleSearch('')}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Limpar busca
+              </button>
+            </div>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="Buscar artigos de ajuda..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-4 py-6 text-lg rounded-xl border-2 focus:border-primary"
-              />
-              {searching && (
-                <div className="absolute right-4 top-4">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-                </div>
-              )}
-            </form>
-          </motion.div>
-        </div>
-      </div>
+            {searching && (
+              <div className="flex items-center justify-center h-32">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+              </div>
+            )}
 
-      <div className="container mx-auto px-4 py-12">
-        {searchQuery.trim() && searchResults.length > 0 ? (
-          /* Search Results */
-          <HelpSearchResults 
-            results={searchResults}
-            query={searchQuery}
-            onClearSearch={() => setSearchQuery('')}
-          />
-        ) : searchQuery.trim() && searchResults.length === 0 ? (
-          /* No Results */
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold mb-4">Nenhum resultado encontrado</h2>
-            <p className="text-muted-foreground mb-6">
-              Tente usar termos diferentes ou navegue pelas categorias abaixo
-            </p>
-            <Button variant="outline" onClick={() => setSearchQuery('')}>
-              Ver todas as categorias
-            </Button>
+            {!searching && searchResults.length === 0 && (
+              <div className="text-center py-16">
+                <Search size={40} className="mx-auto text-muted-foreground mb-4 opacity-40" />
+                <h2 className="text-lg font-medium mb-2">Nenhum artigo encontrado</h2>
+                <p className="text-muted-foreground text-sm">
+                  Tente palavras diferentes ou navegue pelas categorias no menu lateral.
+                </p>
+              </div>
+            )}
+
+            {!searching && searchResults.length > 0 && (
+              <div className="space-y-2">
+                {searchResults.map(article => (
+                  <Link
+                    key={article.id}
+                    to={`/help/category/${article.category?.slug}/${article.slug}`}
+                    className="block p-4 rounded-lg border border-border hover:border-primary/30 hover:bg-muted/40 transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {article.category && (
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              {article.category.name}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-medium text-sm group-hover:text-primary transition-colors leading-snug">
+                          {article.title}
+                        </h3>
+                        {article.excerpt && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                            {article.excerpt}
+                          </p>
+                        )}
+                      </div>
+                      <ArrowRight size={14} className="flex-shrink-0 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all mt-0.5" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
-          /* Main Content */
-          <div className="space-y-16">
-            {/* Categories Grid */}
-            <section>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <h2 className="text-3xl font-bold text-center mb-4">
-                  Navegue por categoria
-                </h2>
-                <p className="text-muted-foreground text-center mb-12">
-                  Encontre ajuda organizada por tópicos
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categories.map((category, index) => (
-                    <motion.div
-                      key={category.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + index * 0.1 }}
-                    >
-                      <HelpCategoryCard category={category} />
-                    </motion.div>
-                  ))}
+          /* ── Home ── */
+          <div className="space-y-12">
+            {/* Hero */}
+            <div>
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                  <BookOpen size={16} className="text-primary-foreground" />
                 </div>
-              </motion.div>
+                <span className="text-sm font-medium text-muted-foreground">VitrineTurbo</span>
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight mb-3">Central de Ajuda</h1>
+              <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
+                Tudo que você precisa para criar, gerenciar e crescer sua vitrine digital.
+                Use o menu lateral para navegar ou a busca para encontrar um tópico específico.
+              </p>
+
+              {/* Inline search for mobile / quick access */}
+              <div className="mt-5 relative max-w-lg">
+                <Search size={15} className="absolute left-3 top-3 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Buscar artigos..."
+                  value={searchQuery}
+                  onChange={e => handleSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border border-border bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
+
+            {/* Categories grid */}
+            <section>
+              <h2 className="text-base font-semibold mb-4 text-foreground">Navegar por categoria</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {categories.map(category => {
+                  const Icon = iconMap[category.icon] || FileText;
+                  return (
+                    <Link
+                      key={category.id}
+                      to={`/help/category/${category.slug}`}
+                      className="group flex items-start gap-3 p-4 rounded-lg border border-border hover:border-primary/30 hover:bg-muted/30 transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors mt-0.5">
+                        <Icon size={15} className="text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-sm group-hover:text-primary transition-colors leading-tight">
+                            {category.name}
+                          </span>
+                          <ArrowRight size={13} className="flex-shrink-0 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
+                          {category.description}
+                        </p>
+                        <span className="text-[11px] text-muted-foreground mt-1.5 block">
+                          {category.article_count} {category.article_count === 1 ? 'artigo' : 'artigos'}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </section>
 
-            {/* Featured Articles */}
+            {/* Featured articles */}
             {featuredArticles.length > 0 && (
               <section>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <div className="flex items-center gap-2 mb-8">
-                    <TrendingUp className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold">Artigos em destaque</h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {featuredArticles.map((article, index) => (
-                      <motion.div
-                        key={article.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 + index * 0.1 }}
-                      >
-                        <HelpArticleCard article={article} />
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
+                <h2 className="text-base font-semibold mb-4 text-foreground">Artigos essenciais</h2>
+                <div className="space-y-1.5">
+                  {featuredArticles.map(article => (
+                    <Link
+                      key={article.id}
+                      to={`/help/category/${article.category?.slug}/${article.slug}`}
+                      className="group flex items-center justify-between gap-3 px-4 py-3 rounded-lg hover:bg-muted/40 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <FileText size={14} className="text-muted-foreground flex-shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-sm font-medium group-hover:text-primary transition-colors leading-snug block truncate">
+                            {article.title}
+                          </span>
+                          {article.category && (
+                            <span className="text-[11px] text-muted-foreground">{article.category.name}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        {article.view_count > 0 && (
+                          <span className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Eye size={11} />
+                            {article.view_count}
+                          </span>
+                        )}
+                        <ArrowRight size={13} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </section>
             )}
 
-            {/* Popular Articles */}
-            {popularArticles.length > 0 && (
-              <section>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+            {/* Quick start section */}
+            <section className="rounded-xl border border-border bg-muted/20 p-6">
+              <h2 className="text-base font-semibold mb-1">Começando do zero?</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Siga nossa trilha de primeiros passos e configure sua vitrine em menos de 30 minutos.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  to="/help/category/primeiros-passos/criando-sua-conta"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
                 >
-                  <div className="flex items-center gap-2 mb-8">
-                    <Users className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold">Mais acessados</h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {popularArticles.map((article, index) => (
-                      <motion.div
-                        key={article.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 + index * 0.1 }}
-                      >
-                        <HelpArticleCard article={article} />
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              </section>
-            )}
+                  <Rocket size={13} />
+                  Criar minha conta
+                </Link>
+                <Link
+                  to="/help/category/primeiros-passos/configurando-perfil-loja"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-background text-sm font-medium hover:bg-muted/50 transition-colors"
+                >
+                  Configurar o perfil
+                </Link>
+                <Link
+                  to="/help/category/primeiros-passos/publicando-primeiros-produtos"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-background text-sm font-medium hover:bg-muted/50 transition-colors"
+                >
+                  Publicar produtos
+                </Link>
+              </div>
+            </section>
           </div>
         )}
       </div>
-    </div>
+    </HelpLayout>
   );
 }

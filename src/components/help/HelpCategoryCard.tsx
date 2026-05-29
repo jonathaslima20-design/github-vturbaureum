@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, FileText, Package, Settings, ShoppingCart, Gift, CircleAlert as AlertCircle, Rocket, CreditCard, TrendingUp } from 'lucide-react';
+import { ArrowRight, FileText, Package, Settings, ShoppingCart, Gift, CircleAlert as AlertCircle, Rocket, CreditCard, TrendingUp, ChartBar as BarChart2, Users, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -16,7 +16,7 @@ interface HelpCategoryCardProps {
   category: HelpCategory;
 }
 
-const iconMap = {
+const iconMap: Record<string, React.ElementType> = {
   'Rocket': Rocket,
   'Package': Package,
   'Settings': Settings,
@@ -26,6 +26,9 @@ const iconMap = {
   'FileText': FileText,
   'CreditCard': CreditCard,
   'TrendingUp': TrendingUp,
+  'BarChart2': BarChart2,
+  'Users': Users,
+  'Zap': Zap,
 };
 
 export function HelpCategoryCard({ category }: HelpCategoryCardProps) {
