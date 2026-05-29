@@ -197,8 +197,8 @@ function Hero() {
               { label: 'Suporte via WhatsApp' },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                  <Check size={10} strokeWidth={3} className="text-emerald-600" />
+                <div className="w-5 h-5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Check size={10} strokeWidth={3} className="text-primary" />
                 </div>
                 <span className="text-[13px] text-ink-600 font-medium">{item.label}</span>
               </div>
