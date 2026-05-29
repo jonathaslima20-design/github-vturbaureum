@@ -6,6 +6,7 @@ import * as z from 'zod';
 import { toast } from 'sonner';
 import { User, Mail, Building2, Phone, Calendar, CreditCard, Link2, Loader, Camera, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 
 export default function AccountPage() {
   const { user, updateUser } = useAuth();
+  const { openModal } = useSubscriptionModal();
   const [isSaving, setIsSaving] = useState(false);
   const [renewLoading, setRenewLoading] = useState(false);
   const navigate = useNavigate();
@@ -49,8 +51,7 @@ export default function AccountPage() {
         .maybeSingle();
 
       if (!data?.plan_id) {
-        // No prior payment found — open subscription modal instead
-        navigate('/dashboard/settings');
+        openModal();
         return;
       }
 
