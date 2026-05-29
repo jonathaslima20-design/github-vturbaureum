@@ -34,7 +34,7 @@ export default function Footer() {
     return () => observer.disconnect();
   }, []);
 
-  const logoHeight = footerLogoFormat === 'square' ? '64px' : '48px';
+  const logoHeight = footerLogoFormat === 'square' ? '96px' : '72px';
 
   const renderLogo = () => {
     if (footerLogoMode === 'hidden') return null;
@@ -45,7 +45,7 @@ export default function Footer() {
           src={customLogoUrl}
           alt="Logo"
           className="object-contain"
-          style={{ height: logoHeight, maxWidth: footerLogoFormat === 'square' ? '64px' : '160px' }}
+          style={{ height: logoHeight, maxWidth: footerLogoFormat === 'square' ? '96px' : '240px' }}
         />
       );
     }

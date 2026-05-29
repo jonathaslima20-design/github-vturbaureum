@@ -550,7 +550,7 @@ function FooterLogoEditor({
                 src={logoUrl}
                 alt="Logo personalizada"
                 className="max-w-[160px] object-contain"
-                style={{ height: logoFormat === 'rectangular' ? '48px' : '64px' }}
+                style={{ height: logoFormat === 'rectangular' ? '72px' : '96px' }}
               />
               <Button
                 variant="ghost"
