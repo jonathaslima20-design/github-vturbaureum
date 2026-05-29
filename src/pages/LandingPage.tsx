@@ -375,7 +375,7 @@ function BentoGrid() {
             <div className="space-y-2">
               {[
                 { code: 'PRIMEIRACOMPRA', discount: '-15%', uses: '234 usos' },
-                { code: 'FRETEGRATIS', discount: '-R$ 25', uses: '89 usos' },
+                { code: 'PROMO20', discount: '-R$ 25', uses: '89 usos' },
                 { code: 'BLACKFRIDAY', discount: '-30%', uses: '567 usos' },
               ].map((coupon) => (
                 <div key={coupon.code} className="flex items-center gap-2.5 rounded-xl border hairline bg-white px-3 py-2">
