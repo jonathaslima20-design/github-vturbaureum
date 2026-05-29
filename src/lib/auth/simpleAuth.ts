@@ -439,6 +439,11 @@ export async function registerUser(
       return { user: null, error: 'Erro ao criar usuário' };
     }
 
+    // Enable inventory control by default for new users
+    await supabase
+      .from('user_storefront_settings')
+      .upsert({ user_id: userProfile.id, settings: { enableInventory: true } }, { onConflict: 'user_id' });
+
     // Store credentials and user data (with normalized email)
     storeCredentials(normalizedEmail, password);
     storeUser(userProfile);

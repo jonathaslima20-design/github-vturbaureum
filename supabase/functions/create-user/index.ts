@@ -231,6 +231,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Enable inventory control by default for new users
+    await supabaseAdmin
+      .from('user_storefront_settings')
+      .upsert({ user_id: userId, settings: { enableInventory: true } }, { onConflict: 'user_id' });
+
     return new Response(
       JSON.stringify({
         success: true,
