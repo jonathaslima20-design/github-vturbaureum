@@ -29,6 +29,8 @@ export interface StorefrontAppearance {
   cover_border_radius: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   section_spacing: 'compact' | 'normal' | 'relaxed';
   card_gap: 'compact' | 'normal' | 'relaxed';
+  footer_logo_mode: 'default' | 'hidden' | 'custom';
+  custom_logo_url: string | null;
   is_active: boolean;
 }
 
@@ -61,6 +63,8 @@ export const DEFAULT_APPEARANCE: StorefrontAppearance = {
   cover_border_radius: 'none',
   section_spacing: 'normal',
   card_gap: 'normal',
+  footer_logo_mode: 'default',
+  custom_logo_url: null,
   is_active: true,
 };
 

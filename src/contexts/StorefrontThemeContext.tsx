@@ -86,12 +86,22 @@ export function StorefrontThemeProvider({ userId, isPaidPlan, children }: Storef
           appliedKeys.push(key);
         }
       }
+
+      root.setAttribute('data-footer-logo-mode', appearance.footer_logo_mode);
+      if (appearance.custom_logo_url) {
+        root.setAttribute('data-custom-logo-url', appearance.custom_logo_url);
+      } else {
+        root.removeAttribute('data-custom-logo-url');
+      }
+
       return () => {
         root.classList.remove('sf-themed');
         appliedKeys.forEach(k => root.style.removeProperty(k));
+        root.removeAttribute('data-footer-logo-mode');
+        root.removeAttribute('data-custom-logo-url');
       };
     }
-  }, [isActive, sfStyles]);
+  }, [isActive, sfStyles, appearance.footer_logo_mode, appearance.custom_logo_url]);
 
   const value = useMemo(() => ({ appearance, isActive, sfStyles }), [appearance, isActive, sfStyles]);
 

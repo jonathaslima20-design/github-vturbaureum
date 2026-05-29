@@ -5,6 +5,7 @@ import Logo from '@/components/Logo';
 export default function Footer() {
   const [bgColor, setBgColor] = useState<string | undefined>(undefined);
   const [customLogoUrl, setCustomLogoUrl] = useState<string | null>(null);
+  const [footerLogoMode, setFooterLogoMode] = useState<string>('default');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -17,6 +18,7 @@ export default function Footer() {
         setBgColor(undefined);
       }
       setCustomLogoUrl(root.getAttribute('data-custom-logo-url'));
+      setFooterLogoMode(root.getAttribute('data-footer-logo-mode') || 'default');
     };
 
     readState();
@@ -24,34 +26,44 @@ export default function Footer() {
     const observer = new MutationObserver(readState);
     observer.observe(root, {
       attributes: true,
-      attributeFilter: ['class', 'style', 'data-custom-logo-url'],
+      attributeFilter: ['class', 'style', 'data-custom-logo-url', 'data-footer-logo-mode'],
     });
 
     return () => observer.disconnect();
   }, []);
 
+  const renderLogo = () => {
+    if (footerLogoMode === 'hidden') return null;
+
+    if (footerLogoMode === 'custom' && customLogoUrl) {
+      return (
+        <img
+          src={customLogoUrl}
+          alt="Logo"
+          className="h-8 max-w-[160px] object-contain"
+        />
+      );
+    }
+
+    return (
+      <>
+        <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
+          <Logo size="md" showText={false} backgroundColor={bgColor} />
+        </Link>
+        <div className="flex items-center gap-4 text-sm -mt-1">
+          <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
+            Crie sua Vitrine Digital
+          </Link>
+        </div>
+      </>
+    );
+  };
+
   return (
     <footer className="mt-auto py-6 border-t border-border/50">
       <div className="container mx-auto px-4 flex flex-col items-center">
-        {customLogoUrl ? (
-          <img
-            src={customLogoUrl}
-            alt="Logo"
-            className="h-8 max-w-[160px] object-contain"
-          />
-        ) : (
-          <>
-            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
-              <Logo size="md" showText={false} backgroundColor={bgColor} />
-            </Link>
-            <div className="flex items-center gap-4 text-sm -mt-1">
-              <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
-                Crie sua Vitrine Digital
-              </Link>
-            </div>
-          </>
-        )}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground/70 mt-2">
+        {renderLogo()}
+        <div className={`flex items-center gap-4 text-xs text-muted-foreground/70 ${footerLogoMode === 'hidden' ? '' : 'mt-2'}`}>
           <Link to="/politica-de-privacidade" className="hover:text-muted-foreground transition-colors">
             Privacidade
           </Link>

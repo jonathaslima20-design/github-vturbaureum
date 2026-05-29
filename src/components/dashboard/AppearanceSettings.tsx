@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Save, RotateCcw, ChevronDown, Lock, Palette, Type } from 'lucide-react';
+import { Save, RotateCcw, ChevronDown, Lock, Palette, Type, Image, Upload, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -221,6 +221,21 @@ export function AppearanceSettings() {
           </div>
         </CollapsibleSection>
 
+        {/* Footer Logo Section - Annual plan only */}
+        {user?.billing_cycle === 'annually' && user?.plan_status === 'active' && (
+          <CollapsibleSection
+            icon={<Image size={16} />}
+            title="Logomarca do Rodape"
+          >
+            <FooterLogoEditor
+              mode={localAppearance.footer_logo_mode}
+              logoUrl={localAppearance.custom_logo_url}
+              userId={user.id}
+              onModeChange={(mode) => updateField('footer_logo_mode', mode)}
+              onLogoUrlChange={(url) => updateField('custom_logo_url', url)}
+            />
+          </CollapsibleSection>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-card pb-2">
@@ -380,6 +395,148 @@ function SelectField({
           ))}
         </SelectContent>
       </Select>
+    </div>
+  );
+}
+
+function FooterLogoEditor({
+  mode,
+  logoUrl,
+  userId,
+  onModeChange,
+  onLogoUrlChange,
+}: {
+  mode: 'default' | 'hidden' | 'custom';
+  logoUrl: string | null;
+  userId: string;
+  onModeChange: (mode: 'default' | 'hidden' | 'custom') => void;
+  onLogoUrlChange: (url: string | null) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 500 * 1024) {
+      toast.error('Arquivo muito grande. Tamanho maximo: 500KB.');
+      return;
+    }
+
+    const allowedTypes = ['image/png', 'image/svg+xml', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Formato invalido. Use PNG, SVG ou WebP.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const { uploadImage } = await import('@/lib/image');
+      const url = await uploadImage(file, userId, 'footer-logos');
+      onLogoUrlChange(url);
+      toast.success('Logo carregada com sucesso!');
+    } catch {
+      toast.error('Erro ao carregar a logo.');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (logoUrl) {
+      try {
+        const { deleteImage } = await import('@/lib/image');
+        await deleteImage(logoUrl);
+      } catch {
+        // ignore deletion errors
+      }
+    }
+    onLogoUrlChange(null);
+    onModeChange('default');
+  };
+
+  const options: { value: 'default' | 'hidden' | 'custom'; label: string; description: string }[] = [
+    { value: 'default', label: 'Exibir logo VitrineTurbo', description: 'Logo e frase padrao no rodape' },
+    { value: 'hidden', label: 'Ocultar logo e frase', description: 'Somente links de privacidade permanecem' },
+    { value: 'custom', label: 'Usar logo personalizada', description: 'Carregue sua propria logomarca' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => onModeChange(opt.value)}
+            className={cn(
+              'w-full text-left p-3 rounded-lg border transition-all',
+              mode === opt.value
+                ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                : 'border-border hover:border-primary/40'
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
+                mode === opt.value ? 'border-primary' : 'border-muted-foreground/40'
+              )}>
+                {mode === opt.value && (
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium">{opt.label}</p>
+                <p className="text-xs text-muted-foreground">{opt.description}</p>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {mode === 'custom' && (
+        <div className="space-y-3 pt-2 border-t">
+          <p className="text-xs text-muted-foreground">
+            Formato recomendado: PNG com fundo transparente, 160x40px. Tamanho maximo: 500KB.
+          </p>
+
+          {logoUrl ? (
+            <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+              <img
+                src={logoUrl}
+                alt="Logo personalizada"
+                className="h-8 max-w-[160px] object-contain"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRemoveLogo}
+                className="ml-auto text-destructive hover:text-destructive"
+              >
+                <Trash2 size={14} className="mr-1" />
+                Remover
+              </Button>
+            </div>
+          ) : (
+            <label className={cn(
+              'flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors',
+              uploading ? 'opacity-50 pointer-events-none' : 'hover:border-primary/50 hover:bg-muted/30'
+            )}>
+              <Upload size={20} className="text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {uploading ? 'Carregando...' : 'Clique para carregar sua logo'}
+              </span>
+              <input
+                type="file"
+                accept="image/png,image/svg+xml,image/webp"
+                className="hidden"
+                onChange={handleFileUpload}
+                disabled={uploading}
+              />
+            </label>
+          )}
+        </div>
+      )}
     </div>
   );
 }
