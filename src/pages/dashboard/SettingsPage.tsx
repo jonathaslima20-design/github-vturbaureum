@@ -32,11 +32,11 @@ export default function SettingsPage() {
               {(['profile', 'appearance', 'storefront', 'checkout', 'tracking', 'domain'] as const).map((tab) => {
                 const labels: Record<string, string> = {
                   profile: 'Perfil',
-                  appearance: 'Aparencia',
+                  appearance: 'Aparência',
                   storefront: 'Vitrine',
                   checkout: 'Checkout',
                   tracking: 'Rastreamento',
-                  domain: 'Dominio',
+                  domain: 'Domínio',
                 };
                 return (
                   <button

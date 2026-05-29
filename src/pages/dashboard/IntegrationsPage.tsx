@@ -153,7 +153,7 @@ export default function IntegrationsPage() {
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
-    toast.success('Copiado para a area de transferencia');
+    toast.success('Copiado para a área de transferência');
   }
 
   function resetCreateDialog() {
@@ -182,7 +182,7 @@ export default function IntegrationsPage() {
                 Este recurso está disponível exclusivamente para assinantes do plano Anual.
               </p>
               <Badge variant="outline" className="text-sm px-4 py-1.5">
-                Disponivel no Plano Anual
+                Disponível no Plano Anual
               </Badge>
             </CardContent>
           </Card>
@@ -485,7 +485,7 @@ export default function IntegrationsPage() {
                 <div className="space-y-5 py-4">
                   <div>
                     <Label htmlFor="key-name" className="text-sm font-medium">
-                      Nome da integracao
+                      Nome da integração
                     </Label>
                     <Input
                       id="key-name"

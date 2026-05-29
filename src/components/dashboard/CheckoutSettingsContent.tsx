@@ -26,7 +26,7 @@ export default function CheckoutSettingsContent() {
   const save = async (newSettings: CheckoutSettings) => {
     try {
       await updateSettings(newSettings);
-      toast.success('Configuracoes de checkout salvas');
+      toast.success('Configurações de checkout salvas');
     } catch {
       toast.error('Erro ao salvar configuracoes');
     }
@@ -467,11 +467,11 @@ function DeliveryOptionRow({ option, saving, onToggle, onUpdateFee, onUpdateFree
           <div>
             <span className="text-sm font-medium">{option.name}</span>
             <span className="text-xs text-muted-foreground ml-2">
-              {option.fee === 0 ? 'Gratis' : formatCurrency(option.fee)}
+              {option.fee === 0 ? 'Grátis' : formatCurrency(option.fee)}
             </span>
             {option.freeAbove && option.freeAbove > 0 && (
               <span className="text-xs text-green-600 dark:text-green-400 ml-2">
-                Gratis acima de {formatCurrency(option.freeAbove)}
+                Grátis acima de {formatCurrency(option.freeAbove)}
               </span>
             )}
           </div>
@@ -493,7 +493,7 @@ function DeliveryOptionRow({ option, saving, onToggle, onUpdateFee, onUpdateFree
                 className="h-7 text-xs"
                 onClick={() => { setEditingFreeAbove(!editingFreeAbove); setEditingFee(false); }}
               >
-                Frete gratis
+                Frete grátis
               </Button>
             </>
           )}
@@ -530,7 +530,7 @@ function DeliveryOptionRow({ option, saving, onToggle, onUpdateFee, onUpdateFree
       {editingFreeAbove && option.enabled && (
         <div className="flex items-end gap-2 pt-1">
           <div className="space-y-1">
-            <Label className="text-xs">Frete gratis para pedidos acima de</Label>
+            <Label className="text-xs">Frete grátis para pedidos acima de</Label>
             <CurrencyInput
               value={freeAboveValue}
               onChange={setFreeAboveValue}

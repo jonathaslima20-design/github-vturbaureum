@@ -67,7 +67,7 @@ export function AppearanceSettings() {
     const { id, user_id, ...data } = localAppearance as StorefrontAppearance & { id?: string; user_id?: string };
     const success = await save(data);
     if (success) {
-      toast.success('Aparencia salva com sucesso!');
+      toast.success('Aparência salva com sucesso!');
       setHasChanges(false);
     } else {
       toast.error('Erro ao salvar aparencia');
@@ -78,7 +78,7 @@ export function AppearanceSettings() {
   const handleReset = async () => {
     setLocalAppearance(DEFAULT_APPEARANCE);
     setHasChanges(true);
-    toast.info('Aparencia restaurada para o padrao. Clique em Salvar para confirmar.');
+    toast.info('Aparência restaurada para o padrão. Clique em Salvar para confirmar.');
   };
 
   const handleFontChange = (field: 'font_family' | 'heading_font_family', value: string) => {
@@ -145,9 +145,9 @@ export function AppearanceSettings() {
             {/* Core colors grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <ColorPicker label="Cor do texto" value={localAppearance.text_color} onChange={(v) => updateField('text_color', v)} disabled={false} />
-              <ColorPicker label="Cor dos botoes" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={false} />
-              <ColorPicker label="Texto dos botoes" value={localAppearance.button_text_color} onChange={(v) => updateField('button_text_color', v)} disabled={false} />
-              <ColorPicker label="Cor dos icones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={false} />
+              <ColorPicker label="Cor dos botões" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={false} />
+              <ColorPicker label="Texto dos botões" value={localAppearance.button_text_color} onChange={(v) => updateField('button_text_color', v)} disabled={false} />
+              <ColorPicker label="Cor dos ícones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={false} />
               <ColorPicker label="Cor de destaque" value={localAppearance.accent_color} onChange={(v) => updateField('accent_color', v)} disabled={false} />
               <ColorPicker label="Cor das bordas" value={localAppearance.border_color} onChange={(v) => updateField('border_color', v)} disabled={false} />
             </div>
@@ -180,7 +180,7 @@ export function AppearanceSettings() {
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground mb-1.5 block">Fonte dos titulos</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Fonte dos títulos</Label>
               <Select
                 value={localAppearance.heading_font_family}
                 onValueChange={(v) => handleFontChange('heading_font_family', v)}
@@ -225,7 +225,7 @@ export function AppearanceSettings() {
         {user?.billing_cycle === 'annually' && user?.plan_status === 'active' && (
           <CollapsibleSection
             icon={<Image size={16} />}
-            title="Logomarca do Rodape"
+            title="Logomarca do Rodapé"
           >
             <FooterLogoEditor
               mode={localAppearance.footer_logo_mode}
@@ -248,7 +248,7 @@ export function AppearanceSettings() {
             className="gap-2"
           >
             <RotateCcw size={14} />
-            Restaurar padrao
+            Restaurar padrão
           </Button>
           <Button
             onClick={handleSave}
@@ -256,7 +256,7 @@ export function AppearanceSettings() {
             className="gap-2 flex-1"
           >
             <Save size={14} />
-            {saving ? 'Salvando...' : 'Salvar alteracoes'}
+            {saving ? 'Salvando...' : 'Salvar alterações'}
           </Button>
         </div>
 
@@ -425,7 +425,7 @@ function FooterLogoEditor({
     if (!file) return;
 
     if (file.size > 500 * 1024) {
-      toast.error('Arquivo muito grande. Tamanho maximo: 500KB.');
+      toast.error('Arquivo muito grande. Tamanho máximo: 500KB.');
       return;
     }
 
@@ -463,9 +463,9 @@ function FooterLogoEditor({
   };
 
   const options: { value: 'default' | 'hidden' | 'custom'; label: string; description: string }[] = [
-    { value: 'default', label: 'Exibir logo VitrineTurbo', description: 'Logo e frase padrao no rodape' },
+    { value: 'default', label: 'Exibir logo VitrineTurbo', description: 'Logo e frase padrão no rodapé' },
     { value: 'hidden', label: 'Ocultar logo e frase', description: 'Somente links de privacidade permanecem' },
-    { value: 'custom', label: 'Usar logo personalizada', description: 'Carregue sua propria logomarca' },
+    { value: 'custom', label: 'Usar logo personalizada', description: 'Carregue sua própria logomarca' },
   ];
 
   const formatOptions: { value: 'rectangular' | 'square'; label: string; dimensions: string; aspect: string }[] = [
@@ -541,7 +541,7 @@ function FooterLogoEditor({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            PNG com fundo transparente, {logoFormat === 'rectangular' ? '160x40px' : '160x160px'}. Tamanho maximo: 500KB.
+            PNG com fundo transparente, {logoFormat === 'rectangular' ? '160x40px' : '160x160px'}. Tamanho máximo: 500KB.
           </p>
 
           {logoUrl ? (
