@@ -310,6 +310,7 @@ export async function authenticateUser(email: string, password: string): Promise
         .from('subscriptions')
         .select('plan_name')
         .eq('user_id', userProfile.id)
+        .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
