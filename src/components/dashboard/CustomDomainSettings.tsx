@@ -244,25 +244,23 @@ export function CustomDomainSettings() {
   if (!isEligible) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Globe className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">Domínio Personalizado</h3>
-            <p className="text-sm text-muted-foreground">Use seu próprio domínio na sua vitrine</p>
-          </div>
-        </div>
-
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Lock className="h-12 w-12 text-muted-foreground/50 mb-4" />
-            <h4 className="text-lg font-medium mb-2">Recurso exclusivo do Plano Anual</h4>
-            <p className="text-sm text-muted-foreground max-w-md mb-6">
-              O domínio personalizado está disponível apenas para assinantes do plano anual.
-              Faça upgrade para usar seu próprio domínio na sua vitrine.
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Lock className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Funcionalidade Premium</h3>
+            <p className="text-muted-foreground max-w-md mb-4">
+              O domínio personalizado está disponível apenas para assinantes do plano anual. Faça upgrade para usar seu próprio domínio na sua vitrine.
             </p>
-            <Badge variant="outline" className="text-sm py-1.5 px-4">
-              Disponivel no Plano Anual
-            </Badge>
+            <Button
+              onClick={() => {
+                const event = new CustomEvent('open-subscription-modal');
+                window.dispatchEvent(event);
+              }}
+            >
+              Fazer Upgrade
+            </Button>
           </CardContent>
         </Card>
       </div>
