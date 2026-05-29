@@ -30,6 +30,7 @@ export interface StorefrontAppearance {
   section_spacing: 'compact' | 'normal' | 'relaxed';
   card_gap: 'compact' | 'normal' | 'relaxed';
   footer_logo_mode: 'default' | 'hidden' | 'custom';
+  footer_logo_format: 'rectangular' | 'square';
   custom_logo_url: string | null;
   is_active: boolean;
 }
@@ -64,6 +65,7 @@ export const DEFAULT_APPEARANCE: StorefrontAppearance = {
   section_spacing: 'normal',
   card_gap: 'normal',
   footer_logo_mode: 'default',
+  footer_logo_format: 'rectangular',
   custom_logo_url: null,
   is_active: true,
 };

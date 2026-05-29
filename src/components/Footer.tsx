@@ -6,6 +6,7 @@ export default function Footer() {
   const [bgColor, setBgColor] = useState<string | undefined>(undefined);
   const [customLogoUrl, setCustomLogoUrl] = useState<string | null>(null);
   const [footerLogoMode, setFooterLogoMode] = useState<string>('default');
+  const [footerLogoFormat, setFooterLogoFormat] = useState<string>('rectangular');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -19,6 +20,7 @@ export default function Footer() {
       }
       setCustomLogoUrl(root.getAttribute('data-custom-logo-url'));
       setFooterLogoMode(root.getAttribute('data-footer-logo-mode') || 'default');
+      setFooterLogoFormat(root.getAttribute('data-footer-logo-format') || 'rectangular');
     };
 
     readState();
@@ -26,11 +28,13 @@ export default function Footer() {
     const observer = new MutationObserver(readState);
     observer.observe(root, {
       attributes: true,
-      attributeFilter: ['class', 'style', 'data-custom-logo-url', 'data-footer-logo-mode'],
+      attributeFilter: ['class', 'style', 'data-custom-logo-url', 'data-footer-logo-mode', 'data-footer-logo-format'],
     });
 
     return () => observer.disconnect();
   }, []);
+
+  const logoHeight = footerLogoFormat === 'square' ? '64px' : '48px';
 
   const renderLogo = () => {
     if (footerLogoMode === 'hidden') return null;
@@ -40,7 +44,8 @@ export default function Footer() {
         <img
           src={customLogoUrl}
           alt="Logo"
-          className="h-8 max-w-[160px] object-contain"
+          className="object-contain"
+          style={{ height: logoHeight, maxWidth: footerLogoFormat === 'square' ? '64px' : '160px' }}
         />
       );
     }

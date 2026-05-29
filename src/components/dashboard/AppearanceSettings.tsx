@@ -229,9 +229,11 @@ export function AppearanceSettings() {
           >
             <FooterLogoEditor
               mode={localAppearance.footer_logo_mode}
+              logoFormat={localAppearance.footer_logo_format}
               logoUrl={localAppearance.custom_logo_url}
               userId={user.id}
               onModeChange={(mode) => updateField('footer_logo_mode', mode)}
+              onFormatChange={(fmt) => updateField('footer_logo_format', fmt)}
               onLogoUrlChange={(url) => updateField('custom_logo_url', url)}
             />
           </CollapsibleSection>
@@ -401,19 +403,22 @@ function SelectField({
 
 function FooterLogoEditor({
   mode,
+  logoFormat,
   logoUrl,
   userId,
   onModeChange,
+  onFormatChange,
   onLogoUrlChange,
 }: {
   mode: 'default' | 'hidden' | 'custom';
+  logoFormat: 'rectangular' | 'square';
   logoUrl: string | null;
   userId: string;
   onModeChange: (mode: 'default' | 'hidden' | 'custom') => void;
+  onFormatChange: (fmt: 'rectangular' | 'square') => void;
   onLogoUrlChange: (url: string | null) => void;
 }) {
   const [uploading, setUploading] = useState(false);
-  const [logoFormat, setLogoFormat] = useState<'rectangular' | 'square'>('rectangular');
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -508,7 +513,7 @@ function FooterLogoEditor({
               {formatOptions.map((fmt) => (
                 <button
                   key={fmt.value}
-                  onClick={() => setLogoFormat(fmt.value)}
+                  onClick={() => onFormatChange(fmt.value)}
                   className={cn(
                     'flex flex-col items-center gap-2 p-3 rounded-lg border transition-all',
                     logoFormat === fmt.value
@@ -545,7 +550,7 @@ function FooterLogoEditor({
                 src={logoUrl}
                 alt="Logo personalizada"
                 className="max-w-[160px] object-contain"
-                style={{ height: logoFormat === 'rectangular' ? '32px' : '48px' }}
+                style={{ height: logoFormat === 'rectangular' ? '48px' : '64px' }}
               />
               <Button
                 variant="ghost"
