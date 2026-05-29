@@ -93,6 +93,19 @@ export function StorefrontThemeProvider({ userId, isPaidPlan, children }: Storef
     }
   }, [isActive, sfStyles]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const logoUrl = appearance.custom_logo_url;
+    if (logoUrl) {
+      root.setAttribute('data-custom-logo-url', logoUrl);
+    } else {
+      root.removeAttribute('data-custom-logo-url');
+    }
+    return () => {
+      root.removeAttribute('data-custom-logo-url');
+    };
+  }, [appearance.custom_logo_url]);
+
   const value = useMemo(() => ({ appearance, isActive, sfStyles }), [appearance, isActive, sfStyles]);
 
   return (
