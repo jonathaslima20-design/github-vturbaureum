@@ -30,14 +30,14 @@ interface MonthlyRevenue {
 
 export interface AdminDashboardStats {
   totalUsers: number;
-  totalProducts: number;
   growthPercentage: number;
   totalRevenue: number;
   activeSubscriptions: number;
   expiringIn7Days: number;
   expiredPlans: number;
-  blockedUsers: number;
-  newUsers7Days: number;
+  suspendedPlans: number;
+  freePlans: number;
+  newUsers30Days: number;
   recentUsers: RecentUser[];
   expiringSubscriptions: ExpiringSubscription[];
   weeklySignups: WeeklySignup[];
@@ -49,14 +49,14 @@ export interface AdminDashboardStats {
 export function useAdminDashboardStats() {
   const [stats, setStats] = useState<AdminDashboardStats>({
     totalUsers: 0,
-    totalProducts: 0,
     growthPercentage: 0,
     totalRevenue: 0,
     activeSubscriptions: 0,
     expiringIn7Days: 0,
     expiredPlans: 0,
-    blockedUsers: 0,
-    newUsers7Days: 0,
+    suspendedPlans: 0,
+    freePlans: 0,
+    newUsers30Days: 0,
     recentUsers: [],
     expiringSubscriptions: [],
     weeklySignups: [],
@@ -70,7 +70,6 @@ export function useAdminDashboardStats() {
       setStats(prev => ({ ...prev, loading: true, error: null }));
 
       const now = new Date();
-      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
       const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
@@ -79,13 +78,13 @@ export function useAdminDashboardStats() {
 
       const [
         usersRes,
-        productsRes,
         recentUsersRes,
         previousUsersRes,
         activeSubsRes,
-        blockedRes,
         expiredPlansRes,
-        newUsers7Res,
+        suspendedPlansRes,
+        freePlansRes,
+        newUsers30Res,
         revenueRes,
         recentUsersListRes,
         expiringSubsRes,
@@ -93,13 +92,13 @@ export function useAdminDashboardStats() {
         revenueDataRes,
       ] = await Promise.all([
         supabase.from('users').select('id', { count: 'exact', head: true }),
-        supabase.from('products').select('id', { count: 'exact', head: true }),
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo.toISOString()),
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', sixtyDaysAgo.toISOString()).lt('created_at', thirtyDaysAgo.toISOString()),
         supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('users').select('id', { count: 'exact', head: true }).eq('is_blocked', true),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'expired').eq('role', 'corretor'),
-        supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString()),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'suspended').eq('role', 'corretor'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'free').eq('role', 'corretor'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo.toISOString()),
         supabase.from('subscriptions').select('monthly_price').eq('status', 'active'),
         supabase.from('users').select('id, name, email, plan_status, created_at, avatar_url').order('created_at', { ascending: false }).limit(10),
         supabase.from('subscriptions').select('user_id, next_payment_date, billing_cycle, users!inner(name, email)').eq('status', 'active').gte('next_payment_date', now.toISOString()).lte('next_payment_date', sevenDaysFromNow.toISOString()).order('next_payment_date', { ascending: true }).limit(5),
@@ -131,14 +130,14 @@ export function useAdminDashboardStats() {
 
       setStats({
         totalUsers: usersRes.count || 0,
-        totalProducts: productsRes.count || 0,
         growthPercentage: Math.round(growthPercentage * 10) / 10,
         totalRevenue,
         activeSubscriptions: activeSubsRes.count || 0,
         expiringIn7Days: expiringSubsRes.data?.length || 0,
         expiredPlans: expiredPlansRes.count || 0,
-        blockedUsers: blockedRes.count || 0,
-        newUsers7Days: newUsers7Res.count || 0,
+        suspendedPlans: suspendedPlansRes.count || 0,
+        freePlans: freePlansRes.count || 0,
+        newUsers30Days: newUsers30Res.count || 0,
         recentUsers: recentUsersListRes.data || [],
         expiringSubscriptions,
         weeklySignups,

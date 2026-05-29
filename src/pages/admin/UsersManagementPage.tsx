@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { UserTable } from '@/components/admin/UserTable';
@@ -34,6 +34,7 @@ interface SummaryCounts {
 
 export default function UsersManagementPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
@@ -41,16 +42,20 @@ export default function UsersManagementPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
 
+  const initialPlan = searchParams.get('plan') || 'all';
+  const initialDate = searchParams.get('date') || 'all';
+  const initialExpiration = searchParams.get('expiration') || 'all';
+
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [planFilter, setPlanFilter] = useState('all');
+  const [planFilter, setPlanFilter] = useState(initialPlan);
   const [planTypeFilter, setPlanTypeFilter] = useState<PlanTypeFilterType>('all');
-  const [dateFilter, setDateFilter] = useState<DateFilterType>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilterType>(initialDate as DateFilterType);
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>(undefined);
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
-  const [expirationFilter, setExpirationFilter] = useState<ExpirationFilterType>('all');
+  const [expirationFilter, setExpirationFilter] = useState<ExpirationFilterType>(initialExpiration as ExpirationFilterType);
   const [customExpirationStartDate, setCustomExpirationStartDate] = useState<Date | undefined>(undefined);
   const [customExpirationEndDate, setCustomExpirationEndDate] = useState<Date | undefined>(undefined);
   const [cloneDialogOpen, setCloneDialogOpen] = useState(false);

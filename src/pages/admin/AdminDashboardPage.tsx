@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, TrendingUp, DollarSign, Loader as Loader2, RefreshCw, ArrowUp, ArrowDown, CreditCard, TriangleAlert as AlertTriangle, Ban, UserPlus, ChevronRight, CalendarX2 } from 'lucide-react';
+import { Users, DollarSign, Loader as Loader2, RefreshCw, ArrowUp, ArrowDown, CreditCard, TriangleAlert as AlertTriangle, UserPlus, ChevronRight, CalendarX2, Clock, Gift } from 'lucide-react';
 import { useAdminDashboardStats } from '@/hooks/useAdminDashboardStats';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,8 +14,8 @@ import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 export default function AdminDashboardPage() {
   const {
-    totalUsers, totalProducts, growthPercentage, totalRevenue,
-    activeSubscriptions, expiringIn7Days, expiredPlans, blockedUsers, newUsers7Days,
+    totalUsers, growthPercentage, totalRevenue,
+    activeSubscriptions, expiringIn7Days, expiredPlans, suspendedPlans, freePlans, newUsers30Days,
     recentUsers, expiringSubscriptions, weeklySignups, monthlyRevenue,
     loading, error, refresh,
   } = useAdminDashboardStats();
@@ -24,6 +24,10 @@ export default function AdminDashboardPage() {
     if (value >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
     return `R$ ${value.toFixed(0)}`;
   };
+
+  const growthSubtitle = growthPercentage !== 0
+    ? `${growthPercentage > 0 ? '+' : ''}${growthPercentage}% vs mês anterior`
+    : 'mesmo que mês anterior';
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
@@ -46,31 +50,18 @@ export default function AdminDashboardPage() {
 
       {/* Primary Stats */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total de Usuários" value={totalUsers} subtitle="usuários cadastrados" icon={Users} loading={loading} />
-        <StatCard title="Total de Produtos" value={totalProducts} subtitle="produtos no sistema" icon={Package} loading={loading} />
-        <StatCard
-          title="Crescimento"
-          value={
-            <span className="flex items-center gap-1">
-              {growthPercentage > 0 ? '+' : ''}{growthPercentage}%
-              {growthPercentage > 0 && <ArrowUp className="h-4 w-4 text-green-500" />}
-              {growthPercentage < 0 && <ArrowDown className="h-4 w-4 text-red-500" />}
-            </span>
-          }
-          subtitle="últimos 30 dias"
-          icon={TrendingUp}
-          loading={loading}
-        />
+        <StatCard title="Total de Usuários" value={totalUsers} subtitle="usuários cadastrados" icon={Users} loading={loading} href="/admin/users" />
         <StatCard title="Receita Recorrente" value={formatCurrencyI18n(totalRevenue, 'BRL', 'pt-BR')} subtitle="assinaturas ativas" icon={DollarSign} loading={loading} />
+        <StatCard title="Assinaturas Ativas" value={activeSubscriptions} subtitle="planos pagos" icon={CreditCard} loading={loading} accent="green" href="/admin/users?plan=active" />
+        <StatCard title="Novos Cadastros" value={newUsers30Days} subtitle={growthSubtitle} icon={UserPlus} loading={loading} accent="teal" href="/admin/users?date=last30days" />
       </div>
 
-      {/* Secondary Stats */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
-        <StatCard title="Assinaturas Ativas" value={activeSubscriptions} subtitle="planos pagos" icon={CreditCard} loading={loading} accent="green" />
-        <StatCard title="Vencendo em 7 dias" value={expiringIn7Days} subtitle="risco de churn" icon={AlertTriangle} loading={loading} accent={expiringIn7Days > 0 ? "amber" : undefined} />
-        <StatCard title="Planos Vencidos" value={expiredPlans} subtitle="não renovados" icon={CalendarX2} loading={loading} accent={expiredPlans > 0 ? "red" : undefined} />
-        <StatCard title="Novos (7 dias)" value={newUsers7Days} subtitle="cadastros recentes" icon={UserPlus} loading={loading} accent="teal" />
-        <StatCard title="Bloqueados" value={blockedUsers} subtitle="acesso suspenso" icon={Ban} loading={loading} accent={blockedUsers > 0 ? "red" : undefined} />
+      {/* Secondary Stats - Alerts */}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Planos Vencidos" value={expiredPlans} subtitle="não renovados" icon={CalendarX2} loading={loading} accent={expiredPlans > 0 ? "red" : undefined} href="/admin/users?plan=expired" />
+        <StatCard title="Vencendo em 7 dias" value={expiringIn7Days} subtitle="risco de churn" icon={AlertTriangle} loading={loading} accent={expiringIn7Days > 0 ? "amber" : undefined} href="/admin/users?expiration=expiring-7days" />
+        <StatCard title="Planos Suspensos" value={suspendedPlans} subtitle="assinatura suspensa" icon={Clock} loading={loading} accent={suspendedPlans > 0 ? "amber" : undefined} href="/admin/users?plan=suspended" />
+        <StatCard title="Plano Gratuito" value={freePlans} subtitle="oportunidade de conversão" icon={Gift} loading={loading} href="/admin/users?plan=free" />
       </div>
 
       {/* Charts Row */}
@@ -241,7 +232,7 @@ export default function AdminDashboardPage() {
 }
 
 function StatCard({
-  title, value, subtitle, icon: Icon, loading, accent,
+  title, value, subtitle, icon: Icon, loading, accent, href,
 }: {
   title: string;
   value: React.ReactNode;
@@ -249,6 +240,7 @@ function StatCard({
   icon: React.ComponentType<{ className?: string }>;
   loading: boolean;
   accent?: 'green' | 'amber' | 'red' | 'teal';
+  href?: string;
 }) {
   const accentStyles = {
     green: 'text-green-600',
@@ -257,8 +249,8 @@ function StatCard({
     teal: 'text-teal-600',
   };
 
-  return (
-    <Card>
+  const content = (
+    <Card className={href ? 'hover:shadow-md hover:border-foreground/20 transition-all cursor-pointer' : ''}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4">
         <CardTitle className="text-xs font-medium text-muted-foreground">{title}</CardTitle>
         <Icon className={`h-4 w-4 ${accent ? accentStyles[accent] : 'text-muted-foreground'}`} />
@@ -275,6 +267,12 @@ function StatCard({
       </CardContent>
     </Card>
   );
+
+  if (href) {
+    return <Link to={href} className="block">{content}</Link>;
+  }
+
+  return content;
 }
 
 function PlanBadge({ status }: { status: string | null }) {
