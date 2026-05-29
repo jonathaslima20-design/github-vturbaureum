@@ -6,6 +6,7 @@ import * as z from 'zod';
 import { toast } from 'sonner';
 import { User, Mail, Building2, Phone, Calendar, CreditCard, Link2, Loader, Camera, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,39 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function AccountPage() {
   const { user, updateUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [renewLoading, setRenewLoading] = useState(false);
   const navigate = useNavigate();
+
+  const navigateToCheckout = async (earlyRenewal = false) => {
+    setRenewLoading(true);
+    try {
+      const { data } = await supabase
+        .from('mp_payments')
+        .select('plan_id, billing_cycle')
+        .eq('user_id', user?.id)
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!data?.plan_id) {
+        // No prior payment found — open subscription modal instead
+        navigate('/dashboard/settings');
+        return;
+      }
+
+      const params = new URLSearchParams({
+        plan: data.plan_id,
+        cycle: data.billing_cycle,
+        ...(earlyRenewal ? { early_renewal: 'true' } : {}),
+      });
+      navigate(`/dashboard/checkout?${params.toString()}`);
+    } catch {
+      toast.error('Erro ao buscar informações do plano. Tente novamente.');
+    } finally {
+      setRenewLoading(false);
+    }
+  };
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
@@ -284,9 +317,14 @@ export default function AccountPage() {
                 )}
                 <Button
                   className="mt-4"
-                  onClick={() => navigate('/dashboard/checkout')}
+                  disabled={renewLoading}
+                  onClick={() => navigateToCheckout(false)}
                 >
-                  <CreditCard className="h-4 w-4 mr-2" />
+                  {renewLoading ? (
+                    <Loader className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <CreditCard className="h-4 w-4 mr-2" />
+                  )}
                   Renovar Plano
                 </Button>
               </div>
@@ -307,8 +345,10 @@ export default function AccountPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/dashboard/checkout?early_renewal=true')}
+                disabled={renewLoading}
+                onClick={() => navigateToCheckout(true)}
               >
+                {renewLoading && <Loader className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
                 Renovar Antecipado
               </Button>
             </div>
