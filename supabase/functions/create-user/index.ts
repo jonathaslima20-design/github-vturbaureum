@@ -215,7 +215,7 @@ Deno.serve(async (req: Request) => {
         whatsapp: whatsapp || '',
         role,
         slug,
-        plan_status: 'inactive',
+        plan_status: 'free',
         is_blocked: false,
       });
 

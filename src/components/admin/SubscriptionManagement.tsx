@@ -186,6 +186,14 @@ export default function SubscriptionManagement({
 
       await updateUserPlanStatus(userId, createForm.status);
 
+      await supabase
+        .from('users')
+        .update({
+          billing_cycle: createForm.billing_cycle,
+          next_payment_date: createForm.next_payment_date,
+        })
+        .eq('id', userId);
+
       toast.success('Assinatura criada com sucesso');
       setIsCreateDialogOpen(false);
       onSubscriptionUpdate();
