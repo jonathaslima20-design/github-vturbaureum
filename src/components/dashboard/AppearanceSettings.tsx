@@ -413,6 +413,7 @@ function FooterLogoEditor({
   onLogoUrlChange: (url: string | null) => void;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [logoFormat, setLogoFormat] = useState<'rectangular' | 'square'>('rectangular');
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -462,6 +463,11 @@ function FooterLogoEditor({
     { value: 'custom', label: 'Usar logo personalizada', description: 'Carregue sua propria logomarca' },
   ];
 
+  const formatOptions: { value: 'rectangular' | 'square'; label: string; dimensions: string; aspect: string }[] = [
+    { value: 'rectangular', label: 'Retangular', dimensions: '160x40px', aspect: '4/1' },
+    { value: 'square', label: 'Quadrada', dimensions: '160x160px', aspect: '1/1' },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -495,9 +501,42 @@ function FooterLogoEditor({
       </div>
 
       {mode === 'custom' && (
-        <div className="space-y-3 pt-2 border-t">
+        <div className="space-y-4 pt-2 border-t">
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Formato da logo</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {formatOptions.map((fmt) => (
+                <button
+                  key={fmt.value}
+                  onClick={() => setLogoFormat(fmt.value)}
+                  className={cn(
+                    'flex flex-col items-center gap-2 p-3 rounded-lg border transition-all',
+                    logoFormat === fmt.value
+                      ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                      : 'border-border hover:border-primary/40'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'border-2 border-dashed rounded',
+                      logoFormat === fmt.value ? 'border-primary/60' : 'border-muted-foreground/30'
+                    )}
+                    style={{
+                      width: fmt.value === 'rectangular' ? '64px' : '36px',
+                      height: fmt.value === 'rectangular' ? '16px' : '36px',
+                    }}
+                  />
+                  <div className="text-center">
+                    <p className="text-xs font-medium">{fmt.label}</p>
+                    <p className="text-[10px] text-muted-foreground">{fmt.dimensions}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <p className="text-xs text-muted-foreground">
-            Formato recomendado: PNG com fundo transparente, 160x40px. Tamanho maximo: 500KB.
+            PNG com fundo transparente, {logoFormat === 'rectangular' ? '160x40px' : '160x160px'}. Tamanho maximo: 500KB.
           </p>
 
           {logoUrl ? (
@@ -505,7 +544,8 @@ function FooterLogoEditor({
               <img
                 src={logoUrl}
                 alt="Logo personalizada"
-                className="h-8 max-w-[160px] object-contain"
+                className="max-w-[160px] object-contain"
+                style={{ height: logoFormat === 'rectangular' ? '32px' : '48px' }}
               />
               <Button
                 variant="ghost"
