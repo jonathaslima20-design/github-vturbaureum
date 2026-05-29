@@ -303,14 +303,29 @@ export async function authenticateUser(email: string, password: string): Promise
       return { user: null, error: 'BLOCKED_USER' };
     }
 
+    // Fetch subscription plan name if user has an active plan
+    let enrichedProfile = { ...userProfile };
+    if (userProfile.plan_status === 'active') {
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('plan_name')
+        .eq('user_id', userProfile.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (subscription?.plan_name) {
+        enrichedProfile.subscription_plan_name = subscription.plan_name;
+      }
+    }
+
     // Store credentials for future auto-login (with normalized email)
     storeCredentials(normalizedEmail, password);
 
     // Store user data with session
-    storeUser(userProfile);
+    storeUser(enrichedProfile);
 
     console.log('✅ Supabase authentication successful');
-    return { user: userProfile, error: null };
+    return { user: enrichedProfile, error: null };
 
   } catch (error: any) {
     console.error('❌ Authentication error:', error);

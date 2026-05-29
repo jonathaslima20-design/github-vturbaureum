@@ -51,6 +51,7 @@ export interface User {
   billing_cycle?: BillingCycle;
   next_payment_date?: string;
   subscription_end_date?: string;
+  subscription_plan_name?: string;
   referral_code?: string;
   referred_by?: string;
   max_images_per_product?: number;

@@ -124,7 +124,7 @@ export default function AccountPage() {
               </h2>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
               <div className="mt-2 flex justify-center sm:justify-start">
-                <PlanStatusBadge status={user?.plan_status} />
+                <PlanStatusBadge status={user?.plan_status} planName={user?.subscription_plan_name} />
               </div>
             </div>
           </div>

@@ -4,16 +4,17 @@ import type { PlanStatus } from '@/types';
 
 interface PlanStatusBadgeProps {
   status?: PlanStatus;
+  planName?: string;
   className?: string;
 }
 
-export default function PlanStatusBadge({ status, className }: PlanStatusBadgeProps) {
+export default function PlanStatusBadge({ status, planName, className }: PlanStatusBadgeProps) {
   switch (status) {
     case 'active':
       return (
         <Badge variant="secondary" className={className}>
           <Crown className="h-3 w-3 mr-1" />
-          Plano Ativo
+          {planName ? planName : 'Plano Ativo'}
         </Badge>
       );
     case 'free':
@@ -27,14 +28,14 @@ export default function PlanStatusBadge({ status, className }: PlanStatusBadgePr
       return (
         <Badge variant="outline" className={`border-amber-300 bg-amber-50 text-amber-800 ${className || ''}`}>
           <Clock className="h-3 w-3 mr-1" />
-          Plano Expirado
+          {planName ? `${planName} (Expirado)` : 'Plano Expirado'}
         </Badge>
       );
     case 'suspended':
       return (
         <Badge variant="destructive" className={className}>
           <Ban className="h-3 w-3 mr-1" />
-          Plano Suspenso
+          {planName ? `${planName} (Suspenso)` : 'Plano Suspenso'}
         </Badge>
       );
     default:

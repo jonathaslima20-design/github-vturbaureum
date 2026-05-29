@@ -172,7 +172,7 @@ export default function DashboardSidebar() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-[15px] truncate leading-tight tracking-tight">{user?.name}</p>
                 <div className="mt-0.5">
-                  <PlanStatusBadge status={user?.plan_status} />
+                  <PlanStatusBadge status={user?.plan_status} planName={user?.subscription_plan_name} />
                 </div>
               </div>
             </button>
