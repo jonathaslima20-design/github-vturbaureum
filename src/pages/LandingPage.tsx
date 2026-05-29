@@ -947,7 +947,7 @@ function FinalCTA() {
     <section id="cta" className="py-24 lg:py-32 bg-white border-t hairline">
       <div className="max-w-5xl mx-auto px-6 lg:px-10 text-center">
         <h2 className="reveal font-display font-semibold text-[40px] sm:text-[56px] lg:text-[80px] leading-[1.04] tracking-[-0.035em] text-ink-900">
-          Tudo que voce precisa. Num unico lugar.
+          Tudo que voce precisa. Em um unico lugar.
         </h2>
         <p className="reveal text-ink-500 text-[16px] lg:text-[18px] mt-6 max-w-2xl mx-auto leading-[1.5]">
           Estoque, pedidos, cupons, dominio proprio e API de integracao. Sem taxa sobre vendas.
