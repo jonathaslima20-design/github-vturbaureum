@@ -824,31 +824,24 @@ function SocialProofSection() {
 }
 
 function PricingSection() {
-  const baseBenefits = [
+  const allPaidBenefits = [
     'Produtos ilimitados',
     'Categorias e tags ilimitadas',
     'Catalogo Digital via Link',
     'Painel Administrativo completo',
     'Carrinho de compras',
+    'Controle de Estoque e Inventario',
+    'Gestao de Pedidos e Vendas',
+    'Sistema de Cupons',
+    'Personalizacao de cores e fontes',
     'Integracao com Meta Pixel e Google Tag',
     'Programa de Indicacao',
   ];
 
-  const semestralBenefits = [
-    ...baseBenefits,
-    'Gestao de Pedidos',
-    'Sistema de Cupons',
-    'Controle de Estoque',
-    'Personalizacao de cores e fontes',
-  ];
-
-  const anualBenefits = [
-    ...semestralBenefits,
-  ];
-
   const anualExclusives = [
-    'API REST de Integracao',
+    'API REST para integracoes externas (Bling, Tiny, ERPs)',
     'Dominio proprio com SSL',
+    'Remocao da logomarca VitrineTurbo',
   ];
 
   return (
@@ -861,7 +854,7 @@ function PricingSection() {
             name="Trimestral"
             price="R$ 149,00"
             period="pagamento unico"
-            benefits={baseBenefits}
+            benefits={allPaidBenefits}
           />
           <PricingCard
             tag="Mais escolhido"
@@ -869,14 +862,14 @@ function PricingSection() {
             price="R$ 229,00"
             period="pagamento unico"
             featured
-            benefits={semestralBenefits}
+            benefits={allPaidBenefits}
           />
           <PricingCard
             tag="Melhor valor"
             name="Anual"
             price="R$ 336,00"
             period="pagamento unico"
-            benefits={anualBenefits}
+            benefits={allPaidBenefits}
             exclusives={anualExclusives}
           />
         </div>

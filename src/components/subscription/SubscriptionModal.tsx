@@ -111,15 +111,26 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
     return null;
   })();
 
-  const paidFeatures = [
+  // Features available in ALL paid plans
+  const commonPaidFeatures = [
     'Produtos ilimitados',
     'Categorias ilimitadas',
     'Catálogo Digital via Link',
     'Painel Administrativo',
-    'Funcionalidade de carrinho de compras',
+    'Carrinho de compras',
     'Configuração de links externos',
+    'Controle de Estoque e Inventário',
+    'Gestão de Pedidos e Vendas',
+    'Personalização de cores e fontes',
     'Integração com Meta Pixel e Google Tag',
     'Programa de Indicação ("Indique e Ganhe")',
+  ];
+
+  // Features exclusive to the Annual plan
+  const annualExclusiveFeatures = [
+    'API REST para integrações externas (Bling, Tiny, ERPs)',
+    'Configuração de domínio próprio com SSL',
+    'Remoção da logomarca VitrineTurbo',
   ];
 
   const freeFeatures = [
@@ -127,7 +138,9 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
     `Até ${FREE_PLAN_CATEGORY_LIMIT} categorias`,
     'Catálogo Digital via Link',
     'Painel Administrativo',
-    'Funcionalidade de carrinho de compras',
+    'Carrinho de compras',
+    'Controle de Estoque e Inventário',
+    'Gestão de Pedidos e Vendas',
   ];
 
   const isUserOnFree = user?.plan_status === 'free';
@@ -318,6 +331,7 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
               <div className={`grid grid-cols-1 gap-6 ${paidPlans.length === 1 ? 'md:grid-cols-1 max-w-sm mx-auto' : paidPlans.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
                 {paidPlans.map((plan) => {
                   const popular = isPopularPlan(plan.duration);
+                  const isAnnual = plan.duration === 'Anual';
                   return (
                     <Card
                       key={plan.id}
@@ -346,12 +360,31 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
 
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
-                          {paidFeatures.map((feature, index) => (
+                          {commonPaidFeatures.map((feature, index) => (
                             <div key={index} className="flex items-start gap-2 text-sm">
                               <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                               <span>{feature}</span>
                             </div>
                           ))}
+                          {isAnnual && (
+                            <>
+                              <div className="pt-2 pb-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-px bg-yellow-200" />
+                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-yellow-700 whitespace-nowrap">
+                                    Exclusivo Anual
+                                  </span>
+                                  <div className="flex-1 h-px bg-yellow-200" />
+                                </div>
+                              </div>
+                              {annualExclusiveFeatures.map((feature, index) => (
+                                <div key={index} className="flex items-start gap-2 text-sm">
+                                  <Crown className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                                  <span className="font-medium">{feature}</span>
+                                </div>
+                              ))}
+                            </>
+                          )}
                         </div>
 
                         <div className="pt-2">
