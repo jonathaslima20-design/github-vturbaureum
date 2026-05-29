@@ -147,7 +147,7 @@ function Header() {
         <nav className="hidden md:flex items-center gap-8">
           <a href="#recursos" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Funcionalidades</a>
           <a href="#analytics" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Analytics</a>
-          <a href="#integracoes" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Integracoes</a>
+          <a href="#integracoes" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Integrações</a>
           <a href="#precos" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">Planos</a>
           <a href="#faq" className="font-mono-label uppercase text-[12px] text-ink-500 hover:text-ink-900 transition-colors">FAQ</a>
         </nav>
@@ -179,7 +179,7 @@ function Hero() {
             A Plataforma Completa para Vender Online.
           </h1>
           <p className="text-ink-500 text-[18px] lg:text-[20px] max-w-2xl mt-6 leading-[1.5]">
-            Catalogo, estoque, pedidos, cupons, dominio proprio e API de integracao. Tudo que voce precisa em um unico lugar, sem taxa sobre vendas.
+            Catálogo, estoque, pedidos, cupons, domínio próprio e API de integração. Tudo que você precisa em um único lugar, sem taxa sobre vendas.
           </p>
           <div className="flex flex-wrap items-center gap-3 mt-8">
             <a href="/register" className="btn-primary rounded-full px-7 py-4 font-display font-medium text-[15px] inline-flex items-center gap-2">
@@ -269,12 +269,12 @@ function BentoGrid() {
   return (
     <section id="recursos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1200px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ funcionalidades" title="Tudo que voce precisa para vender como profissional" />
+        <SectionHeading kicker="/ funcionalidades" title="Tudo que você precisa para vender como profissional" />
         <div className="grid grid-cols-1 lg:grid-cols-3 auto-rows-[minmax(200px,auto)] gap-4 mt-14">
-          {/* Card 01 - Gestao de Produtos */}
+          {/* Card 01 - Gestão de Produtos */}
           <BentoCard
             idx="01"
-            title="Gestao Completa de Produtos"
+            title="Gestão Completa de Produtos"
             Icon={Package}
             className="lg:col-span-2 lg:row-span-2"
           >
@@ -341,13 +341,13 @@ function BentoGrid() {
               ))}
               <div className="rounded-xl border hairline bg-ink-50 px-3 py-2 flex items-center gap-2">
                 <Timer size={11} className="text-ink-400 flex-shrink-0" />
-                <span className="text-[10px] text-ink-500">Reserva automatica por 15min no carrinho</span>
+                <span className="text-[10px] text-ink-500">Reserva automática por 15min no carrinho</span>
               </div>
             </div>
           </BentoCard>
 
-          {/* Card 03 - Gestao de Pedidos */}
-          <BentoCard idx="03" title="Gestao de Pedidos" Icon={ClipboardList}>
+          {/* Card 03 - Gestão de Pedidos */}
+          <BentoCard idx="03" title="Gestão de Pedidos" Icon={ClipboardList}>
             <div className="space-y-3">
               <div className="flex items-center gap-1.5">
                 {['Pendente', 'Confirmado', 'Preparando', 'Enviado', 'Entregue'].map((step, i) => (
@@ -360,7 +360,7 @@ function BentoGrid() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-lg border hairline bg-white px-2.5 py-2 text-center">
                   <div className="font-display font-semibold text-[18px] text-ink-900">156</div>
-                  <div className="font-mono-label uppercase text-[8px] text-ink-400 mt-0.5">Pedidos/mes</div>
+                  <div className="font-mono-label uppercase text-[8px] text-ink-400 mt-0.5">Pedidos/mês</div>
                 </div>
                 <div className="rounded-lg border hairline bg-white px-2.5 py-2 text-center">
                   <div className="font-display font-semibold text-[18px] text-emerald-600">R$ 24k</div>
@@ -396,10 +396,10 @@ function BentoGrid() {
           <BentoCard idx="05" title="WhatsApp Integrado" Icon={MessageCircle}>
             <div className="space-y-2">
               <div className="max-w-[85%] bg-surface rounded-2xl rounded-bl-sm px-3 py-2 text-[12px] text-ink-900 leading-snug">
-                Ola, gostaria de mais informacoes sobre o produto Camiseta Reserva Orleans Masculina.
+                Olá, gostaria de mais informações sobre o produto Camiseta Reserva Orleans Masculina.
               </div>
               <div className="max-w-[85%] ml-auto bg-ink-900 text-white rounded-2xl rounded-br-sm px-3 py-2 text-[12px] leading-snug">
-                Perfeito, me chamo Leticia e vou prosseguir com o seu atendimento!
+                Perfeito, me chamo Letícia e vou prosseguir com o seu atendimento!
               </div>
             </div>
           </BentoCard>
@@ -456,9 +456,9 @@ function BentoGrid() {
           <BentoCard idx="08" title="Indique e Ganhe" Icon={Gift}>
             <div className="flex items-end justify-between">
               <div>
-                <div className="font-mono-label uppercase text-[10px] text-ink-400 mb-1">Ganhe ate</div>
+                <div className="font-mono-label uppercase text-[10px] text-ink-400 mb-1">Ganhe até</div>
                 <div className="font-display font-semibold text-[32px] leading-none tracking-[-0.03em] text-ink-900">R$ <span className="text-[38px]">100</span><span className="text-[22px]">,00</span></div>
-                <div className="font-mono-label uppercase text-[10px] text-ink-400 mt-2">por usuario indicado</div>
+                <div className="font-mono-label uppercase text-[10px] text-ink-400 mt-2">por usuário indicado</div>
               </div>
               <div className="flex -space-x-2">
                 {[0, 1, 2].map((i) => (
@@ -490,15 +490,15 @@ function ProFeaturesSection() {
   return (
     <section id="integracoes" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ profissional" title="Recursos avancados para quem leva vendas a serio" />
+        <SectionHeading kicker="/ profissional" title="Recursos avançados para quem leva vendas a sério" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-14">
-          {/* Personalizacao Visual */}
+          {/* Personalização Visual */}
           <div className="reveal card-hover rounded-2xl border hairline bg-white p-6 lg:p-7 flex flex-col">
             <div className="flex items-center justify-between">
               <div className="w-9 h-9 rounded-lg border hairline bg-surface flex items-center justify-center">
                 <Palette size={18} className="text-ink-900" strokeWidth={2} />
               </div>
-              <span className="font-mono-label text-[10px] text-ink-400">Aparencia</span>
+              <span className="font-mono-label text-[10px] text-ink-400">Aparência</span>
             </div>
             <h3 className="font-display font-semibold text-[20px] lg:text-[22px] text-ink-900 tracking-[-0.02em] mt-6">
               Personalize Sua Vitrine
@@ -516,7 +516,7 @@ function ProFeaturesSection() {
                 <div className="rounded-xl border hairline bg-surface p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-3 h-3 rounded bg-sky-500" />
-                    <span className="text-[10px] font-medium text-ink-700">Fundo, Texto, Botoes, Bordas</span>
+                    <span className="text-[10px] font-medium text-ink-700">Fundo, Texto, Botões, Bordas</span>
                   </div>
                   <div className="h-8 rounded-lg bg-gradient-to-r from-sky-50 via-sky-100 to-sky-200 border border-sky-200" />
                 </div>
@@ -528,7 +528,7 @@ function ProFeaturesSection() {
             </div>
           </div>
 
-          {/* Dominio Proprio */}
+          {/* Domínio Próprio */}
           <div className="reveal card-hover rounded-2xl border hairline bg-white p-6 lg:p-7 flex flex-col">
             <div className="flex items-center justify-between">
               <div className="w-9 h-9 rounded-lg border hairline bg-surface flex items-center justify-center">
@@ -537,7 +537,7 @@ function ProFeaturesSection() {
               <span className="font-mono-label text-[9px] uppercase px-2 py-0.5 rounded-full bg-ink-900 text-white">Plano Anual</span>
             </div>
             <h3 className="font-display font-semibold text-[20px] lg:text-[22px] text-ink-900 tracking-[-0.02em] mt-6">
-              Dominio Proprio
+              Domínio Próprio
             </h3>
             <div className="mt-5 flex-1">
               <div className="space-y-3">
@@ -557,13 +557,13 @@ function ProFeaturesSection() {
                 </div>
                 <div className="flex items-center gap-2 px-1">
                   <Zap size={12} className="text-emerald-600" />
-                  <span className="text-[11px] text-ink-500">Configuracao simples via CNAME</span>
+                  <span className="text-[11px] text-ink-500">Configuração simples via CNAME</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* API de Integracao */}
+          {/* API de Integração */}
           <div className="reveal card-hover rounded-2xl border hairline bg-white p-6 lg:p-7 flex flex-col">
             <div className="flex items-center justify-between">
               <div className="w-9 h-9 rounded-lg border hairline bg-surface flex items-center justify-center">
@@ -603,13 +603,13 @@ function ProFeaturesSection() {
 function DifferentiationSection() {
   const features = [
     'Sem taxa sobre vendas — pague apenas o plano',
-    'Estoque automatizado com alertas de nivel baixo',
+    'Estoque automatizado com alertas de nível baixo',
     'Pedidos organizados por status em tempo real',
     'Cupons para fidelizar e atrair clientes',
     'API REST para conectar com ERPs externos',
-    'Dominio proprio com SSL gratuito',
-    'Personalize cores, fontes e aparencia da loja',
-    'Analytics completo com funil de conversao',
+    'Domínio próprio com SSL gratuito',
+    'Personalize cores, fontes e aparência da loja',
+    'Analytics completo com funil de conversão',
   ];
 
   return (
@@ -622,7 +622,7 @@ function DifferentiationSection() {
               Para negócios que precisam de escala.
             </h2>
             <p className="text-ink-500 text-[16px] lg:text-[18px] mt-6 leading-[1.5] max-w-xl">
-              Não é so um catalogo. É uma plataforma completa para gerenciar e escalar suas vendas online, com ferramentas e funcionalidades
+              Não é só um catálogo. É uma plataforma completa para gerenciar e escalar suas vendas online, com ferramentas e funcionalidades
               voltadas para o seu negócio.
             </p>
             <div className="mt-8">
@@ -655,9 +655,9 @@ function DifferentiationSection() {
 function AnalyticsSection() {
   const metrics = [
     { Icon: Package, l: 'Total de Produtos', v: '1.847' },
-    { Icon: BarChart3, l: 'Visualizacoes', v: '+58,3k' },
+    { Icon: BarChart3, l: 'Visualizações', v: '+58,3k' },
     { Icon: Users, l: 'Visitantes', v: '+12.490' },
-    { Icon: TrendingUp, l: 'Conversoes', v: '+3,7%' },
+    { Icon: TrendingUp, l: 'Conversões', v: '+3,7%' },
   ];
   return (
     <section id="analytics" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
@@ -666,10 +666,10 @@ function AnalyticsSection() {
           <div className="reveal">
             <div className="font-mono-label uppercase text-[11px] text-ink-500">/ analytics</div>
             <h2 className="font-display font-semibold text-[36px] sm:text-[48px] lg:text-[64px] leading-[1.05] tracking-[-0.035em] text-ink-900 mt-4">
-              Decisoes baseadas em dados reais.
+              Decisões baseadas em dados reais.
             </h2>
             <p className="text-ink-500 text-[16px] lg:text-[18px] mt-6 leading-[1.5] max-w-xl">
-              Tenha uma visao geral do seu negocio e acompanhe suas vendas de forma simples e intuitiva.
+              Tenha uma visão geral do seu negócio e acompanhe suas vendas de forma simples e intuitiva.
             </p>
             <div className="grid grid-cols-2 gap-4 mt-10">
               {metrics.map(({ Icon, l, v }) => (
@@ -689,9 +689,9 @@ function AnalyticsSection() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <BarChart3 size={16} className="text-ink-900" />
-                  <span className="font-display font-medium text-[14px] text-ink-900">Visao geral</span>
+                  <span className="font-display font-medium text-[14px] text-ink-900">Visão geral</span>
                 </div>
-                <span className="font-mono-label uppercase text-[10px] text-ink-400">ultimos 30d</span>
+                <span className="font-mono-label uppercase text-[10px] text-ink-400">últimos 30d</span>
               </div>
               <svg viewBox="0 0 400 160" className="w-full h-auto">
                 <defs>
@@ -714,7 +714,7 @@ function AnalyticsSection() {
               </svg>
               <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t hairline">
                 {[
-                  { l: 'Visualizacoes', v: '58.3k' },
+                  { l: 'Visualizações', v: '58.3k' },
                   { l: 'Leads', v: '2.184' },
                 ].map((m) => (
                   <div key={m.l}>
@@ -815,7 +815,7 @@ function SocialProofSection() {
   return (
     <section id="usuarios" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ usuarios" title="Junte-se a milhares de usuarios do VitrineTurbo" />
+        <SectionHeading kicker="/ usuários" title="Junte-se a milhares de usuários do VitrineTurbo" />
         <Suspense fallback={<div className="mt-14 h-32 rounded-2xl border hairline bg-surface animate-pulse" />}>
           <LandingSocialProof />
         </Suspense>
@@ -828,40 +828,40 @@ function PricingSection() {
   const allPaidBenefits = [
     'Produtos ilimitados',
     'Categorias e tags ilimitadas',
-    'Catalogo Digital via Link',
+    'Catálogo Digital via Link',
     'Painel Administrativo completo',
     'Carrinho de compras',
-    'Controle de Estoque e Inventario',
-    'Gestao de Pedidos e Vendas',
+    'Controle de Estoque e Inventário',
+    'Gestão de Pedidos e Vendas',
     'Sistema de Cupons',
-    'Personalizacao de cores e fontes',
-    'Integracao com Meta Pixel e Google Tag',
-    'Programa de Indicacao',
+    'Personalização de cores e fontes',
+    'Integração com Meta Pixel e Google Tag',
+    'Programa de Indicação',
   ];
 
   const anualExclusives = [
-    'API REST para integracoes externas (Bling, Tiny, ERPs)',
-    'Dominio proprio com SSL',
-    'Remocao da logomarca VitrineTurbo',
+    'API REST para integrações externas (Bling, Tiny, ERPs)',
+    'Domínio próprio com SSL',
+    'Remoção da logomarca VitrineTurbo',
   ];
 
   return (
     <section id="precos" className="py-24 lg:py-32 bg-white border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ planos" title="Escolha o plano ideal pra voce" />
+        <SectionHeading kicker="/ planos" title="Escolha o plano ideal pra você" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-14">
           <PricingCard
-            tag="Flexivel"
+            tag="Flexível"
             name="Trimestral"
             price="R$ 149,00"
-            period="pagamento unico"
+            period="pagamento único"
             benefits={allPaidBenefits}
           />
           <PricingCard
             tag="Mais escolhido"
             name="Semestral"
             price="R$ 229,00"
-            period="pagamento unico"
+            period="pagamento único"
             featured
             benefits={allPaidBenefits}
           />
@@ -869,7 +869,7 @@ function PricingSection() {
             tag="Melhor valor"
             name="Anual"
             price="R$ 336,00"
-            period="pagamento unico"
+            period="pagamento único"
             benefits={allPaidBenefits}
             exclusives={anualExclusives}
           />
@@ -882,46 +882,46 @@ function PricingSection() {
 function FaqSection() {
   const items = [
     {
-      q: 'Preciso de cartao de credito para comecar?',
-      a: 'Nao. Voce pode criar sua vitrine e explorar a plataforma sem nenhum compromisso inicial.',
+      q: 'Preciso de cartão de crédito para começar?',
+      a: 'Não. Você pode criar sua vitrine e explorar a plataforma sem nenhum compromisso inicial.',
     },
     {
       q: 'Existe taxa sobre as vendas?',
-      a: 'Nao cobramos nenhuma comissao sobre suas vendas. Voce paga apenas o plano escolhido.',
+      a: 'Não cobramos nenhuma comissão sobre suas vendas. Você paga apenas o plano escolhido.',
     },
     {
       q: 'Funciona para qualquer nicho?',
-      a: 'Sim. Moda, calcados, cosmeticos, alimentos, servicos, decoracao... A plataforma e flexivel e se adapta ao seu negocio.',
+      a: 'Sim. Moda, calçados, cosméticos, alimentos, serviços, decoração... A plataforma é flexível e se adapta ao seu negócio.',
     },
     {
       q: 'Como funciona o controle de estoque?',
-      a: 'O sistema rastreia automaticamente a quantidade de cada produto. Voce recebe alertas quando o estoque esta baixo, pode bloquear vendas de itens esgotados e o sistema reserva produtos no carrinho por 15 minutos para evitar vendas duplicadas.',
+      a: 'O sistema rastreia automaticamente a quantidade de cada produto. Você recebe alertas quando o estoque está baixo, pode bloquear vendas de itens esgotados e o sistema reserva produtos no carrinho por 15 minutos para evitar vendas duplicadas.',
     },
     {
-      q: 'Posso usar meu proprio dominio?',
-      a: 'Sim. No plano Anual, voce pode conectar seu dominio personalizado (ex: www.sualoja.com.br) com SSL gratuito. Basta apontar o DNS e o sistema verifica automaticamente.',
+      q: 'Posso usar meu próprio domínio?',
+      a: 'Sim. No plano Anual, você pode conectar seu domínio personalizado (ex: www.sualoja.com.br) com SSL gratuito. Basta apontar o DNS e o sistema verifica automaticamente.',
     },
     {
       q: 'A API funciona com Bling, Tiny e outros ERPs?',
-      a: 'Sim. A API REST permite integracao com qualquer sistema que suporte requisicoes HTTP. Voce pode sincronizar produtos, estoque, pedidos e cupons com ERPs como Bling, Tiny e outros.',
+      a: 'Sim. A API REST permite integração com qualquer sistema que suporte requisições HTTP. Você pode sincronizar produtos, estoque, pedidos e cupons com ERPs como Bling, Tiny e outros.',
     },
     {
       q: 'Posso criar cupons de desconto?',
-      a: 'Sim. Voce pode criar cupons com desconto percentual ou valor fixo, definir limite de uso, data de expiracao e valor minimo de compra. Ideal para campanhas promocionais e fidelizacao.',
+      a: 'Sim. Você pode criar cupons com desconto percentual ou valor fixo, definir limite de uso, data de expiração e valor mínimo de compra. Ideal para campanhas promocionais e fidelização.',
     },
     {
       q: 'Como funciona o Indique e Ganhe?',
-      a: 'Cada usuario recebe um link de indicacao. Quando alguem assina por meio dele, voce ganha comissao e credito direto na conta.',
+      a: 'Cada usuário recebe um link de indicação. Quando alguém assina por meio dele, você ganha comissão e crédito direto na conta.',
     },
     {
       q: 'Posso cancelar a qualquer momento?',
-      a: 'Sim. O cancelamento e imediato e sem burocracia, diretamente no painel administrativo.',
+      a: 'Sim. O cancelamento é imediato e sem burocracia, diretamente no painel administrativo.',
     },
   ];
   return (
     <section id="faq" className="py-24 lg:py-32 bg-surface border-t hairline" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       <div className="max-w-4xl mx-auto px-6 lg:px-10">
-        <SectionHeading kicker="/ duvidas" title="Perguntas frequentes." />
+        <SectionHeading kicker="/ dúvidas" title="Perguntas frequentes." />
         <div className="mt-12 divide-y hairline border-t border-b hairline">
           {items.map((it) => (
             <details key={it.q} className="reveal group py-6">
@@ -947,14 +947,14 @@ function FinalCTA() {
     <section id="cta" className="py-24 lg:py-32 bg-white border-t hairline">
       <div className="max-w-5xl mx-auto px-6 lg:px-10 text-center">
         <h2 className="reveal font-display font-semibold text-[40px] sm:text-[56px] lg:text-[80px] leading-[1.04] tracking-[-0.035em] text-ink-900">
-          Tudo que voce precisa. Em um unico lugar.
+          Tudo que você precisa. Em um único lugar.
         </h2>
         <p className="reveal text-ink-500 text-[16px] lg:text-[18px] mt-6 max-w-2xl mx-auto leading-[1.5]">
-          Estoque, pedidos, cupons, dominio proprio e API de integracao. Sem taxa sobre vendas.
+          Estoque, pedidos, cupons, domínio próprio e API de integração. Sem taxa sobre vendas.
         </p>
         <div className="reveal mt-10">
           <a href="/register" className="btn-primary rounded-full px-8 py-4 text-[15px] font-display font-medium inline-flex items-center gap-2">
-            Comecar Agora
+            Começar Agora
             <ArrowRight size={16} />
           </a>
         </div>
