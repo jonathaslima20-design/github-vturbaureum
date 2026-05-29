@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, TrendingUp, DollarSign, Loader as Loader2, RefreshCw, ArrowUp, ArrowDown, CreditCard, TriangleAlert as AlertTriangle, Ban, UserPlus, ChevronRight } from 'lucide-react';
+import { Users, Package, TrendingUp, DollarSign, Loader as Loader2, RefreshCw, ArrowUp, ArrowDown, CreditCard, TriangleAlert as AlertTriangle, Ban, UserPlus, ChevronRight, CalendarX2 } from 'lucide-react';
 import { useAdminDashboardStats } from '@/hooks/useAdminDashboardStats';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,7 +15,7 @@ import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, R
 export default function AdminDashboardPage() {
   const {
     totalUsers, totalProducts, growthPercentage, totalRevenue,
-    activeSubscriptions, expiringIn7Days, blockedUsers, newUsers7Days,
+    activeSubscriptions, expiringIn7Days, expiredPlans, blockedUsers, newUsers7Days,
     recentUsers, expiringSubscriptions, weeklySignups, monthlyRevenue,
     loading, error, refresh,
   } = useAdminDashboardStats();
@@ -65,9 +65,10 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Secondary Stats */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
         <StatCard title="Assinaturas Ativas" value={activeSubscriptions} subtitle="planos pagos" icon={CreditCard} loading={loading} accent="green" />
         <StatCard title="Vencendo em 7 dias" value={expiringIn7Days} subtitle="risco de churn" icon={AlertTriangle} loading={loading} accent={expiringIn7Days > 0 ? "amber" : undefined} />
+        <StatCard title="Planos Vencidos" value={expiredPlans} subtitle="não renovados" icon={CalendarX2} loading={loading} accent={expiredPlans > 0 ? "red" : undefined} />
         <StatCard title="Novos (7 dias)" value={newUsers7Days} subtitle="cadastros recentes" icon={UserPlus} loading={loading} accent="teal" />
         <StatCard title="Bloqueados" value={blockedUsers} subtitle="acesso suspenso" icon={Ban} loading={loading} accent={blockedUsers > 0 ? "red" : undefined} />
       </div>

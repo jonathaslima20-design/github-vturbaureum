@@ -35,6 +35,7 @@ export interface AdminDashboardStats {
   totalRevenue: number;
   activeSubscriptions: number;
   expiringIn7Days: number;
+  expiredPlans: number;
   blockedUsers: number;
   newUsers7Days: number;
   recentUsers: RecentUser[];
@@ -53,6 +54,7 @@ export function useAdminDashboardStats() {
     totalRevenue: 0,
     activeSubscriptions: 0,
     expiringIn7Days: 0,
+    expiredPlans: 0,
     blockedUsers: 0,
     newUsers7Days: 0,
     recentUsers: [],
@@ -82,6 +84,7 @@ export function useAdminDashboardStats() {
         previousUsersRes,
         activeSubsRes,
         blockedRes,
+        expiredPlansRes,
         newUsers7Res,
         revenueRes,
         recentUsersListRes,
@@ -95,6 +98,7 @@ export function useAdminDashboardStats() {
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', sixtyDaysAgo.toISOString()).lt('created_at', thirtyDaysAgo.toISOString()),
         supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('is_blocked', true),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('plan_status', 'expired').eq('role', 'corretor'),
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString()),
         supabase.from('subscriptions').select('monthly_price').eq('status', 'active'),
         supabase.from('users').select('id, name, email, plan_status, created_at, avatar_url').order('created_at', { ascending: false }).limit(10),
@@ -132,6 +136,7 @@ export function useAdminDashboardStats() {
         totalRevenue,
         activeSubscriptions: activeSubsRes.count || 0,
         expiringIn7Days: expiringSubsRes.data?.length || 0,
+        expiredPlans: expiredPlansRes.count || 0,
         blockedUsers: blockedRes.count || 0,
         newUsers7Days: newUsers7Res.count || 0,
         recentUsers: recentUsersListRes.data || [],
