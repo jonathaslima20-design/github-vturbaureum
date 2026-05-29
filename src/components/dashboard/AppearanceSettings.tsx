@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Save, RotateCcw, ChevronDown, Lock, Palette, Type, ImageIcon, Upload, X, Crown } from 'lucide-react';
+import { Save, RotateCcw, ChevronDown, Lock, Palette, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,8 +14,6 @@ import { PhoneMockup } from '@/components/dashboard/PhoneMockup';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { deriveColorsFromBase } from '@/utils/colorUtils';
-import { uploadImage, deleteImage } from '@/lib/image';
-import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
 import {
   DEFAULT_APPEARANCE,
   FONT_OPTIONS,
@@ -28,16 +26,12 @@ export function AppearanceSettings() {
   const { user } = useAuth();
   const { appearance, loading, save } = useStorefrontAppearance(user?.id);
   const mockupData = useMockupData();
-  const { openModal } = useSubscriptionModal();
   const [localAppearance, setLocalAppearance] = useState<StorefrontAppearance>(DEFAULT_APPEARANCE);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showPremiumBlock, setShowPremiumBlock] = useState(false);
-  const [logoUploading, setLogoUploading] = useState(false);
-  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
-  const isAnnualPlan = user?.plan_status === 'active' && user?.billing_cycle === 'annually';
 
   useEffect(() => {
     if (!loading) {
@@ -62,60 +56,6 @@ export function AppearanceSettings() {
       return next;
     });
     setHasChanges(true);
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user?.id) return;
-
-    const allowedTypes = ['image/png', 'image/svg+xml', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error('Formato invalido. Use PNG, SVG ou WebP.');
-      return;
-    }
-    if (file.size > 500 * 1024) {
-      toast.error('Arquivo muito grande. Tamanho maximo: 500 KB.');
-      return;
-    }
-
-    setLogoUploading(true);
-    try {
-      const url = await uploadImage(file, user.id, 'logos');
-      const success = await save({ ...localAppearance, custom_logo_url: url });
-      if (success) {
-        setLocalAppearance(prev => ({ ...prev, custom_logo_url: url }));
-        toast.success('Logo carregada com sucesso!');
-      } else {
-        toast.error('Erro ao salvar logo');
-      }
-    } catch {
-      toast.error('Erro ao fazer upload da logo');
-    } finally {
-      setLogoUploading(false);
-      if (logoInputRef.current) logoInputRef.current.value = '';
-    }
-  };
-
-  const handleLogoRemove = async () => {
-    if (!user?.id) return;
-    const oldUrl = localAppearance.custom_logo_url;
-    setLogoUploading(true);
-    try {
-      const success = await save({ ...localAppearance, custom_logo_url: null });
-      if (success) {
-        setLocalAppearance(prev => ({ ...prev, custom_logo_url: null }));
-        if (oldUrl) {
-          try { await deleteImage(oldUrl); } catch { /* ignore storage errors */ }
-        }
-        toast.success('Logo removida.');
-      } else {
-        toast.error('Erro ao remover logo');
-      }
-    } catch {
-      toast.error('Erro ao remover logo');
-    } finally {
-      setLogoUploading(false);
-    }
   };
 
   const handleSave = async () => {
@@ -281,86 +221,6 @@ export function AppearanceSettings() {
           </div>
         </CollapsibleSection>
 
-
-        {/* Logo Section */}
-        <CollapsibleSection
-          icon={<ImageIcon size={16} />}
-          title="Logo personalizada"
-        >
-          {isAnnualPlan ? (
-            <div className="space-y-4">
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Substitui a logo do VitrineTurbo e o texto "Crie sua Vitrine Digital" no rodape da sua vitrine. Recomendamos PNG ou SVG com fundo transparente, minimo 200×60 px e ate <strong>500 KB</strong>.
-              </p>
-
-              {localAppearance.custom_logo_url ? (
-                <div className="space-y-3">
-                  <div className="rounded-lg border border-border bg-muted/30 p-4 flex items-center justify-center min-h-[80px]">
-                    <img
-                      src={localAppearance.custom_logo_url}
-                      alt="Logo personalizada"
-                      className="max-h-12 max-w-full object-contain"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 gap-2"
-                      onClick={() => logoInputRef.current?.click()}
-                      disabled={logoUploading}
-                    >
-                      <Upload size={13} />
-                      Trocar logo
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 text-destructive hover:text-destructive"
-                      onClick={handleLogoRemove}
-                      disabled={logoUploading}
-                    >
-                      <X size={13} />
-                      Remover
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => logoInputRef.current?.click()}
-                  disabled={logoUploading}
-                  className="w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border hover:border-primary/60 bg-muted/20 hover:bg-muted/40 transition-colors py-6 text-sm text-muted-foreground disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  <Upload size={20} className="text-muted-foreground/60" />
-                  {logoUploading ? 'Enviando...' : 'Clique para carregar sua logo'}
-                  <span className="text-[11px] opacity-70">PNG, SVG ou WebP — max. 500 KB</span>
-                </button>
-              )}
-
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/png,image/svg+xml,image/webp"
-                className="hidden"
-                onChange={handleLogoUpload}
-              />
-            </div>
-          ) : (
-            <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col items-center gap-3 text-center">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                <Crown size={16} className="text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Exclusivo do Plano Anual</p>
-                <p className="text-xs text-muted-foreground mt-1">Faca upgrade para o plano anual e coloque sua propria marca no rodape da vitrine.</p>
-              </div>
-              <Button size="sm" onClick={() => openModal(false)}>
-                Ver planos
-              </Button>
-            </div>
-          )}
-        </CollapsibleSection>
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-card pb-2">

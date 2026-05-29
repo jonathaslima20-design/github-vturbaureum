@@ -30,7 +30,6 @@ export interface StorefrontAppearance {
   section_spacing: 'compact' | 'normal' | 'relaxed';
   card_gap: 'compact' | 'normal' | 'relaxed';
   is_active: boolean;
-  custom_logo_url?: string | null;
 }
 
 export const DEFAULT_APPEARANCE: StorefrontAppearance = {
