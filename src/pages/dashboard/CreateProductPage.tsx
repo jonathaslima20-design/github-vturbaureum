@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { DiscountPriceInput } from '@/components/ui/discount-price-input';
@@ -19,7 +18,6 @@ import { SizesColorsSelector } from '@/components/ui/sizes-colors-selector';
 import { CustomFlavorInput } from '@/components/ui/custom-flavor-input';
 import { TieredPricingManager } from '@/components/ui/tiered-pricing-manager';
 import { PricingModeToggle } from '@/components/ui/pricing-mode-toggle';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ArrowLeft } from 'lucide-react';
@@ -32,6 +30,7 @@ import { PromotionalPhraseSelector } from '@/components/ui/promotional-phrase-se
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
 import { useInventoryEnabled } from '@/hooks/useInventoryEnabled';
+import VariantStockGrid from '@/components/dashboard/VariantStockGrid';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -78,6 +77,9 @@ export default function CreateProductPage() {
   const { openModal } = useSubscriptionModal();
   const { inventoryEnabled } = useInventoryEnabled();
   const [loading, setLoading] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [savedProductId, setSavedProductId] = useState<string | null>(null);
+  const draftSaveInProgress = useRef(false);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [pricingMode, setPricingMode] = useState<'simple' | 'tiered'>('simple');
   const [priceTiers, setPriceTiers] = useState<PriceTier[]>([]);
@@ -120,6 +122,58 @@ export default function CreateProductPage() {
     },
   });
 
+
+  const saveDraft = async () => {
+    if (!user?.id || savedProductId || draftSaveInProgress.current) return null;
+    draftSaveInProgress.current = true;
+    setSavingDraft(true);
+    try {
+      const data = form.getValues();
+      const draftData = {
+        user_id: user.id,
+        title: data.title || 'Rascunho',
+        description: data.description || '',
+        short_description: data.short_description || '',
+        price: data.price ?? 0,
+        discounted_price: data.featured_offer_price || null,
+        is_starting_price: data.is_starting_price ?? false,
+        featured_offer_price: data.featured_offer_price || null,
+        featured_offer_installment: data.featured_offer_installment || null,
+        featured_offer_description: data.featured_offer_description || '',
+        status: data.status ?? 'disponivel',
+        category: data.category?.length > 0 ? data.category : ['Sem Categoria'],
+        brand: data.brand || '',
+        model: data.model || '',
+        condition: data.condition ?? 'novo',
+        featured_image_url: '',
+        external_checkout_url: data.external_checkout_url || '',
+        is_visible_on_storefront: false,
+        colors: data.colors ?? [],
+        sizes: data.sizes ?? [],
+        flavors: data.flavors ?? [],
+        has_tiered_pricing: false,
+        pricing_mode: 'range',
+        has_weight_variants: hasWeightVariants,
+        track_inventory: true,
+        stock_quantity: data.stock_quantity ?? 0,
+        low_stock_threshold: data.low_stock_threshold ?? 5,
+      };
+      const { data: product, error } = await supabase
+        .from('products')
+        .insert(draftData)
+        .select('id')
+        .single();
+      if (error) throw error;
+      setSavedProductId(product.id);
+      return product.id;
+    } catch {
+      toast.error('Não foi possível salvar o rascunho para controle de estoque');
+      return null;
+    } finally {
+      setSavingDraft(false);
+      draftSaveInProgress.current = false;
+    }
+  };
 
   const onSubmit = async (data: ProductFormData) => {
     if (!user?.id) {
@@ -199,13 +253,25 @@ export default function CreateProductPage() {
         low_stock_threshold: data.low_stock_threshold ?? 5,
       };
 
-      const { data: product, error: productError } = await supabase
-        .from('products')
-        .insert(productData)
-        .select()
-        .single();
-
-      if (productError) throw productError;
+      let product: { id: string };
+      if (savedProductId) {
+        const { data: updated, error: productError } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', savedProductId)
+          .select()
+          .single();
+        if (productError) throw productError;
+        product = updated;
+      } else {
+        const { data: inserted, error: productError } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+          .single();
+        if (productError) throw productError;
+        product = inserted;
+      }
 
       const filesToUpload = images
         .filter((img) => img.file)
@@ -468,7 +534,10 @@ export default function CreateProductPage() {
                           <FormControl>
                             <Switch
                               checked={field.value}
-                              onCheckedChange={field.onChange}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked);
+                                if (checked) saveDraft();
+                              }}
                             />
                           </FormControl>
                         </FormItem>
@@ -519,6 +588,36 @@ export default function CreateProductPage() {
                             </FormItem>
                           )}
                         />
+
+                        {(() => {
+                          const colors = form.watch('colors');
+                          const sizes = form.watch('sizes');
+                          const flavors = form.watch('flavors');
+                          const hasVariants = colors.length > 0 || sizes.length > 0 || flavors.length > 0;
+                          if (!hasVariants) return null;
+                          if (!savedProductId) {
+                            return (
+                              <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground text-center">
+                                {savingDraft
+                                  ? 'Preparando grade de estoque por variante...'
+                                  : 'Salve o rascunho para gerenciar o estoque por variante'}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium">Estoque por variante</p>
+                              <VariantStockGrid
+                                productId={savedProductId}
+                                colors={colors}
+                                sizes={sizes}
+                                flavors={flavors}
+                                lowStockThreshold={form.watch('low_stock_threshold') ?? 5}
+                                performedBy={user?.id ?? ''}
+                              />
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </CardContent>
