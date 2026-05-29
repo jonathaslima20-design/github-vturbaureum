@@ -28,12 +28,10 @@ export function SubscriptionModalProvider({ children }: { children: ReactNode })
     setLimitReason(reason);
   }, []);
 
-  // closeModal respects isForced via ref — stable reference, no dependency on isForced state
+  // closeModal closes the dialog visually; forced state is preserved so SubscriptionBlocker can re-open
   const closeModal = useCallback(() => {
-    if (!isForcedRef.current) {
-      setIsOpen(false);
-      setLimitReason(null);
-    }
+    setIsOpen(false);
+    setLimitReason(null);
   }, []);
 
   // forceClose bypasses the isForced guard — for programmatic use only

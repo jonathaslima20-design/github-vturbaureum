@@ -1,11 +1,15 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
 import SubscriptionModal from '@/components/subscription/SubscriptionModal';
 
 export default function SubscriptionBlocker() {
   const { user, loading } = useAuth();
+  const location = useLocation();
   const { isOpen, isForced, limitReason, setForced, openModal, closeModal, forceClose } = useSubscriptionModal();
+
+  const isOnCheckout = location.pathname === '/dashboard/checkout';
 
   useEffect(() => {
     if (loading || !user) return;
@@ -17,27 +21,34 @@ export default function SubscriptionBlocker() {
     const isExpired = user.plan_status === 'expired';
     const isSuspended = user.plan_status === 'suspended';
 
-    // Admins and parceiros are never blocked — clear any forced state
     if (isAdmin || isParceiro) {
       forceClose();
       return;
     }
 
-    // Free plan: allow voluntary modal opens, never force anything
     if (isFreePlan) return;
 
-    // Active plan: clear forced block if it was set
     if (hasActivePlan) {
       if (isForced) forceClose();
       return;
     }
 
-    // Blocked states: force the modal open
+    // User is blocked (expired/suspended) but on checkout — hide modal, keep forced state
+    if ((isSuspended || isExpired || !hasActivePlan) && isOnCheckout) {
+      if (isOpen) closeModal();
+      if (!isForced) setForced(true);
+      return;
+    }
+
+    // User is blocked and NOT on checkout — force modal open
     if ((isSuspended || isExpired || !hasActivePlan) && !isOpen) {
       openModal(true);
       setForced(true);
     }
-  }, [user, loading]); // intentionally minimal — openModal/forceClose/setForced are stable
+  }, [user, loading, isOnCheckout]);
+
+  // Don't render the modal overlay when on checkout page
+  if (isOnCheckout) return null;
 
   return (
     <SubscriptionModal

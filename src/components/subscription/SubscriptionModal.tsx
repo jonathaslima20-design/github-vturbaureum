@@ -16,7 +16,6 @@ import {
 import { supabase } from '@/lib/supabase';
 import { formatCurrencyI18n } from '@/lib/i18n';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
 import type { SubscriptionPlan, LimitReason, PlanStatus } from '@/types';
 import { FREE_PLAN_PRODUCT_LIMIT, FREE_PLAN_CATEGORY_LIMIT } from '@/hooks/usePlanLimits';
 
@@ -32,7 +31,6 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, signOut } = useAuth();
-  const { forceClose } = useSubscriptionModal();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -352,7 +350,7 @@ export default function SubscriptionModal({ open, onOpenChange, isForced = false
                             : 'bg-zinc-900 text-white hover:bg-zinc-800'
                         }`}
                         onClick={() => {
-                          forceClose();
+                          onOpenChange(false);
                           navigate(`/dashboard/checkout?plan=${plan.id}&cycle=${plan.duration}`);
                         }}
                       >

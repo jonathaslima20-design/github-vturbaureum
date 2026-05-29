@@ -440,7 +440,7 @@ function PaymentSuccess() {
 export default function CheckoutPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [plan, setPlan] = useState<PlanInfo | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<PaymentTab>('pix');
@@ -524,9 +524,10 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const handleSuccess = useCallback(() => {
+  const handleSuccess = useCallback(async () => {
     setPaymentComplete(true);
-  }, []);
+    await refreshUser();
+  }, [refreshUser]);
 
   if (planLoading || !plan) {
     return (
