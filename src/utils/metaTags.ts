@@ -112,8 +112,8 @@ export function updateFavicon(iconUrl: string) {
  */
 export function resetMetaTags() {
   const defaultConfig: MetaTagsConfig = {
-    title: 'VitrineTurbo - Sua Vitrine Digital',
-    description: 'VitrineTurbo - Sua Vitrine Digital',
+    title: 'VitrineTurbo | Plataforma de Catálogos Digitais',
+    description: 'VitrineTurbo | Plataforma de Catálogos Digitais',
     image: 'https://ikvwygqmlqhsyqmpgaoz.supabase.co/storage/v1/object/public/public/logos/flat-icon-vitrine.png.png',
     url: window.location.origin,
     type: 'website'
