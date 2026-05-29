@@ -1,22 +1,34 @@
 import { Badge } from '@/components/ui/badge';
 import { Gem, CircleAlert as AlertCircle, Ban, Package, Clock } from 'lucide-react';
-import type { PlanStatus } from '@/types';
+import type { BillingCycle, PlanStatus } from '@/types';
 
 interface PlanStatusBadgeProps {
   status?: PlanStatus;
   planName?: string;
+  billingCycle?: BillingCycle;
   className?: string;
 }
 
-export default function PlanStatusBadge({ status, planName, className }: PlanStatusBadgeProps) {
-  const cleanName = planName ? planName.replace(/^plano\s+/i, '') : undefined;
+function getBillingCycleLabel(cycle: BillingCycle): string {
+  switch (cycle) {
+    case 'monthly': return 'Mensal';
+    case 'quarterly': return 'Trimestral';
+    case 'semiannually': return 'Semestral';
+    case 'annually': return 'Anual';
+  }
+}
+
+export default function PlanStatusBadge({ status, planName, billingCycle, className }: PlanStatusBadgeProps) {
+  const label = billingCycle
+    ? getBillingCycleLabel(billingCycle)
+    : planName ? planName.replace(/^plano\s+/i, '') : undefined;
 
   switch (status) {
     case 'active':
       return (
         <Badge className={`bg-foreground text-background hover:bg-foreground/90 ${className || ''}`}>
           <Gem className="h-3 w-3 mr-1" />
-          {cleanName ?? 'Ativo'}
+          {label ?? 'Ativo'}
         </Badge>
       );
     case 'free':
@@ -30,14 +42,14 @@ export default function PlanStatusBadge({ status, planName, className }: PlanSta
       return (
         <Badge variant="outline" className={`border-amber-300 bg-amber-50 text-amber-800 ${className || ''}`}>
           <Clock className="h-3 w-3 mr-1" />
-          {cleanName ? `${cleanName} (Expirado)` : 'Expirado'}
+          {label ? `${label} (Expirado)` : 'Expirado'}
         </Badge>
       );
     case 'suspended':
       return (
         <Badge variant="destructive" className={className}>
           <Ban className="h-3 w-3 mr-1" />
-          {cleanName ? `${cleanName} (Suspenso)` : 'Suspenso'}
+          {label ? `${label} (Suspenso)` : 'Suspenso'}
         </Badge>
       );
     default:

@@ -145,6 +145,11 @@ export default function SubscriptionManagement({
 
       await updateUserPlanStatus(userId, editForm.status as SubscriptionStatus);
 
+      await supabase
+        .from('users')
+        .update({ billing_cycle: editForm.billing_cycle })
+        .eq('id', userId);
+
       toast.success('Assinatura atualizada com sucesso');
       setIsEditDialogOpen(false);
       onSubscriptionUpdate();
@@ -464,9 +469,16 @@ export default function SubscriptionManagement({
                   <Select
                     value={editForm.billing_cycle}
                     onValueChange={(value) => {
+                      const planNameMap: Record<string, string> = {
+                        monthly: 'Plano Mensal',
+                        quarterly: 'Plano Trimestral',
+                        semiannually: 'Plano Semestral',
+                        annually: 'Plano Anual',
+                      };
                       setEditForm({
                         ...editForm,
-                        billing_cycle: value
+                        billing_cycle: value,
+                        plan_name: planNameMap[value] || editForm.plan_name,
                       });
                     }}
                   >
