@@ -91,6 +91,13 @@ export default function UsersManagementPage() {
   const handleCustomExpirationStartDateChange = useCallback((v: Date | undefined) => { setCustomExpirationStartDate(v); resetPage(); }, [resetPage]);
   const handleCustomExpirationEndDateChange = useCallback((v: Date | undefined) => { setCustomExpirationEndDate(v); resetPage(); }, [resetPage]);
 
+  const handleSummaryCardClick = useCallback((filter: { plan?: string; status?: string; date?: string }) => {
+    if (filter.plan) { setPlanFilter(filter.plan); } else { setPlanFilter('all'); }
+    if (filter.status) { setStatusFilter(filter.status); } else { setStatusFilter('all'); }
+    if (filter.date) { setDateFilter(filter.date as DateFilterType); } else { setDateFilter('all'); }
+    resetPage();
+  }, [resetPage]);
+
   const fetchSummaryCounts = useCallback(async () => {
     try {
       const now = new Date();
@@ -449,7 +456,7 @@ export default function UsersManagementPage() {
         </Button>
       </div>
 
-      <UserSummaryCards counts={summaryCounts} />
+      <UserSummaryCards counts={summaryCounts} onFilterClick={handleSummaryCardClick} />
 
       <UserListControls
         searchTerm={searchTerm}
