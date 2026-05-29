@@ -5,59 +5,47 @@ import { formatCurrencyI18n } from '@/lib/i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Gift, Users, DollarSign, CircleCheck as CheckCircle2, TrendingUp, Share2, UserPlus, Zap, Crown, CreditCard, Copy, CircleAlert as AlertCircle, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import PixKeyDialog from '@/components/referral/PixKeyDialog';
 import WithdrawalDialog from '@/components/referral/WithdrawalDialog';
+import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
+
+function PremiumLockOverlay({ onUpgrade }: { onUpgrade: () => void }) {
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg bg-background/80 backdrop-blur-[2px]">
+      <div className="flex flex-col items-center gap-2 text-center px-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
+          <Lock className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-medium">Disponível em planos pagos</p>
+        <Button size="sm" onClick={onUpgrade} className="mt-1">
+          Fazer Upgrade
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function ReferralPage() {
   const { user } = useAuth();
   const { stats, pixKeys, referralLink, isLoading, refreshData, error } = useReferralData(user?.id);
   const [showPixDialog, setShowPixDialog] = useState(false);
   const [showWithdrawalDialog, setShowWithdrawalDialog] = useState(false);
+  const { openModal } = useSubscriptionModal();
 
-  console.log('[ReferralPage] Render:', { user: user?.id, stats, pixKeys, referralLink, isLoading, error });
+  const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(referralLink);
       toast.success('Link copiado para área de transferência!');
-    } catch (error) {
+    } catch {
       toast.error('Erro ao copiar link');
     }
   };
-
-
-  const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
-
-  if (isFreePlan) {
-    return (
-      <div className="container mx-auto p-4 md:p-6 max-w-2xl">
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
-              <Lock className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Funcionalidade Premium</h3>
-            <p className="text-muted-foreground max-w-md mb-4">
-              O programa "Indique e Ganhe" está disponível apenas para usuários com planos pagos. Faça upgrade para indicar amigos e ganhar comissões.
-            </p>
-            <Button
-              onClick={() => {
-                const event = new CustomEvent('open-subscription-modal');
-                window.dispatchEvent(event);
-              }}
-            >
-              Fazer Upgrade
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -161,7 +149,8 @@ export default function ReferralPage() {
       </div>
 
       {/* Referral Link Section */}
-      <Card>
+      <Card className="relative overflow-hidden">
+        {isFreePlan && <PremiumLockOverlay onUpgrade={() => openModal(false)} />}
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
@@ -171,11 +160,12 @@ export default function ReferralPage() {
         <CardContent>
           <div className="flex gap-2">
             <Input
-              value={referralLink}
+              value={isFreePlan ? 'https://vitrine.app/r/seulink' : referralLink}
               readOnly
               className="font-mono text-sm"
+              tabIndex={isFreePlan ? -1 : undefined}
             />
-            <Button onClick={copyToClipboard} className="shrink-0">
+            <Button onClick={copyToClipboard} className="shrink-0" disabled={isFreePlan} tabIndex={isFreePlan ? -1 : undefined}>
               <Copy className="h-4 w-4 mr-2" />
               Copiar
             </Button>
@@ -256,7 +246,8 @@ export default function ReferralPage() {
       {/* PIX and Withdrawal Section */}
       <div className="grid md:grid-cols-2 gap-4">
         {/* PIX Key Card */}
-        <Card>
+        <Card className="relative overflow-hidden">
+          {isFreePlan && <PremiumLockOverlay onUpgrade={() => openModal(false)} />}
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
@@ -298,7 +289,8 @@ export default function ReferralPage() {
         </Card>
 
         {/* Withdrawal Card */}
-        <Card>
+        <Card className="relative overflow-hidden">
+          {isFreePlan && <PremiumLockOverlay onUpgrade={() => openModal(false)} />}
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
