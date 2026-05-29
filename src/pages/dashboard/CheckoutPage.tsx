@@ -12,7 +12,7 @@ import {
 } from '@/lib/mpPayments';
 import { formatCurrencyI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
-import { QrCode, CreditCard, Copy, Check, Loader as Loader2, ArrowLeft, ShieldCheck, Clock, CircleCheck as CheckCircle2, Circle as XCircle, CircleAlert as AlertCircle } from 'lucide-react';
+import { QrCode, CreditCard, Copy, Check, Loader as Loader2, ArrowLeft, ShieldCheck, Clock, CircleCheck as CheckCircle2, Circle as XCircle, CircleAlert as AlertCircle, CalendarClock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,7 +46,7 @@ function formatCpf(value: string): string {
     .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
 }
 
-function PixSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void }) {
+function PixSection({ plan, onSuccess, earlyRenewal }: { plan: PlanInfo; onSuccess: () => void; earlyRenewal?: boolean }) {
   const { user } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -134,6 +134,7 @@ function PixSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void
           last_name: lastName,
           doc: cleanDoc,
         },
+        early_renewal: earlyRenewal,
       });
       setPixResult(result);
       startPolling(result.payment_id);
@@ -289,15 +290,18 @@ function PixSection({ plan, onSuccess }: { plan: PlanInfo; onSuccess: () => void
 interface CardSectionProps {
   plan: PlanInfo;
   onSuccess: () => void;
+  earlyRenewal?: boolean;
 }
 
-function CardSection({ plan, onSuccess }: CardSectionProps) {
+function CardSection({ plan, onSuccess, earlyRenewal }: CardSectionProps) {
   const [result, setResult] = useState<CardPaymentResult | null>(null);
   const [brickReady, setBrickReady] = useState(false);
   const planRef = useRef(plan);
   planRef.current = plan;
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
+  const earlyRenewalRef = useRef(earlyRenewal);
+  earlyRenewalRef.current = earlyRenewal;
 
   const handleSubmit = useCallback(async (formData: any) => {
     return new Promise<void>(async (resolve, reject) => {
@@ -314,6 +318,7 @@ function CardSection({ plan, onSuccess }: CardSectionProps) {
             email: formData.payer?.email || '',
             doc: formData.payer?.identification?.number || '',
           },
+          early_renewal: earlyRenewalRef.current,
         });
         setResult(cardResult);
         if (cardResult.status === 'approved') {
@@ -435,6 +440,7 @@ function PaymentSuccess() {
 export default function CheckoutPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [plan, setPlan] = useState<PlanInfo | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<PaymentTab>('pix');
@@ -444,6 +450,7 @@ export default function CheckoutPage() {
 
   const planId = searchParams.get('plan');
   const cycle = searchParams.get('cycle');
+  const earlyRenewal = searchParams.get('early_renewal') === 'true';
 
   useEffect(() => {
     if (!planId) {
@@ -561,6 +568,7 @@ export default function CheckoutPage() {
       <CardSection
         plan={plan}
         onSuccess={handleSuccess}
+        earlyRenewal={earlyRenewal}
       />
     );
   };
@@ -593,6 +601,17 @@ export default function CheckoutPage() {
             </div>
           </CardContent>
         </Card>
+
+        {earlyRenewal && user?.subscription_end_date && (
+          <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/60 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
+            <CalendarClock className="h-4 w-4 mt-0.5 shrink-0" />
+            <p>
+              Renovacao antecipada — o novo periodo sera calculado a partir do vencimento atual
+              {' '}(<strong>{new Date(user.subscription_end_date).toLocaleDateString('pt-BR')}</strong>),
+              sem perda dos dias restantes.
+            </p>
+          </div>
+        )}
 
         {paymentComplete ? (
           <Card>
@@ -637,7 +656,7 @@ export default function CheckoutPage() {
               <Separator />
 
               {activeTab === 'pix' ? (
-                <PixSection plan={plan} onSuccess={handleSuccess} />
+                <PixSection plan={plan} onSuccess={handleSuccess} earlyRenewal={earlyRenewal} />
               ) : (
                 renderCardContent()
               )}

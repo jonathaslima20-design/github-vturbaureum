@@ -69,7 +69,8 @@ async function activatePlan(
   admin: ReturnType<typeof createClient>,
   userId: string,
   planId: string,
-  billingCycle: string
+  billingCycle: string,
+  earlyRenewal = false
 ) {
   const monthsMap: Record<string, number> = {
     Mensal: 1,
@@ -84,7 +85,27 @@ async function activatePlan(
 
   const months = monthsMap[billingCycle] || 1;
   const now = new Date();
-  const expiresAt = new Date(now);
+
+  let baseDate = now;
+  if (earlyRenewal) {
+    const { data: currentUser } = await admin
+      .from("users")
+      .select("subscription_end_date, plan_status")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (
+      currentUser?.plan_status === "active" &&
+      currentUser?.subscription_end_date
+    ) {
+      const currentEnd = new Date(currentUser.subscription_end_date);
+      if (currentEnd > now) {
+        baseDate = currentEnd;
+      }
+    }
+  }
+
+  const expiresAt = new Date(baseDate);
   expiresAt.setMonth(expiresAt.getMonth() + months);
 
   const billingCycleDb =
@@ -245,14 +266,14 @@ Deno.serve(async (req: Request) => {
 
     const { data: paymentRow } = await admin
       .from("mp_payments")
-      .select("id, user_id, plan_id, billing_cycle, status")
+      .select("id, user_id, plan_id, billing_cycle, status, early_renewal")
       .eq("id", externalRef)
       .maybeSingle();
 
     if (!paymentRow) {
       const { data: paymentByMpId } = await admin
         .from("mp_payments")
-        .select("id, user_id, plan_id, billing_cycle, status")
+        .select("id, user_id, plan_id, billing_cycle, status, early_renewal")
         .eq("mp_payment_id", dataId)
         .maybeSingle();
 
@@ -279,7 +300,8 @@ Deno.serve(async (req: Request) => {
           admin,
           paymentByMpId.user_id,
           paymentByMpId.plan_id,
-          paymentByMpId.billing_cycle
+          paymentByMpId.billing_cycle,
+          paymentByMpId.early_renewal ?? false
         );
       }
     } else {
@@ -299,7 +321,8 @@ Deno.serve(async (req: Request) => {
           admin,
           paymentRow.user_id,
           paymentRow.plan_id,
-          paymentRow.billing_cycle
+          paymentRow.billing_cycle,
+          paymentRow.early_renewal ?? false
         );
       }
     }

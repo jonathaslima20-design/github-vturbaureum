@@ -19,6 +19,7 @@ interface PixPaymentPayload {
   plan_id: string;
   billing_cycle: string;
   payer: PayerInfo;
+  early_renewal?: boolean;
 }
 
 interface CardPaymentPayload {
@@ -29,6 +30,7 @@ interface CardPaymentPayload {
   payment_method_id: string;
   issuer_id: string;
   payer: { email: string; doc: string };
+  early_renewal?: boolean;
 }
 
 async function getConfig(admin: ReturnType<typeof createClient>) {
@@ -63,7 +65,8 @@ async function activatePlan(
   admin: ReturnType<typeof createClient>,
   userId: string,
   planId: string,
-  billingCycle: string
+  billingCycle: string,
+  earlyRenewal = false
 ) {
   const monthsMap: Record<string, number> = {
     Mensal: 1,
@@ -78,7 +81,27 @@ async function activatePlan(
 
   const months = monthsMap[billingCycle] || 1;
   const now = new Date();
-  const expiresAt = new Date(now);
+
+  let baseDate = now;
+  if (earlyRenewal) {
+    const { data: currentUser } = await admin
+      .from("users")
+      .select("subscription_end_date, plan_status")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (
+      currentUser?.plan_status === "active" &&
+      currentUser?.subscription_end_date
+    ) {
+      const currentEnd = new Date(currentUser.subscription_end_date);
+      if (currentEnd > now) {
+        baseDate = currentEnd;
+      }
+    }
+  }
+
+  const expiresAt = new Date(baseDate);
   expiresAt.setMonth(expiresAt.getMonth() + months);
 
   const nextPaymentDate = new Date(expiresAt);
@@ -191,7 +214,7 @@ Deno.serve(async (req: Request) => {
       }
 
       case "createPixPayment": {
-        const { plan_id, billing_cycle, payer } =
+        const { plan_id, billing_cycle, payer, early_renewal } =
           payload as PixPaymentPayload;
 
         const { data: plan } = await admin
@@ -222,6 +245,7 @@ Deno.serve(async (req: Request) => {
             payer_email: payer.email,
             payer_doc: payer.doc,
             environment: config.environment,
+            early_renewal: early_renewal ?? false,
           })
           .select("id")
           .single();
@@ -321,6 +345,7 @@ Deno.serve(async (req: Request) => {
           payment_method_id,
           issuer_id,
           payer: cardPayer,
+          early_renewal,
         } = payload as CardPaymentPayload;
 
         const { data: plan } = await admin
@@ -352,6 +377,7 @@ Deno.serve(async (req: Request) => {
             payer_doc: cardPayer.doc,
             installments,
             environment: config.environment,
+            early_renewal: early_renewal ?? false,
           })
           .select("id")
           .single();
@@ -430,7 +456,7 @@ Deno.serve(async (req: Request) => {
           .eq("id", paymentRow.id);
 
         if (mpData.status === "approved") {
-          await activatePlan(admin, user.id, plan.id, billing_cycle);
+          await activatePlan(admin, user.id, plan.id, billing_cycle, early_renewal ?? false);
         }
 
         return new Response(

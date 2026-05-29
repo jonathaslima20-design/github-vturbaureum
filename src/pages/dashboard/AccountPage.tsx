@@ -307,7 +307,7 @@ export default function AccountPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/dashboard/checkout')}
+                onClick={() => navigate('/dashboard/checkout?early_renewal=true')}
               >
                 Renovar Antecipado
               </Button>

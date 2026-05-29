@@ -44,6 +44,7 @@ export interface PixPaymentArgs {
     last_name: string;
     doc: string;
   };
+  early_renewal?: boolean;
 }
 
 export interface CardPaymentArgs {
@@ -57,6 +58,7 @@ export interface CardPaymentArgs {
     email: string;
     doc: string;
   };
+  early_renewal?: boolean;
 }
 
 export interface PixPaymentResult {
