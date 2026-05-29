@@ -102,11 +102,11 @@ export function ListingsHeader({
 
         {/* Export/Import */}
         <Button variant="outline" size="sm" className="text-xs h-8" onClick={onExport}>
-          <Download className="w-3.5 h-3.5 mr-1.5" />
+          <Upload className="w-3.5 h-3.5 mr-1.5" />
           <span className="hidden sm:inline">Exportar</span>
         </Button>
         <Button variant="outline" size="sm" className="text-xs h-8" onClick={onImport}>
-          <Upload className="w-3.5 h-3.5 mr-1.5" />
+          <Download className="w-3.5 h-3.5 mr-1.5" />
           <span className="hidden sm:inline">Importar</span>
         </Button>
       </div>
