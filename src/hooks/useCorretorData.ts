@@ -82,7 +82,8 @@ export function useCorretorData({ slug }: UseCorretorDataProps): UseCorretorData
             currency,
             language,
             plan_status,
-            billing_cycle
+            billing_cycle,
+            subscription_end_date
           `)
           .eq('slug', slug)
           .eq('role', 'corretor')

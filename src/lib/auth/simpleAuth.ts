@@ -303,9 +303,28 @@ export async function authenticateUser(email: string, password: string): Promise
       return { user: null, error: 'BLOCKED_USER' };
     }
 
-    // Fetch subscription plan name if user has an active plan
+    // Auto-expire users with overdue subscriptions (2-day grace period)
     let enrichedProfile = { ...userProfile };
-    if (userProfile.plan_status === 'active') {
+    if (
+      userProfile.plan_status === 'active' &&
+      userProfile.subscription_end_date &&
+      userProfile.role !== 'admin' &&
+      userProfile.role !== 'parceiro'
+    ) {
+      const endDate = new Date(userProfile.subscription_end_date);
+      const graceCutoff = new Date();
+      graceCutoff.setDate(graceCutoff.getDate() - 2);
+      if (endDate < graceCutoff) {
+        await supabase
+          .from('users')
+          .update({ plan_status: 'expired' })
+          .eq('id', userProfile.id);
+        enrichedProfile.plan_status = 'expired';
+      }
+    }
+
+    // Fetch subscription plan name if user has an active plan
+    if (enrichedProfile.plan_status === 'active') {
       const { data: subscription } = await supabase
         .from('subscriptions')
         .select('plan_name')
@@ -651,6 +670,25 @@ export async function refreshUserFromDB(): Promise<StoredUser | null> {
       .maybeSingle();
 
     if (error || !userProfile) return currentUser;
+
+    // Auto-expire users with overdue subscriptions (2-day grace period)
+    if (
+      userProfile.plan_status === 'active' &&
+      userProfile.subscription_end_date &&
+      userProfile.role !== 'admin' &&
+      userProfile.role !== 'parceiro'
+    ) {
+      const endDate = new Date(userProfile.subscription_end_date);
+      const graceCutoff = new Date();
+      graceCutoff.setDate(graceCutoff.getDate() - 2);
+      if (endDate < graceCutoff) {
+        await supabase
+          .from('users')
+          .update({ plan_status: 'expired' })
+          .eq('id', userProfile.id);
+        userProfile.plan_status = 'expired';
+      }
+    }
 
     const refreshedUser: StoredUser = {
       ...currentUser,

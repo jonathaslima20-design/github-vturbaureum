@@ -408,7 +408,15 @@ export default function CorretorPage({ customDomainSlug }: CorretorPageProps = {
     );
   }
 
-  if (corretor.is_blocked || corretor.plan_status === 'expired' || corretor.plan_status === 'suspended') {
+  const isSubscriptionOverdue = (() => {
+    if (corretor.plan_status !== 'active' || !corretor.subscription_end_date) return false;
+    const endDate = new Date(corretor.subscription_end_date);
+    const graceCutoff = new Date();
+    graceCutoff.setDate(graceCutoff.getDate() - 2);
+    return endDate < graceCutoff;
+  })();
+
+  if (corretor.is_blocked || corretor.plan_status === 'expired' || corretor.plan_status === 'suspended' || isSubscriptionOverdue) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-h-screen gap-6 px-4">
         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">

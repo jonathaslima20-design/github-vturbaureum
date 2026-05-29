@@ -42,6 +42,7 @@ Deno.serve(async (req: Request) => {
       .select("id, name, subscription_end_date, plan_status")
       .eq("plan_status", "active")
       .not("subscription_end_date", "is", null)
+      .not("role", "in", '("admin","parceiro")')
       .gte("subscription_end_date", todayStr)
       .lte("subscription_end_date", futureStr);
 
@@ -89,6 +90,7 @@ Deno.serve(async (req: Request) => {
       .select("id, name, subscription_end_date, plan_status")
       .eq("plan_status", "active")
       .not("subscription_end_date", "is", null)
+      .not("role", "in", '("admin","parceiro")')
       .lt("subscription_end_date", todayStr)
       .gte("subscription_end_date", graceCutoffStr);
 
@@ -135,6 +137,7 @@ Deno.serve(async (req: Request) => {
       .select("id, name, subscription_end_date")
       .eq("plan_status", "active")
       .not("subscription_end_date", "is", null)
+      .not("role", "in", '("admin","parceiro")')
       .lt("subscription_end_date", graceCutoffStr);
 
     for (const user of usersToBlock || []) {

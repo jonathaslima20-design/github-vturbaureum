@@ -504,6 +504,7 @@ export default function UserDetailPage() {
                 userId={userId}
                 userName={user.name}
                 refetchSubscription={refetchSubscription}
+                refetchUser={fetchUserData}
               />
             </TabsContent>
 
@@ -960,9 +961,9 @@ function OrdersTab({ userId }: { userId: string }) {
 }
 
 /* ─── Subscription Tab ─── */
-function SubscriptionTab({ subscription, subscriptionLoading, recentPayments, userId, userName, refetchSubscription }: {
+function SubscriptionTab({ subscription, subscriptionLoading, recentPayments, userId, userName, refetchSubscription, refetchUser }: {
   subscription: any; subscriptionLoading: boolean; recentPayments: any[];
-  userId?: string; userName: string; refetchSubscription: () => void;
+  userId?: string; userName: string; refetchSubscription: () => void; refetchUser: () => void;
 }) {
   if (subscriptionLoading) {
     return (
@@ -974,13 +975,18 @@ function SubscriptionTab({ subscription, subscriptionLoading, recentPayments, us
     );
   }
 
+  const handleSubscriptionUpdate = () => {
+    refetchSubscription();
+    refetchUser();
+  };
+
   return (
     <div className="space-y-5">
       <SubscriptionManagement
         subscription={subscription}
         userId={userId}
         userName={userName}
-        onSubscriptionUpdate={refetchSubscription}
+        onSubscriptionUpdate={handleSubscriptionUpdate}
       />
 
       {recentPayments.length > 0 && (

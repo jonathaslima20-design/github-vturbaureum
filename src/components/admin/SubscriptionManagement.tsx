@@ -238,6 +238,8 @@ export default function SubscriptionManagement({
       planStatus = 'active';
     } else if (subscriptionStatus === 'suspended') {
       planStatus = 'suspended';
+    } else if (subscriptionStatus === 'cancelled') {
+      planStatus = 'expired';
     }
 
     const { error } = await supabase
