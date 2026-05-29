@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Gem, CircleAlert as AlertCircle, Ban, Sparkles, Clock } from 'lucide-react';
+import { Gem, CircleAlert as AlertCircle, Ban, Package, Clock } from 'lucide-react';
 import type { PlanStatus } from '@/types';
 
 interface PlanStatusBadgeProps {
@@ -22,7 +22,7 @@ export default function PlanStatusBadge({ status, planName, className }: PlanSta
     case 'free':
       return (
         <Badge variant="outline" className={className}>
-          <Sparkles className="h-3 w-3 mr-1" />
+          <Package className="h-3 w-3 mr-1" />
           Free
         </Badge>
       );
