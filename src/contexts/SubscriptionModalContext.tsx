@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
 import type { LimitReason } from '@/types';
 
 interface SubscriptionModalContextType {
@@ -7,6 +7,7 @@ interface SubscriptionModalContextType {
   limitReason: LimitReason;
   openModal: (forced?: boolean, reason?: LimitReason) => void;
   closeModal: () => void;
+  forceClose: () => void;
   setForced: (forced: boolean) => void;
 }
 
@@ -17,20 +18,34 @@ export function SubscriptionModalProvider({ children }: { children: ReactNode })
   const [isForced, setIsForced] = useState(false);
   const [limitReason, setLimitReason] = useState<LimitReason>(null);
 
+  // Use ref so callbacks never go stale and don't trigger re-renders in dependents
+  const isForcedRef = useRef(false);
+
   const openModal = useCallback((forced = false, reason: LimitReason = null) => {
+    isForcedRef.current = forced;
     setIsOpen(true);
     setIsForced(forced);
     setLimitReason(reason);
   }, []);
 
+  // closeModal respects isForced via ref — stable reference, no dependency on isForced state
   const closeModal = useCallback(() => {
-    if (!isForced) {
+    if (!isForcedRef.current) {
       setIsOpen(false);
       setLimitReason(null);
     }
-  }, [isForced]);
+  }, []);
+
+  // forceClose bypasses the isForced guard — for programmatic use only
+  const forceClose = useCallback(() => {
+    isForcedRef.current = false;
+    setIsForced(false);
+    setIsOpen(false);
+    setLimitReason(null);
+  }, []);
 
   const setForcedState = useCallback((forced: boolean) => {
+    isForcedRef.current = forced;
     setIsForced(forced);
   }, []);
 
@@ -40,6 +55,7 @@ export function SubscriptionModalProvider({ children }: { children: ReactNode })
     limitReason,
     openModal,
     closeModal,
+    forceClose,
     setForced: setForcedState,
   };
 

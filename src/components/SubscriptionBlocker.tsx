@@ -5,7 +5,7 @@ import SubscriptionModal from '@/components/subscription/SubscriptionModal';
 
 export default function SubscriptionBlocker() {
   const { user, loading } = useAuth();
-  const { isOpen, isForced, limitReason, setForced, openModal, closeModal } = useSubscriptionModal();
+  const { isOpen, isForced, limitReason, setForced, openModal, closeModal, forceClose } = useSubscriptionModal();
 
   useEffect(() => {
     if (loading || !user) return;
@@ -17,41 +17,27 @@ export default function SubscriptionBlocker() {
     const isExpired = user.plan_status === 'expired';
     const isSuspended = user.plan_status === 'suspended';
 
-    // Admins and parceiros never get blocked
+    // Admins and parceiros are never blocked — clear any forced state
     if (isAdmin || isParceiro) {
-      if (isForced) {
-        setForced(false);
-        closeModal();
-      }
+      forceClose();
       return;
     }
 
-    // Free plan users can open the modal voluntarily — never force-close it
+    // Free plan: allow voluntary modal opens, never force anything
     if (isFreePlan) return;
 
-    if (isSuspended && !isOpen) {
-      openModal(true);
-      setForced(true);
+    // Active plan: clear forced block if it was set
+    if (hasActivePlan) {
+      if (isForced) forceClose();
       return;
     }
 
-    if (isExpired && !isOpen) {
+    // Blocked states: force the modal open
+    if ((isSuspended || isExpired || !hasActivePlan) && !isOpen) {
       openModal(true);
       setForced(true);
-      return;
     }
-
-    if (!hasActivePlan && !isExpired && !isSuspended && !isOpen) {
-      openModal(true);
-      setForced(true);
-      return;
-    }
-
-    if (hasActivePlan && isForced) {
-      closeModal();
-      setForced(false);
-    }
-  }, [user, loading, isOpen, isForced, setForced, openModal, closeModal]);
+  }, [user, loading]); // intentionally minimal — openModal/forceClose/setForced are stable
 
   return (
     <SubscriptionModal
