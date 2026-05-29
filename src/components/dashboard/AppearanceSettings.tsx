@@ -57,6 +57,10 @@ export function AppearanceSettings() {
   };
 
   const handleSave = async () => {
+    if (isFreePlan) {
+      toast.error('Personalização de aparência é exclusiva para planos pagos. Faça upgrade para salvar suas alterações.');
+      return;
+    }
     setSaving(true);
     const { id, user_id, ...data } = localAppearance as StorefrontAppearance & { id?: string; user_id?: string };
     const success = await save(data);
@@ -105,19 +109,19 @@ export function AppearanceSettings() {
                 label="Cor do fundo"
                 value={localAppearance.bg_color}
                 onChange={(v) => updateField('bg_color', v)}
-                disabled={isFreePlan}
+                disabled={false}
               />
 
             </div>
 
             {/* Core colors grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <ColorPicker label="Cor do texto" value={localAppearance.text_color} onChange={(v) => updateField('text_color', v)} disabled={isFreePlan} />
-              <ColorPicker label="Cor dos botoes" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={isFreePlan} />
-              <ColorPicker label="Texto dos botoes" value={localAppearance.button_text_color} onChange={(v) => updateField('button_text_color', v)} disabled={isFreePlan} />
-              <ColorPicker label="Cor dos icones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={isFreePlan} />
-              <ColorPicker label="Cor de destaque" value={localAppearance.accent_color} onChange={(v) => updateField('accent_color', v)} disabled={isFreePlan} />
-              <ColorPicker label="Cor das bordas" value={localAppearance.border_color} onChange={(v) => updateField('border_color', v)} disabled={isFreePlan} />
+              <ColorPicker label="Cor do texto" value={localAppearance.text_color} onChange={(v) => updateField('text_color', v)} disabled={false} />
+              <ColorPicker label="Cor dos botoes" value={localAppearance.button_bg_color} onChange={(v) => updateField('button_bg_color', v)} disabled={false} />
+              <ColorPicker label="Texto dos botoes" value={localAppearance.button_text_color} onChange={(v) => updateField('button_text_color', v)} disabled={false} />
+              <ColorPicker label="Cor dos icones" value={localAppearance.icon_color} onChange={(v) => updateField('icon_color', v)} disabled={false} />
+              <ColorPicker label="Cor de destaque" value={localAppearance.accent_color} onChange={(v) => updateField('accent_color', v)} disabled={false} />
+              <ColorPicker label="Cor das bordas" value={localAppearance.border_color} onChange={(v) => updateField('border_color', v)} disabled={false} />
             </div>
           </div>
         </CollapsibleSection>
@@ -133,7 +137,7 @@ export function AppearanceSettings() {
               <Select
                 value={localAppearance.font_family}
                 onValueChange={(v) => handleFontChange('font_family', v)}
-                disabled={isFreePlan}
+                disabled={false}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -152,7 +156,7 @@ export function AppearanceSettings() {
               <Select
                 value={localAppearance.heading_font_family}
                 onValueChange={(v) => handleFontChange('heading_font_family', v)}
-                disabled={isFreePlan}
+                disabled={false}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -172,7 +176,7 @@ export function AppearanceSettings() {
                 {(['sm', 'md', 'lg'] as const).map(size => (
                   <button
                     key={size}
-                    disabled={isFreePlan}
+                    disabled={false}
                     onClick={() => updateField('font_size_base', size)}
                     className={cn(
                       'flex-1 py-2 rounded-md border text-sm font-medium transition-all',
@@ -195,7 +199,7 @@ export function AppearanceSettings() {
           <Button
             variant="outline"
             onClick={handleReset}
-            disabled={isFreePlan}
+            disabled={false}
             className="gap-2"
           >
             <RotateCcw size={14} />
@@ -203,7 +207,7 @@ export function AppearanceSettings() {
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!hasChanges || saving || isFreePlan}
+            disabled={!hasChanges || saving}
             className="gap-2 flex-1"
           >
             <Save size={14} />
@@ -212,14 +216,25 @@ export function AppearanceSettings() {
         </div>
 
         {isFreePlan && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
-            <Lock size={18} className="text-amber-600 mt-0.5 shrink-0" />
+          <div className="rounded-lg border-2 border-dashed border-muted p-6 flex flex-col items-center text-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+              <Lock size={18} className="text-muted-foreground" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-amber-800">Recurso Premium</p>
-              <p className="text-xs text-amber-700 mt-1">
-                Personalize sua vitrine com cores, fontes e efeitos exclusivos. Faca upgrade para desbloquear.
+              <p className="text-sm font-semibold">Funcionalidade Premium</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Visualize e personalize à vontade. Para salvar as alterações, você precisa de um plano pago.
               </p>
             </div>
+            <button
+              className="text-xs font-semibold underline underline-offset-2 hover:no-underline"
+              onClick={() => {
+                const event = new CustomEvent('open-subscription-modal');
+                window.dispatchEvent(event);
+              }}
+            >
+              Fazer Upgrade
+            </button>
           </div>
         )}
       </div>

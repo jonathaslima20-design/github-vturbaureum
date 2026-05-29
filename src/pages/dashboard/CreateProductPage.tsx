@@ -52,7 +52,7 @@ const productSchema = z.object({
   sizes: z.array(z.string()).default([]),
   flavors: z.array(z.string()).default([]),
   has_tiered_pricing: z.boolean().default(false),
-  track_inventory: z.boolean().default(false),
+  track_inventory: z.boolean().default(true),
   stock_quantity: z.number().min(0).optional(),
   low_stock_threshold: z.number().min(0).default(5),
 });
@@ -116,7 +116,7 @@ export default function CreateProductPage() {
       sizes: [],
       flavors: [],
       has_tiered_pricing: false,
-      track_inventory: false,
+      track_inventory: true,
       stock_quantity: undefined,
       low_stock_threshold: 5,
     },

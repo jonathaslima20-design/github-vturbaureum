@@ -76,7 +76,7 @@ export default function RegisterPage() {
   }, []);
   const { signUp } = useAuth();
   const navigate = useNavigate();
-  const { openModal, setForced } = useSubscriptionModal();
+  const { openModal } = useSubscriptionModal();
 
   // Capturar código de indicação da URL
   const referralCode = searchParams.get('ref');
@@ -129,8 +129,7 @@ export default function RegisterPage() {
       }
 
       toast.success('Cadastro realizado com sucesso!');
-      openModal(true);
-      setForced(true);
+      openModal(false);
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Register error:', error);

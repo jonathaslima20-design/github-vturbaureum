@@ -292,68 +292,76 @@ export function ProductDistributionModal({
             </div>
           </div>
 
-          <div className="border rounded-md overflow-auto" style={{ maxHeight: hasTieredPricing ? '200px' : '240px' }}>
-            <div className="p-3 space-y-2">
-              {items.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  Nenhuma variação adicionada ainda
-                </p>
-              ) : (
-                items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-2 p-2 border rounded-md bg-card"
-                  >
-                    <div className="flex-1 flex items-center gap-2 flex-wrap">
-                      {item.color && (
-                        <Badge variant="outline">{item.color}</Badge>
-                      )}
-                      {item.size && (
-                        <Badge variant="outline">{item.size}</Badge>
-                      )}
-                    </div>
+          {items.length === 0 ? (
+            <div className="border-2 border-dashed rounded-lg p-8 text-center">
+              <p className="text-sm text-muted-foreground">Nenhuma variação adicionada ainda</p>
+            </div>
+          ) : (
+            <div className="space-y-2 overflow-y-auto" style={{ maxHeight: hasTieredPricing ? '220px' : '260px' }}>
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex-1 flex items-center gap-2 flex-wrap min-w-0">
+                    {item.color && (
+                      <Badge variant="secondary" className="text-xs">{item.color}</Badge>
+                    )}
+                    {item.size && (
+                      <Badge variant="secondary" className="text-xs">{item.size}</Badge>
+                    )}
+                    {!item.color && !item.size && (
+                      <span className="text-xs text-muted-foreground">Sem variação</span>
+                    )}
+                  </div>
 
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      type="button"
+                      className="h-7 w-7 rounded border border-input bg-background flex items-center justify-center text-sm hover:bg-muted transition-colors"
+                      onClick={() => updateItemQuantity(item.id, Math.max(1, item.quantity - 1))}
+                    >
+                      −
+                    </button>
                     <Input
                       type="number"
                       min="1"
                       value={item.quantity}
-                      onChange={(e) => updateItemQuantity(item.id, parseInt(e.target.value) || 1)}
-                      className="w-20 h-8"
+                      onChange={(e) => updateItemQuantity(item.id, Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-16 h-7 text-center text-sm px-1"
                     />
-
-                    <Button
+                    <button
                       type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeItem(item.id)}
-                      className="h-8 w-8 flex-shrink-0"
+                      className="h-7 w-7 rounded border border-input bg-background flex items-center justify-center text-sm hover:bg-muted transition-colors"
+                      onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
                     >
-                      <X className="h-4 w-4" />
-                    </Button>
+                      +
+                    </button>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
 
-          {!hasTieredPricing && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Quantidade Total:</span>
-                <span className="font-bold">{totalQuantity}</span>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => removeItem(item.id)}
+                    className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!hasTieredPricing && items.length > 0 && (
+            <div className="bg-muted/40 rounded-lg px-4 py-3 flex items-center justify-between gap-4 text-sm">
+              <div className="flex items-center gap-4">
+                <span className="text-muted-foreground">Total: <span className="font-semibold text-foreground">{totalQuantity}</span></span>
+                <span className="text-muted-foreground">Distribuído: <span className={`font-semibold ${distributedSum > totalQuantity ? 'text-destructive' : 'text-foreground'}`}>{distributedSum}</span></span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Distribuído:</span>
-                <span className={distributedSum > totalQuantity ? 'text-destructive font-bold' : 'font-bold'}>
-                  {distributedSum}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Restante:</span>
-                <span className={remainingQuantity < 0 ? 'text-destructive font-bold' : remainingQuantity === 0 ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'font-bold'}>
-                  {remainingQuantity}
-                </span>
-              </div>
+              <span className={`font-semibold ${remainingQuantity < 0 ? 'text-destructive' : remainingQuantity === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
+                {remainingQuantity === 0 ? 'Completo' : `Restante: ${remainingQuantity}`}
+              </span>
             </div>
           )}
 

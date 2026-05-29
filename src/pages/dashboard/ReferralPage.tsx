@@ -8,20 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Gift,
-  Users,
-  DollarSign,
-  CheckCircle2,
-  TrendingUp,
-  Share2,
-  UserPlus,
-  Zap,
-  Crown,
-  CreditCard,
-  Copy,
-  AlertCircle
-} from 'lucide-react';
+import { Gift, Users, DollarSign, CircleCheck as CheckCircle2, TrendingUp, Share2, UserPlus, Zap, Crown, CreditCard, Copy, CircleAlert as AlertCircle, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import PixKeyDialog from '@/components/referral/PixKeyDialog';
 import WithdrawalDialog from '@/components/referral/WithdrawalDialog';
@@ -43,6 +30,34 @@ export default function ReferralPage() {
     }
   };
 
+
+  const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
+
+  if (isFreePlan) {
+    return (
+      <div className="container mx-auto p-4 md:p-6 max-w-2xl">
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Lock className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Funcionalidade Premium</h3>
+            <p className="text-muted-foreground max-w-md mb-4">
+              O programa "Indique e Ganhe" está disponível apenas para usuários com planos pagos. Faça upgrade para indicar amigos e ganhar comissões.
+            </p>
+            <Button
+              onClick={() => {
+                const event = new CustomEvent('open-subscription-modal');
+                window.dispatchEvent(event);
+              }}
+            >
+              Fazer Upgrade
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

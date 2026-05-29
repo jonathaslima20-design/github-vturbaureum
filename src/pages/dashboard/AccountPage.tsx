@@ -160,6 +160,20 @@ export default function AccountPage() {
               <div className="mt-2 flex justify-center sm:justify-start">
                 <PlanStatusBadge status={user?.plan_status} planName={user?.subscription_plan_name} />
               </div>
+              {user?.plan_status === 'free' && (
+                <div className="mt-3 flex items-center justify-center sm:justify-start gap-2 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-3 py-2">
+                  <span className="text-xs text-amber-800 dark:text-amber-300">Você está no Plano Free com recursos limitados.</span>
+                  <button
+                    className="text-xs font-semibold text-amber-900 dark:text-amber-200 underline underline-offset-2 hover:no-underline whitespace-nowrap"
+                    onClick={() => {
+                      const event = new CustomEvent('open-subscription-modal');
+                      window.dispatchEvent(event);
+                    }}
+                  >
+                    Fazer Upgrade
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>

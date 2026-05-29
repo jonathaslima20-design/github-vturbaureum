@@ -1028,23 +1028,6 @@ export default function CartModal({
                   </div>
                 </div>
 
-                {/* Legal disclaimer */}
-                <p className="text-[11px] leading-relaxed text-muted-foreground text-center px-1">
-                  Ao continuar, você concorda com os{' '}
-                  <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground transition-colors">
-                    Termos de Uso
-                  </a>
-                  , a{' '}
-                  <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground transition-colors">
-                    Política de Privacidade
-                  </a>
-                  {' '}e a{' '}
-                  <a href="/politica-de-cookies" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground transition-colors">
-                    Política de Cookies
-                  </a>
-                  {' '}do VitrineTurbo.
-                </p>
-
                 {/* Fixed Action Buttons */}
                 <div className="flex gap-2 pt-3 border-t mt-3">
                   <Button

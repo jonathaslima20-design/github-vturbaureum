@@ -30,8 +30,8 @@ export default function InventorySettingsContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [state, setState] = useState<InventoryState>({
-    enableInventory: false,
-    showStockOnStorefront: false,
+    enableInventory: true,
+    showStockOnStorefront: true,
     autoDeductStock: true,
     blockZeroStock: false,
     reservationMinutes: 15,
