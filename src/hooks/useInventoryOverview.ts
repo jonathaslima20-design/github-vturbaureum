@@ -51,6 +51,7 @@ export function useInventoryOverview() {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('track_inventory', true)
+          .eq('is_visible_on_storefront', true)
           .gt('stock_quantity', 0)
           .lte('stock_quantity', 5),
 
@@ -59,6 +60,7 @@ export function useInventoryOverview() {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('track_inventory', true)
+          .eq('is_visible_on_storefront', true)
           .lte('stock_quantity', 0),
 
         supabase
@@ -66,6 +68,7 @@ export function useInventoryOverview() {
           .select('stock_quantity')
           .eq('user_id', user.id)
           .eq('track_inventory', true)
+          .eq('is_visible_on_storefront', true)
           .gt('stock_quantity', 0),
 
         supabase
@@ -73,6 +76,7 @@ export function useInventoryOverview() {
           .select('id, title, featured_image_url, stock_quantity, low_stock_threshold')
           .eq('user_id', user.id)
           .eq('track_inventory', true)
+          .eq('is_visible_on_storefront', true)
           .lte('stock_quantity', 5)
           .order('stock_quantity', { ascending: true })
           .limit(10),

@@ -96,6 +96,7 @@ export function useDashboardStats(periodDays: number = 30) {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('track_inventory', true)
+          .eq('is_visible_on_storefront', true)
           .gt('stock_quantity', 0)
           .lte('stock_quantity', 5),
 
@@ -104,6 +105,7 @@ export function useDashboardStats(periodDays: number = 30) {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('track_inventory', true)
+          .eq('is_visible_on_storefront', true)
           .lte('stock_quantity', 0),
       ]);
 
