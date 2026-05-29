@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Crown, CircleAlert as AlertCircle, Ban, Sparkles, Clock } from 'lucide-react';
+import { Gem, CircleAlert as AlertCircle, Ban, Sparkles, Clock } from 'lucide-react';
 import type { PlanStatus } from '@/types';
 
 interface PlanStatusBadgeProps {
@@ -12,30 +12,30 @@ export default function PlanStatusBadge({ status, planName, className }: PlanSta
   switch (status) {
     case 'active':
       return (
-        <Badge variant="secondary" className={className}>
-          <Crown className="h-3 w-3 mr-1" />
-          {planName ? planName : 'Plano Ativo'}
+        <Badge className={`bg-foreground text-background hover:bg-foreground/90 ${className || ''}`}>
+          <Gem className="h-3 w-3 mr-1" />
+          {planName ? planName : 'Ativo'}
         </Badge>
       );
     case 'free':
       return (
         <Badge variant="outline" className={className}>
           <Sparkles className="h-3 w-3 mr-1" />
-          Plano Free
+          Free
         </Badge>
       );
     case 'expired':
       return (
         <Badge variant="outline" className={`border-amber-300 bg-amber-50 text-amber-800 ${className || ''}`}>
           <Clock className="h-3 w-3 mr-1" />
-          {planName ? `${planName} (Expirado)` : 'Plano Expirado'}
+          {planName ? `${planName} (Expirado)` : 'Expirado'}
         </Badge>
       );
     case 'suspended':
       return (
         <Badge variant="destructive" className={className}>
           <Ban className="h-3 w-3 mr-1" />
-          {planName ? `${planName} (Suspenso)` : 'Plano Suspenso'}
+          {planName ? `${planName} (Suspenso)` : 'Suspenso'}
         </Badge>
       );
     default:
