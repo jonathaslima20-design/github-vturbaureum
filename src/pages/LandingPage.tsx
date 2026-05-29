@@ -619,10 +619,11 @@ function DifferentiationSection() {
           <div className="reveal">
             <div className="font-mono-label uppercase text-[11px] text-ink-500">/ diferencial</div>
             <h2 className="font-display font-semibold text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.035em] text-ink-900 mt-4">
-              Para quem leva o negocio a serio.
+              Para negócios que precisam de escala.
             </h2>
             <p className="text-ink-500 text-[16px] lg:text-[18px] mt-6 leading-[1.5] max-w-xl">
-              Nao e so um catalogo. E uma plataforma completa para gerenciar e escalar suas vendas online, com ferramentas que normalmente custam centenas de reais em outros sistemas.
+              Não é so um catalogo. É uma plataforma completa para gerenciar e escalar suas vendas online, com ferramentas e funcionalidades
+              voltadas para o seu negócio.
             </p>
             <div className="mt-8">
               <a href="/register" className="btn-primary rounded-full px-7 py-3.5 font-display font-medium text-[14px] inline-flex items-center gap-2">
