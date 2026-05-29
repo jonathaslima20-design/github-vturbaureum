@@ -43,9 +43,9 @@ export default function DashboardSidebar() {
   ];
 
   const stockSubItems = [
-    { name: 'Visao Geral', href: '/dashboard/inventory', icon: BarChart3 },
-    { name: 'Movimentacoes', href: '/dashboard/stock-movements', icon: ArrowLeftRight },
-    { name: 'Configuracoes', href: '/dashboard/inventory/settings', icon: Settings2 },
+    { name: 'Visão Geral', href: '/dashboard/inventory', icon: BarChart3 },
+    { name: 'Movimentações', href: '/dashboard/stock-movements', icon: ArrowLeftRight },
+    { name: 'Configurações', href: '/dashboard/inventory/settings', icon: Settings2 },
   ];
 
   const salesSubItems = [
@@ -83,7 +83,7 @@ export default function DashboardSidebar() {
               onClick={() => isMobile && toggleMobileSidebar()}
             />
             <InkGroupItem
-              label="Catalogo"
+              label="Catálogo"
               icon={BookOpen}
               isGroupActive={isCatalogSection}
               isOpen={openGroup === 'catalog'}
@@ -115,7 +115,7 @@ export default function DashboardSidebar() {
             />
             {user?.billing_cycle === 'annually' && user?.plan_status === 'active' && (
               <InkNavItem
-                name="Integracoes"
+                name="Integrações"
                 href="/dashboard/integrations"
                 icon={Plug}
                 end
@@ -127,7 +127,7 @@ export default function DashboardSidebar() {
             <div className="h-px bg-foreground/[0.06] my-3 mx-2" />
 
             <InkNavItem
-              name="Configuracoes"
+              name="Configurações"
               href="/dashboard/settings"
               icon={Settings}
               end

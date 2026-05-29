@@ -90,7 +90,7 @@ export function TopProductsList({ periodDays = 30 }: TopProductsListProps) {
           <Trophy className="h-5 w-5 text-muted-foreground" />
           Top Produtos
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Mais visualizados nos ultimos {periodDays} dias</p>
+        <p className="text-sm text-muted-foreground">Mais visualizados nos últimos {periodDays} dias</p>
       </CardHeader>
       <CardContent>
         {loading ? (

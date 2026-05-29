@@ -136,7 +136,7 @@ export default function ReferralManagementPage() {
       });
     } catch (error) {
       console.error('Error fetching referral data:', error);
-      toast.error('Erro ao carregar dados de indicacoes');
+      toast.error('Erro ao carregar dados de indicações');
     } finally {
       setLoading(false);
     }
@@ -160,10 +160,10 @@ export default function ReferralManagementPage() {
         })
         .eq('id', settings.id);
       if (error) throw error;
-      toast.success('Configuracoes salvas com sucesso');
+      toast.success('Configurações salvas com sucesso');
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Erro ao salvar configuracoes');
+      toast.error('Erro ao salvar configurações');
     } finally {
       setSaving(false);
     }
@@ -206,8 +206,8 @@ export default function ReferralManagementPage() {
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl page-title">Gestao de Indicacoes</h1>
-          <p className="text-muted-foreground">Gerencie o programa de indicacoes e recompensas</p>
+          <h1 className="text-2xl md:text-3xl page-title">Gestão de Indicações</h1>
+          <p className="text-muted-foreground">Gerencie o programa de indicações e recompensas</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -217,16 +217,16 @@ export default function ReferralManagementPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <SummaryCard title="Total de Indicacoes" value={summaryStats.totalReferrals} icon={Users} loading={loading} />
-        <SummaryCard title="Comissoes Pendentes" value={formatCurrencyI18n(summaryStats.pendingCommissions, 'BRL', 'pt-BR')} icon={Clock} loading={loading} accent="amber" />
-        <SummaryCard title="Comissoes Pagas" value={formatCurrencyI18n(summaryStats.paidCommissions, 'BRL', 'pt-BR')} icon={CheckCircle} loading={loading} accent="green" />
+        <SummaryCard title="Total de Indicações" value={summaryStats.totalReferrals} icon={Users} loading={loading} />
+        <SummaryCard title="Comissões Pendentes" value={formatCurrencyI18n(summaryStats.pendingCommissions, 'BRL', 'pt-BR')} icon={Clock} loading={loading} accent="amber" />
+        <SummaryCard title="Comissões Pagas" value={formatCurrencyI18n(summaryStats.paidCommissions, 'BRL', 'pt-BR')} icon={CheckCircle} loading={loading} accent="green" />
         <SummaryCard title="Saques Pendentes" value={formatCurrencyI18n(summaryStats.pendingWithdrawals, 'BRL', 'pt-BR')} icon={Wallet} loading={loading} accent={summaryStats.pendingWithdrawals > 0 ? 'amber' : undefined} />
       </div>
 
       <Tabs defaultValue="settings" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="settings" className="gap-2"><Settings className="h-4 w-4" /> Configuracoes</TabsTrigger>
-          <TabsTrigger value="commissions" className="gap-2"><Gift className="h-4 w-4" /> Indicacoes</TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2"><Settings className="h-4 w-4" /> Configurações</TabsTrigger>
+          <TabsTrigger value="commissions" className="gap-2"><Gift className="h-4 w-4" /> Indicações</TabsTrigger>
           <TabsTrigger value="withdrawals" className="gap-2"><DollarSign className="h-4 w-4" /> Saques</TabsTrigger>
         </TabsList>
 
@@ -234,7 +234,7 @@ export default function ReferralManagementPage() {
         <TabsContent value="settings">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Configuracoes do Programa</CardTitle>
+              <CardTitle className="text-base">Configurações do Programa</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {loading || !settings ? (
@@ -246,7 +246,7 @@ export default function ReferralManagementPage() {
                   <div className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <Label className="text-base font-medium">Programa Ativo</Label>
-                      <p className="text-sm text-muted-foreground">Habilitar/desabilitar o programa de indicacoes</p>
+                      <p className="text-sm text-muted-foreground">Habilitar/desabilitar o programa de indicações</p>
                     </div>
                     <Switch
                       checked={settings.is_active}
@@ -256,7 +256,7 @@ export default function ReferralManagementPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
-                      <Label>Comissao Mensal (R$)</Label>
+                      <Label>Comissão Mensal (R$)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -265,7 +265,7 @@ export default function ReferralManagementPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Comissao Semestral (R$)</Label>
+                      <Label>Comissão Semestral (R$)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -274,7 +274,7 @@ export default function ReferralManagementPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Comissao Anual (R$)</Label>
+                      <Label>Comissão Anual (R$)</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -285,7 +285,7 @@ export default function ReferralManagementPage() {
                   </div>
 
                   <div className="space-y-2 max-w-xs">
-                    <Label>Valor Minimo para Saque (R$)</Label>
+                    <Label>Valor Mínimo para Saque (R$)</Label>
                     <Input
                       type="number"
                       step="0.01"
@@ -296,7 +296,7 @@ export default function ReferralManagementPage() {
 
                   <Button onClick={handleSaveSettings} disabled={saving}>
                     {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Salvar Configuracoes
+                    Salvar Configurações
                   </Button>
                 </>
               )}
@@ -308,7 +308,7 @@ export default function ReferralManagementPage() {
         <TabsContent value="commissions">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Indicacoes Realizadas</CardTitle>
+              <CardTitle className="text-base">Indicações Realizadas</CardTitle>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue />
@@ -326,7 +326,7 @@ export default function ReferralManagementPage() {
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : filteredCommissions.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-12">Nenhuma indicacao encontrada</p>
+                <p className="text-sm text-muted-foreground text-center py-12">Nenhuma indicação encontrada</p>
               ) : (
                 <div className="rounded-md border">
                   <Table>
@@ -381,7 +381,7 @@ export default function ReferralManagementPage() {
         <TabsContent value="withdrawals">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Solicitacoes de Saque</CardTitle>
+              <CardTitle className="text-base">Solicitações de Saque</CardTitle>
               <Select value={withdrawalFilter} onValueChange={setWithdrawalFilter}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue />
@@ -400,18 +400,18 @@ export default function ReferralManagementPage() {
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : filteredWithdrawals.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-12">Nenhuma solicitacao de saque encontrada</p>
+                <p className="text-sm text-muted-foreground text-center py-12">Nenhuma solicitação de saque encontrada</p>
               ) : (
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Usuario</TableHead>
+                        <TableHead>Usuário</TableHead>
                         <TableHead>Valor</TableHead>
                         <TableHead>Chave Pix</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Data</TableHead>
-                        <TableHead className="text-right">Acoes</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -485,17 +485,17 @@ export default function ReferralManagementPage() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {processDialog.action === 'approve'
-                ? `Confirma a aprovacao do saque de ${processDialog.withdrawal ? formatCurrencyI18n(processDialog.withdrawal.amount, 'BRL', 'pt-BR') : ''} para ${processDialog.withdrawal?.user_name}?`
-                : `Confirma a rejeicao do saque de ${processDialog.withdrawal ? formatCurrencyI18n(processDialog.withdrawal.amount, 'BRL', 'pt-BR') : ''} para ${processDialog.withdrawal?.user_name}?`
+                ? `Confirma a aprovação do saque de ${processDialog.withdrawal ? formatCurrencyI18n(processDialog.withdrawal.amount, 'BRL', 'pt-BR') : ''} para ${processDialog.withdrawal?.user_name}?`
+                : `Confirma a rejeição do saque de ${processDialog.withdrawal ? formatCurrencyI18n(processDialog.withdrawal.amount, 'BRL', 'pt-BR') : ''} para ${processDialog.withdrawal?.user_name}?`
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-2 py-2">
-            <Label>Observacoes (opcional)</Label>
+            <Label>Observações (opcional)</Label>
             <Textarea
               value={adminNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
-              placeholder="Adicione uma observacao sobre esta decisao..."
+              placeholder="Adicione uma observação sobre esta decisão..."
               rows={3}
             />
           </div>

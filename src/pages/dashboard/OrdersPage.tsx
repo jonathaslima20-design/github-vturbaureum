@@ -219,7 +219,7 @@ export default function OrdersPage() {
             <p className="text-sm text-muted-foreground/70 mt-1 max-w-xs">
               {statusFilter !== 'all' || searchQuery
                 ? 'Tente alterar os filtros para ver mais pedidos.'
-                : 'Os pedidos feitos pelos seus clientes via WhatsApp aparecerao aqui.'}
+                : 'Os pedidos feitos pelos seus clientes via WhatsApp aparecerão aqui.'}
             </p>
           </CardContent>
         </Card>

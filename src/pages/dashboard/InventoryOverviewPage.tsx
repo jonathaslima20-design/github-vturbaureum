@@ -16,7 +16,7 @@ import { ptBR } from 'date-fns/locale';
 
 const MOVEMENT_CONFIG: Record<StockMovementType, { label: string; icon: typeof ArrowDownToLine; colorClass: string; badgeClass: string }> = {
   entrada: { label: 'Entrada', icon: ArrowDownToLine, colorClass: 'text-green-600', badgeClass: 'bg-green-500/10 text-green-600 border-transparent' },
-  saida: { label: 'Saida', icon: ArrowUpFromLine, colorClass: 'text-red-600', badgeClass: 'bg-red-500/10 text-red-600 border-transparent' },
+  saida: { label: 'Saída', icon: ArrowUpFromLine, colorClass: 'text-red-600', badgeClass: 'bg-red-500/10 text-red-600 border-transparent' },
   ajuste: { label: 'Ajuste', icon: RefreshCcw, colorClass: 'text-blue-600', badgeClass: 'bg-blue-500/10 text-blue-600 border-transparent' },
   reserva: { label: 'Reserva', icon: Clock, colorClass: 'text-amber-600', badgeClass: 'bg-amber-500/10 text-amber-600 border-transparent' },
   cancelamento: { label: 'Cancelamento', icon: Undo2, colorClass: 'text-gray-600', badgeClass: 'bg-gray-500/10 text-gray-600 border-transparent' },
@@ -80,7 +80,7 @@ function InventoryActivationInvite() {
         <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl page-title">Controle de Estoque</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Gerencie a quantidade dos seus produtos com rastreamento automatico, alertas de estoque baixo e historico completo de movimentacoes.
+            Gerencie a quantidade dos seus produtos com rastreamento automático, alertas de estoque baixo e histórico completo de movimentações.
           </p>
         </div>
 
@@ -88,21 +88,21 @@ function InventoryActivationInvite() {
           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
             <BarChart3 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-medium">Visao em tempo real</p>
-              <p className="text-xs text-muted-foreground">Saiba exatamente o que tem disponivel</p>
+              <p className="text-sm font-medium">Visão em tempo real</p>
+              <p className="text-xs text-muted-foreground">Saiba exatamente o que tem disponível</p>
             </div>
           </div>
           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
             <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-medium">Alertas automaticos</p>
-              <p className="text-xs text-muted-foreground">Notificacoes de estoque baixo</p>
+              <p className="text-sm font-medium">Alertas automáticos</p>
+              <p className="text-xs text-muted-foreground">Notificações de estoque baixo</p>
             </div>
           </div>
           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
             <TrendingDown className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-medium">Deducao automatica</p>
+              <p className="text-sm font-medium">Dedução automática</p>
               <p className="text-xs text-muted-foreground">Estoque atualiza com vendas</p>
             </div>
           </div>
@@ -123,7 +123,7 @@ function InventoryActivationInvite() {
             Ativar Controle de Estoque
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
-            Voce pode desativar a qualquer momento sem perder dados
+            Você pode desativar a qualquer momento sem perder dados
           </p>
         </div>
       </div>
@@ -159,7 +159,7 @@ function InventoryDashboard() {
     <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6 space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl page-title">Estoque</h1>
-        <p className="text-sm text-muted-foreground">Visao geral do inventario dos seus produtos</p>
+        <p className="text-sm text-muted-foreground">Visão geral do inventário dos seus produtos</p>
       </div>
 
       {/* Summary Cards */}
@@ -226,7 +226,7 @@ function InventoryDashboard() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base">Produtos Criticos</CardTitle>
+              <CardTitle className="text-base">Produtos Críticos</CardTitle>
               <CardDescription>Produtos com estoque baixo ou esgotado</CardDescription>
             </div>
             {criticalProducts.length > 0 && (
@@ -246,8 +246,8 @@ function InventoryDashboard() {
           {criticalProducts.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Package className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Nenhum produto em situacao critica</p>
-              <p className="text-xs mt-1">Todos os produtos estao com estoque adequado</p>
+              <p className="text-sm">Nenhum produto em situação crítica</p>
+              <p className="text-xs mt-1">Todos os produtos estão com estoque adequado</p>
             </div>
           ) : (
             <div className="divide-y">
@@ -274,7 +274,7 @@ function InventoryDashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{product.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {product.stock_quantity} un. disponivel
+                      {product.stock_quantity} un. disponível
                     </p>
                   </div>
 
@@ -299,8 +299,8 @@ function InventoryDashboard() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base">Movimentacoes Recentes</CardTitle>
-              <CardDescription>Ultimas alteracoes no estoque</CardDescription>
+              <CardTitle className="text-base">Movimentações Recentes</CardTitle>
+              <CardDescription>Últimas alterações no estoque</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -321,7 +321,7 @@ function InventoryDashboard() {
           ) : recentMovements.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <RefreshCcw className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Nenhuma movimentacao registrada</p>
+              <p className="text-sm">Nenhuma movimentação registrada</p>
             </div>
           ) : (
             <div className="divide-y">

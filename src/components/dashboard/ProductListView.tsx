@@ -57,7 +57,7 @@ export function ProductListView({
         <div />
         <div />
         <div>Produto</div>
-        <div>Preco</div>
+        <div>Preço</div>
         <div className="text-center">Views</div>
         <div className="text-center">Leads</div>
         <div className="text-center">Estoque</div>
@@ -206,7 +206,7 @@ export function ProductListView({
                     {onQuickEdit && (
                       <DropdownMenuItem onClick={() => onQuickEdit(product)} className="flex items-center gap-2">
                         <Zap className="h-3.5 w-3.5" />
-                        Edicao Rapida
+                        Edição Rápida
                       </DropdownMenuItem>
                     )}
                     {onDuplicate && (

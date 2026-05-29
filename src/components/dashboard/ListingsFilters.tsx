@@ -28,15 +28,15 @@ interface ListingsFiltersProps {
 
 const STATUS_OPTIONS = [
   { value: 'todos', label: 'Todos' },
-  { value: 'visiveis', label: 'Visiveis' },
+  { value: 'visiveis', label: 'Visíveis' },
   { value: 'ocultos', label: 'Ocultos' },
 ];
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'recent', label: 'Mais recentes' },
   { value: 'oldest', label: 'Mais antigos' },
-  { value: 'price_high', label: 'Maior preco' },
-  { value: 'price_low', label: 'Menor preco' },
+  { value: 'price_high', label: 'Maior preço' },
+  { value: 'price_low', label: 'Menor preço' },
   { value: 'most_viewed', label: 'Mais visualizados' },
   { value: 'low_stock', label: 'Menor estoque' },
   { value: 'alpha', label: 'A-Z' },

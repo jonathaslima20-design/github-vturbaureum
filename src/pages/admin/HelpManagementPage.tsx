@@ -122,7 +122,7 @@ export default function HelpManagementPage() {
   };
 
   const handleSaveCategory = async () => {
-    if (!categoryForm.name.trim()) { toast.error('Nome obrigatorio'); return; }
+    if (!categoryForm.name.trim()) { toast.error('Nome obrigatório'); return; }
     const slug = categoryForm.slug || generateSlug(categoryForm.name);
     try {
       if (categoryDialog.editing) {
@@ -165,8 +165,8 @@ export default function HelpManagementPage() {
   };
 
   const handleSaveArticle = async () => {
-    if (!articleForm.title.trim()) { toast.error('Titulo obrigatorio'); return; }
-    if (!articleForm.content.trim()) { toast.error('Conteudo obrigatorio'); return; }
+    if (!articleForm.title.trim()) { toast.error('Título obrigatório'); return; }
+    if (!articleForm.content.trim()) { toast.error('Conteúdo obrigatório'); return; }
     const slug = articleForm.slug || generateSlug(articleForm.title);
     const tags = articleForm.tags ? articleForm.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
     try {
@@ -202,7 +202,7 @@ export default function HelpManagementPage() {
       const table = deleteDialog.type === 'category' ? 'help_categories' : 'help_articles';
       const { error } = await supabase.from(table).delete().eq('id', deleteDialog.id);
       if (error) throw error;
-      toast.success(`${deleteDialog.type === 'category' ? 'Categoria' : 'Artigo'} excluido`);
+      toast.success(`${deleteDialog.type === 'category' ? 'Categoria' : 'Artigo'} excluído`);
       setDeleteDialog({ open: false, type: 'category', id: '', name: '' });
       fetchAll();
     } catch (error) {
@@ -244,8 +244,8 @@ export default function HelpManagementPage() {
       {/* Stats */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <MiniStat title="Total de Artigos" value={articles.length} icon={FileText} loading={loading} />
-        <MiniStat title="Visualizacoes" value={totalViews} icon={Eye} loading={loading} />
-        <MiniStat title="Taxa de Aprovacao" value={`${approvalRate}%`} icon={ThumbsUp} loading={loading} accent="green" />
+        <MiniStat title="Visualizações" value={totalViews} icon={Eye} loading={loading} />
+        <MiniStat title="Taxa de Aprovação" value={`${approvalRate}%`} icon={ThumbsUp} loading={loading} accent="green" />
         <MiniStat title="Categorias" value={categories.length} icon={FolderOpen} loading={loading} />
       </div>
 
@@ -253,7 +253,7 @@ export default function HelpManagementPage() {
         <TabsList>
           <TabsTrigger value="articles" className="gap-2"><FileText className="h-4 w-4" /> Artigos</TabsTrigger>
           <TabsTrigger value="categories" className="gap-2"><FolderOpen className="h-4 w-4" /> Categorias</TabsTrigger>
-          <TabsTrigger value="metrics" className="gap-2"><BarChart3 className="h-4 w-4" /> Metricas</TabsTrigger>
+          <TabsTrigger value="metrics" className="gap-2"><BarChart3 className="h-4 w-4" /> Métricas</TabsTrigger>
         </TabsList>
 
         {/* Articles Tab */}
@@ -298,13 +298,13 @@ export default function HelpManagementPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="min-w-[250px]">Titulo</TableHead>
+                        <TableHead className="min-w-[250px]">Título</TableHead>
                         <TableHead>Categoria</TableHead>
                         <TableHead className="text-center">Status</TableHead>
                         <TableHead className="text-center">Views</TableHead>
                         <TableHead className="text-center">Feedback</TableHead>
                         <TableHead>Data</TableHead>
-                        <TableHead className="text-right">Acoes</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -381,11 +381,11 @@ export default function HelpManagementPage() {
                       <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>Slug</TableHead>
-                        <TableHead className="text-center">Icone</TableHead>
+                        <TableHead className="text-center">Ícone</TableHead>
                         <TableHead className="text-center">Ordem</TableHead>
                         <TableHead className="text-center">Artigos</TableHead>
                         <TableHead className="text-center">Status</TableHead>
-                        <TableHead className="text-right">Acoes</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -442,7 +442,7 @@ export default function HelpManagementPage() {
                   </div>
                 ))}
                 {articles.filter(a => a.view_count > 0).length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-8">Nenhum artigo com visualizacoes</p>
+                  <p className="text-sm text-muted-foreground text-center py-8">Nenhum artigo com visualizações</p>
                 )}
               </CardContent>
             </Card>
@@ -506,12 +506,12 @@ export default function HelpManagementPage() {
               <Input value={categoryForm.slug} onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })} placeholder="primeiros-passos" />
             </div>
             <div className="space-y-2">
-              <Label>Descricao</Label>
+              <Label>Descrição</Label>
               <Textarea value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })} rows={2} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Icone</Label>
+                <Label>Ícone</Label>
                 <Select value={categoryForm.icon} onValueChange={(v) => setCategoryForm({ ...categoryForm, icon: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -545,10 +545,10 @@ export default function HelpManagementPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Titulo</Label>
+              <Label>Título</Label>
               <Input value={articleForm.title} onChange={(e) => {
                 setArticleForm({ ...articleForm, title: e.target.value, slug: articleDialog.editing ? articleForm.slug : generateSlug(e.target.value) });
-              }} placeholder="Titulo do artigo" />
+              }} placeholder="Título do artigo" />
             </div>
             <div className="space-y-2">
               <Label>Slug</Label>
@@ -568,11 +568,11 @@ export default function HelpManagementPage() {
               <Textarea value={articleForm.excerpt} onChange={(e) => setArticleForm({ ...articleForm, excerpt: e.target.value })} rows={2} placeholder="Resumo curto do artigo" />
             </div>
             <div className="space-y-2">
-              <Label>Conteudo</Label>
-              <Textarea value={articleForm.content} onChange={(e) => setArticleForm({ ...articleForm, content: e.target.value })} rows={12} placeholder="Conteudo completo do artigo..." className="font-mono text-sm" />
+              <Label>Conteúdo</Label>
+              <Textarea value={articleForm.content} onChange={(e) => setArticleForm({ ...articleForm, content: e.target.value })} rows={12} placeholder="Conteúdo completo do artigo..." className="font-mono text-sm" />
             </div>
             <div className="space-y-2">
-              <Label>Tags (separadas por virgula)</Label>
+              <Label>Tags (separadas por vírgula)</Label>
               <Input value={articleForm.tags} onChange={(e) => setArticleForm({ ...articleForm, tags: e.target.value })} placeholder="tag1, tag2, tag3" />
             </div>
             <div className="flex items-center gap-6">
@@ -599,7 +599,7 @@ export default function HelpManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir {deleteDialog.type === 'category' ? 'Categoria' : 'Artigo'}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir "{deleteDialog.name}"? Esta acao nao pode ser desfeita.
+              Tem certeza que deseja excluir "{deleteDialog.name}"? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

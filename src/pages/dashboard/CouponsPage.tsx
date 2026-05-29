@@ -195,7 +195,7 @@ export default function CouponsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por codigo ou nome..."
+            placeholder="Buscar por código ou nome..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -292,7 +292,7 @@ export default function CouponsPage() {
                       onCheckedChange={(v) => toggleCouponActive(coupon.id, v)}
                       title={coupon.is_active ? 'Desativar' : 'Ativar'}
                     />
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewHistory(coupon)} title="Historico de uso">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewHistory(coupon)} title="Histórico de uso">
                       <History className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(coupon)} title="Editar">
@@ -328,7 +328,7 @@ export default function CouponsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir cupom?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acao nao pode ser desfeita. O cupom sera removido permanentemente.
+              Esta ação não pode ser desfeita. O cupom será removido permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -344,7 +344,7 @@ export default function CouponsPage() {
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="max-w-md max-h-[70vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Historico de Uso - {historyCoupon?.code}</DialogTitle>
+            <DialogTitle>Histórico de Uso - {historyCoupon?.code}</DialogTitle>
           </DialogHeader>
           {historyLoading ? (
             <div className="flex justify-center py-8">

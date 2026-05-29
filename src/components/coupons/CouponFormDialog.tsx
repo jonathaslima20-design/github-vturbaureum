@@ -148,16 +148,16 @@ export default function CouponFormDialog({
 
     const codeClean = code.trim();
     if (!codeClean || codeClean.length < 3) {
-      newErrors.code = 'Codigo deve ter pelo menos 3 caracteres';
+      newErrors.code = 'Código deve ter pelo menos 3 caracteres';
     } else if (!/^[A-Z0-9\-]+$/.test(codeClean)) {
-      newErrors.code = 'Apenas letras, numeros e hifen';
+      newErrors.code = 'Apenas letras, números e hífen';
     }
 
     const val = parseFloat(discountValue);
     if (!discountValue || isNaN(val) || val <= 0) {
-      newErrors.discountValue = 'Valor obrigatorio e positivo';
+      newErrors.discountValue = 'Valor obrigatório e positivo';
     } else if (discountType === 'percentage' && val > 100) {
-      newErrors.discountValue = 'Percentual maximo de 100%';
+      newErrors.discountValue = 'Percentual máximo de 100%';
     }
 
     if (appliesTo === 'specific_products' && selectedProductIds.length === 0) {
@@ -231,9 +231,9 @@ export default function CouponFormDialog({
         <div className="space-y-5">
           {/* Basic Info */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Informacoes basicas</h4>
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Informações básicas</h4>
             <div className="space-y-2">
-              <Label>Codigo do cupom</Label>
+              <Label>Código do cupom</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="EX: PROMO10"
@@ -249,7 +249,7 @@ export default function CouponFormDialog({
                   size="icon"
                   type="button"
                   onClick={() => setCode(generateRandomCode())}
-                  title="Gerar codigo aleatorio"
+                  title="Gerar código aleatório"
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
@@ -259,7 +259,7 @@ export default function CouponFormDialog({
             <div className="space-y-2">
               <Label>Nome interno (opcional)</Label>
               <Input
-                placeholder="Ex: Promocao de lancamento"
+                placeholder="Ex: Promoção de lançamento"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -302,7 +302,7 @@ export default function CouponFormDialog({
               </div>
               {discountType === 'percentage' && (
                 <div className="space-y-2">
-                  <Label>Desconto maximo (R$)</Label>
+                  <Label>Desconto máximo (R$)</Label>
                   <Input
                     type="number"
                     min="0"
@@ -321,9 +321,9 @@ export default function CouponFormDialog({
 
           {/* Conditions */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Condicoes</h4>
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Condições</h4>
             <div className="space-y-2">
-              <Label>Valor minimo do pedido (R$)</Label>
+              <Label>Valor mínimo do pedido (R$)</Label>
               <Input
                 type="number"
                 min="0"
@@ -335,7 +335,7 @@ export default function CouponFormDialog({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Maximo de usos total</Label>
+                <Label>Máximo de usos total</Label>
                 <Input
                   type="number"
                   min="1"
@@ -345,7 +345,7 @@ export default function CouponFormDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Maximo por cliente</Label>
+                <Label>Máximo por cliente</Label>
                 <Input
                   type="number"
                   min="1"
@@ -363,7 +363,7 @@ export default function CouponFormDialog({
           <div className="space-y-3">
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Validade</h4>
             <div className="space-y-2">
-              <Label>Inicio da validade</Label>
+              <Label>Início da validade</Label>
               <Input
                 type="datetime-local"
                 value={validFrom}
@@ -372,11 +372,11 @@ export default function CouponFormDialog({
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={hasExpiration} onCheckedChange={setHasExpiration} />
-              <Label className="font-normal">Definir data de expiracao</Label>
+              <Label className="font-normal">Definir data de expiração</Label>
             </div>
             {hasExpiration && (
               <div className="space-y-2">
-                <Label>Expiracao</Label>
+                <Label>Expiração</Label>
                 <Input
                   type="datetime-local"
                   value={validUntil}
@@ -397,8 +397,8 @@ export default function CouponFormDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all_products">Todos os produtos</SelectItem>
-                <SelectItem value="specific_products">Produtos especificos</SelectItem>
-                <SelectItem value="specific_categories">Categorias especificas</SelectItem>
+                <SelectItem value="specific_products">Produtos específicos</SelectItem>
+                <SelectItem value="specific_categories">Categorias específicas</SelectItem>
               </SelectContent>
             </Select>
 

@@ -183,7 +183,7 @@ const ProductCardComponent = memo(function ProductCardComponent({
                 {onQuickEdit && (
                   <DropdownMenuItem onClick={() => onQuickEdit(product)} className="flex items-center gap-2">
                     <Zap className="h-3.5 w-3.5" />
-                    Edicao Rapida
+                    Edição Rápida
                   </DropdownMenuItem>
                 )}
                 {onDuplicate && (
@@ -239,7 +239,7 @@ const ProductCardComponent = memo(function ProductCardComponent({
               <div className="absolute bottom-2 left-2">
                 <Badge className="bg-sky-500/80 hover:bg-sky-500 text-white border-0 text-[10px] px-1.5 py-0 font-medium shadow-sm gap-0.5">
                   <TrendingUp className="h-2.5 w-2.5" />
-                  Tendencia
+                  Tendência
                 </Badge>
               </div>
             )}
@@ -352,7 +352,7 @@ const ProductCardComponent = memo(function ProductCardComponent({
               {product.is_visible_on_storefront ? (
                 <Badge variant="default" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-[9px] md:text-[10px] px-1.5 py-0 font-medium">
                   <CheckSquare className="h-2.5 w-2.5 mr-0.5" />
-                  Visivel
+                  Visível
                 </Badge>
               ) : (
                 <Badge variant="secondary" className="text-[9px] md:text-[10px] px-1.5 py-0 font-medium border-0 bg-muted">

@@ -113,13 +113,13 @@ function PixSection({ plan, onSuccess, earlyRenewal }: { plan: PlanInfo; onSucce
 
   const handleSubmit = async () => {
     if (!firstName || !email || !doc) {
-      toast.error('Preencha todos os campos obrigatorios');
+      toast.error('Preencha todos os campos obrigatórios');
       return;
     }
 
     const cleanDoc = doc.replace(/\D/g, '');
     if (cleanDoc.length < 11) {
-      toast.error('CPF/CNPJ invalido');
+      toast.error('CPF/CNPJ inválido');
       return;
     }
 
@@ -149,7 +149,7 @@ function PixSection({ plan, onSuccess, earlyRenewal }: { plan: PlanInfo; onSucce
     if (pixResult?.pix_qr_code) {
       navigator.clipboard.writeText(pixResult.pix_qr_code);
       setCopied(true);
-      toast.success('Codigo PIX copiado!');
+      toast.success('Código PIX copiado!');
       setTimeout(() => setCopied(false), 3000);
     }
   };
@@ -187,7 +187,7 @@ function PixSection({ plan, onSuccess, earlyRenewal }: { plan: PlanInfo; onSucce
 
         {pixResult.pix_qr_code && (
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Codigo Pix (copia e cola)</Label>
+            <Label className="text-xs text-muted-foreground">Código Pix (copia e cola)</Label>
             <div className="flex gap-2">
               <Input
                 value={pixResult.pix_qr_code}
@@ -208,13 +208,13 @@ function PixSection({ plan, onSuccess, earlyRenewal }: { plan: PlanInfo; onSucce
 
         <div className="flex items-center gap-2 justify-center text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
-          <span>Aguardando confirmacao do pagamento...</span>
+          <span>Aguardando confirmação do pagamento...</span>
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>
 
         <div className="bg-muted/50 rounded-lg p-3 text-center">
           <p className="text-xs text-muted-foreground">
-            Apos o pagamento, seu plano sera ativado automaticamente em poucos segundos.
+            Após o pagamento, seu plano será ativado automaticamente em poucos segundos.
           </p>
         </div>
       </div>
@@ -281,7 +281,7 @@ function PixSection({ plan, onSuccess, earlyRenewal }: { plan: PlanInfo; onSucce
       </Button>
 
       <p className="text-xs text-center text-muted-foreground">
-        O pagamento via Pix e confirmado instantaneamente
+        O pagamento via Pix é confirmado instantaneamente
       </p>
     </div>
   );
@@ -359,12 +359,12 @@ function CardSection({ plan, onSuccess, earlyRenewal }: CardSectionProps) {
               <Clock className="h-7 w-7 text-amber-500" />
             </div>
           </div>
-          <h3 className="text-lg font-semibold">Pagamento em analise</h3>
+          <h3 className="text-lg font-semibold">Pagamento em análise</h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            Seu pagamento esta sendo processado. Voce sera notificado assim que for aprovado.
+            Seu pagamento está sendo processado. Você será notificado assim que for aprovado.
           </p>
           <Badge variant="outline" className="text-amber-600">
-            {result.card_last4 && `Cartao ****${result.card_last4}`}
+            {result.card_last4 && `Cartão ****${result.card_last4}`}
           </Badge>
         </div>
       );
@@ -379,7 +379,7 @@ function CardSection({ plan, onSuccess, earlyRenewal }: CardSectionProps) {
         </div>
         <h3 className="text-lg font-semibold">Pagamento recusado</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          {result.status_detail || 'Verifique os dados do cartao e tente novamente.'}
+          {result.status_detail || 'Verifique os dados do cartão e tente novamente.'}
         </p>
         <Button variant="outline" onClick={() => setResult(null)}>
           Tentar novamente
@@ -393,7 +393,7 @@ function CardSection({ plan, onSuccess, earlyRenewal }: CardSectionProps) {
       {!brickReady && (
         <div className="flex flex-col items-center justify-center gap-3 py-8">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Carregando formulario seguro...</span>
+          <span className="text-sm text-muted-foreground">Carregando formulário seguro...</span>
         </div>
       )}
       <div style={{ minHeight: brickReady ? undefined : 0, overflow: brickReady ? undefined : 'hidden' }}>
@@ -466,7 +466,7 @@ export default function CheckoutPage() {
         .maybeSingle();
 
       if (error || !data) {
-        toast.error('Plano nao encontrado');
+        toast.error('Plano não encontrado');
         navigate('/dashboard/settings');
         return;
       }
@@ -545,9 +545,9 @@ export default function CheckoutPage() {
               <AlertCircle className="h-7 w-7 text-red-500" />
             </div>
           </div>
-          <h3 className="text-lg font-semibold">Erro ao carregar formulario</h3>
+          <h3 className="text-lg font-semibold">Erro ao carregar formulário</h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            Nao foi possivel inicializar o sistema de pagamento. Verifique sua conexao.
+            Não foi possível inicializar o sistema de pagamento. Verifique sua conexão.
           </p>
           <Button variant="outline" onClick={handleRetrySDK}>
             Tentar novamente
@@ -606,7 +606,7 @@ export default function CheckoutPage() {
           <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/60 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
             <CalendarClock className="h-4 w-4 mt-0.5 shrink-0" />
             <p>
-              Renovacao antecipada — o novo periodo sera calculado a partir do vencimento atual
+              Renovação antecipada — o novo período será calculado a partir do vencimento atual
               {' '}(<strong>{new Date(user.subscription_end_date).toLocaleDateString('pt-BR')}</strong>),
               sem perda dos dias restantes.
             </p>
@@ -649,7 +649,7 @@ export default function CheckoutPage() {
                   )}
                 >
                   <CreditCard className="h-4 w-4" />
-                  <span className="text-sm font-medium">Cartao</span>
+                  <span className="text-sm font-medium">Cartão</span>
                 </button>
               </div>
 

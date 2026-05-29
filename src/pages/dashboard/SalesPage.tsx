@@ -21,12 +21,12 @@ export default function SalesPage() {
           </div>
           <h2 className="text-lg font-semibold mb-2">Vendas com pagamento integrado</h2>
           <p className="text-sm text-muted-foreground max-w-md mb-6">
-            Em breve voce podera aceitar pagamentos automaticos diretamente na sua vitrine,
-            com integracao de meios de pagamento como Mercado Pago. Seus clientes poderao
+            Em breve você poderá aceitar pagamentos automáticos diretamente na sua vitrine,
+            com integração de meios de pagamento como Mercado Pago. Seus clientes poderão
             comprar sem precisar sair da sua loja.
           </p>
           <p className="text-sm text-muted-foreground max-w-md mb-8">
-            Enquanto isso, utilize a secao de <strong>Pedidos</strong> para gerenciar
+            Enquanto isso, utilize a seção de <strong>Pedidos</strong> para gerenciar
             as vendas recebidas via WhatsApp.
           </p>
           <Button variant="outline" onClick={() => navigate('/dashboard/orders')}>

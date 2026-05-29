@@ -89,7 +89,7 @@ export function SalesFunnel({ periodDays = 30 }: SalesFunnelProps) {
           <Filter className="h-5 w-5 text-muted-foreground" />
           Funil de Vendas
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Ultimos {periodDays} dias vs periodo anterior</p>
+        <p className="text-sm text-muted-foreground">Últimos {periodDays} dias vs período anterior</p>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -111,7 +111,7 @@ export function SalesFunnel({ periodDays = 30 }: SalesFunnelProps) {
               <div className="mt-4 pt-3 border-t">
                 <p className="text-xs text-muted-foreground">
                   <span className="font-semibold text-foreground">Gargalo:</span>{' '}
-                  A maior perda esta entre {stages[bottleneckIndex].label} e {stages[bottleneckIndex + 1].label} ({worstConversion.toFixed(1)}% de conversao)
+                  A maior perda está entre {stages[bottleneckIndex].label} e {stages[bottleneckIndex + 1].label} ({worstConversion.toFixed(1)}% de conversão)
                 </p>
               </div>
             )}

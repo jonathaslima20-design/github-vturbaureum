@@ -242,7 +242,7 @@ export default function UsersManagementPage() {
       setUsers(enrichedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Erro ao carregar usuarios');
+      toast.error('Erro ao carregar usuários');
     } finally {
       setLoading(false);
     }
@@ -300,11 +300,11 @@ export default function UsersManagementPage() {
       if (error) throw error;
 
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_blocked: !currentBlocked } : u));
-      toast.success(currentBlocked ? 'Usuario desbloqueado com sucesso' : 'Usuario bloqueado com sucesso');
+      toast.success(currentBlocked ? 'Usuário desbloqueado com sucesso' : 'Usuário bloqueado com sucesso');
       fetchSummaryCounts();
     } catch (error) {
       console.error('Error toggling user block status:', error);
-      toast.error('Erro ao alterar status do usuario');
+      toast.error('Erro ao alterar status do usuário');
     }
   }, [fetchSummaryCounts]);
 
@@ -329,7 +329,7 @@ export default function UsersManagementPage() {
 
       const result = await response.json();
       if (!response.ok || !result.success) {
-        const errorMsg = result.results?.[0]?.error || result.error?.message || 'Erro ao excluir usuario';
+        const errorMsg = result.results?.[0]?.error || result.error?.message || 'Erro ao excluir usuário';
         throw new Error(errorMsg);
       }
 
@@ -342,7 +342,7 @@ export default function UsersManagementPage() {
       });
 
       const filesInfo = stats?.filesDeleted ? ` (${stats.filesDeleted} arquivo${stats.filesDeleted > 1 ? 's' : ''} removido${stats.filesDeleted > 1 ? 's' : ''})` : '';
-      toast.success(`Usuario excluido com sucesso${filesInfo}`);
+      toast.success(`Usuário excluído com sucesso${filesInfo}`);
       fetchSummaryCounts();
     } catch (error: any) {
       console.error('Error deleting user:', error);
@@ -379,15 +379,15 @@ export default function UsersManagementPage() {
 
           const result = await response.json();
           if (!response.ok) {
-            throw new Error(result.error?.message || 'Erro ao excluir usuarios');
+            throw new Error(result.error?.message || 'Erro ao excluir usuários');
           }
 
           const { summary } = result;
           if (summary.failed > 0) {
-            toast.warning(`${summary.succeeded} de ${summary.total} usuarios excluidos. ${summary.failed} falharam.`);
+            toast.warning(`${summary.succeeded} de ${summary.total} usuários excluídos. ${summary.failed} falharam.`);
           } else {
             const filesInfo = summary.totalFilesDeleted > 0 ? ` (${summary.totalFilesDeleted} arquivos removidos)` : '';
-            toast.success(`${summary.succeeded} usuario${summary.succeeded > 1 ? 's' : ''} excluido${summary.succeeded > 1 ? 's' : ''} com sucesso${filesInfo}`);
+            toast.success(`${summary.succeeded} usuário${summary.succeeded > 1 ? 's' : ''} excluído${summary.succeeded > 1 ? 's' : ''} com sucesso${filesInfo}`);
           }
           break;
         }
@@ -396,11 +396,11 @@ export default function UsersManagementPage() {
       await fetchSummaryCounts();
       setSelectedUsers(new Set());
       if (action !== 'delete') {
-        toast.success('Acao executada com sucesso');
+        toast.success('Ação executada com sucesso');
       }
     } catch (error: any) {
       console.error('Error executing bulk action:', error);
-      toast.error(error.message || 'Erro ao executar acao em lote');
+      toast.error(error.message || 'Erro ao executar ação em lote');
     }
   }, [fetchUsers, fetchSummaryCounts]);
 
@@ -412,7 +412,7 @@ export default function UsersManagementPage() {
         selectedUsers.has(u.id) ? { ...u, max_images_per_product: maxImages } : u
       ));
       setSelectedUsers(new Set());
-      toast.success(`Limite de ${maxImages} imagens definido para ${result.affectedCount} usuario${result.affectedCount > 1 ? 's' : ''}`);
+      toast.success(`Limite de ${maxImages} imagens definido para ${result.affectedCount} usuário${result.affectedCount > 1 ? 's' : ''}`);
     } catch (error: any) {
       console.error('Error setting bulk image limit:', error);
       toast.error(error.message || 'Erro ao definir limite de imagens em massa');
@@ -435,12 +435,12 @@ export default function UsersManagementPage() {
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl page-title">Gerenciamento de Usuarios</h1>
-          <p className="text-muted-foreground">Visualize e gerencie todos os usuarios do sistema</p>
+          <h1 className="text-2xl md:text-3xl page-title">Gerenciamento de Usuários</h1>
+          <p className="text-muted-foreground">Visualize e gerencie todos os usuários do sistema</p>
         </div>
         <Button onClick={() => navigate('/admin/users/new')}>
           <Plus className="h-4 w-4 mr-2" />
-          Novo Usuario
+          Novo Usuário
         </Button>
       </div>
 

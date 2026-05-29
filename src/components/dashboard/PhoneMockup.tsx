@@ -19,9 +19,9 @@ interface MockupProduct {
 }
 
 const PLACEHOLDER_PRODUCTS: MockupProduct[] = [
-  { id: 'ph1', name: 'Produto exemplo 1', price: 99.90, discount_price: null, featured_image_url: null, short_description: 'Frete gratis' },
+  { id: 'ph1', name: 'Produto exemplo 1', price: 99.90, discount_price: null, featured_image_url: null, short_description: 'Frete grátis' },
   { id: 'ph2', name: 'Produto exemplo 2', price: 149.90, discount_price: 119.90, featured_image_url: null, short_description: null },
-  { id: 'ph3', name: 'Produto exemplo 3', price: 79.90, discount_price: null, featured_image_url: null, short_description: 'Lancamento' },
+  { id: 'ph3', name: 'Produto exemplo 3', price: 79.90, discount_price: null, featured_image_url: null, short_description: 'Lançamento' },
   { id: 'ph4', name: 'Produto exemplo 4', price: 199.90, discount_price: 159.90, featured_image_url: null, short_description: null },
 ];
 

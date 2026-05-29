@@ -89,7 +89,7 @@ export function ListingsHeader({
             className={`text-xs h-8 ${isReorderModeActive ? 'shadow-md' : ''}`}
           >
             <ArrowUpDown className="w-3.5 h-3.5 mr-1.5" />
-            <span className="hidden sm:inline">{isReorderModeActive ? 'Sair da Reordenacao' : 'Reordenar'}</span>
+            <span className="hidden sm:inline">{isReorderModeActive ? 'Sair da Reordenação' : 'Reordenar'}</span>
             <span className="sm:hidden">{isReorderModeActive ? 'Sair' : 'Reordenar'}</span>
           </Button>
         )}

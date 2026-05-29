@@ -102,7 +102,7 @@ export default function IntegrationsPage() {
       return;
     }
     if (newKeyPermissions.length === 0) {
-      toast.error('Selecione ao menos uma permissao');
+      toast.error('Selecione ao menos uma permissão');
       return;
     }
 
@@ -176,10 +176,10 @@ export default function IntegrationsPage() {
               <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-6">
                 <Lock className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-semibold mb-3">API e Integracoes</h2>
+              <h2 className="text-2xl font-semibold mb-3">API e Integrações</h2>
               <p className="text-muted-foreground max-w-md mx-auto mb-6">
                 A API do VitrineTurbo permite integrar sua loja com sistemas externos como Bling, Tiny, e outros ERPs.
-                Este recurso esta disponivel exclusivamente para assinantes do plano Anual.
+                Este recurso está disponível exclusivamente para assinantes do plano Anual.
               </p>
               <Badge variant="outline" className="text-sm px-4 py-1.5">
                 Disponivel no Plano Anual
@@ -198,7 +198,7 @@ export default function IntegrationsPage() {
           <div className="p-4 sm:p-8">
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-xl sm:text-2xl font-semibold mb-1">Integracoes & API</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold mb-1">Integrações & API</h1>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Gerencie suas chaves de API para integrar com sistemas externos
               </p>
@@ -217,14 +217,14 @@ export default function IntegrationsPage() {
                 <Zap className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-sm font-medium">Rate Limit</p>
-                  <p className="text-xs text-muted-foreground">60 requisicoes/minuto por chave</p>
+                  <p className="text-xs text-muted-foreground">60 requisições/minuto por chave</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
                 <Code2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-sm font-medium">RESTful</p>
-                  <p className="text-xs text-muted-foreground">API padrao com JSON</p>
+                  <p className="text-xs text-muted-foreground">API padrão com JSON</p>
                 </div>
               </div>
             </div>
@@ -317,10 +317,10 @@ export default function IntegrationsPage() {
             {/* Documentation Section */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Documentacao da API</h2>
+                <h2 className="text-lg font-semibold">Documentação da API</h2>
                 <Button variant="outline" size="sm" onClick={() => setShowDocs(!showDocs)}>
                   {showDocs ? <EyeOff className="h-4 w-4 mr-1.5" /> : <Eye className="h-4 w-4 mr-1.5" />}
-                  {showDocs ? 'Ocultar' : 'Ver Documentacao'}
+                  {showDocs ? 'Ocultar' : 'Ver Documentação'}
                 </Button>
               </div>
 
@@ -346,7 +346,7 @@ export default function IntegrationsPage() {
 
                   {/* Authentication */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-2">Autenticacao</h3>
+                    <h3 className="text-sm font-semibold mb-2">Autenticação</h3>
                     <p className="text-xs text-muted-foreground mb-2">
                       Envie sua chave de API no header <code className="bg-background px-1 rounded">X-API-Key</code>:
                     </p>
@@ -358,7 +358,7 @@ export default function IntegrationsPage() {
 
                   {/* Endpoints */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-3">Endpoints Disponiveis</h3>
+                    <h3 className="text-sm font-semibold mb-3">Endpoints Disponíveis</h3>
                     <div className="space-y-2">
                       {[
                         { method: 'GET', path: '/products', desc: 'Listar produtos' },
@@ -384,8 +384,8 @@ export default function IntegrationsPage() {
                         { method: 'POST', path: '/coupons/validate', desc: 'Validar cupom' },
                         { method: 'GET', path: '/store', desc: 'Informacoes da loja' },
                         { method: 'PUT', path: '/store', desc: 'Atualizar loja' },
-                        { method: 'GET', path: '/store/appearance', desc: 'Aparencia da vitrine' },
-                        { method: 'GET', path: '/store/settings', desc: 'Configuracoes' },
+                        { method: 'GET', path: '/store/appearance', desc: 'Aparência da vitrine' },
+                        { method: 'GET', path: '/store/settings', desc: 'Configurações' },
                       ].map((endpoint, i) => (
                         <div key={i} className="flex items-center gap-3 text-xs">
                           <Badge
@@ -428,7 +428,7 @@ export default function IntegrationsPage() {
 
                   {/* Filtering */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-2">Filtros e Paginacao</h3>
+                    <h3 className="text-sm font-semibold mb-2">Filtros e Paginação</h3>
                     <pre className="bg-background border rounded p-3 text-xs font-mono overflow-x-auto">
 {`GET /api/v1/products?page=1&per_page=50&status=disponivel&category=Calcados&min_price=100&sort_by=price&sort_order=asc`}
                     </pre>
@@ -447,7 +447,7 @@ export default function IntegrationsPage() {
                 <DialogHeader>
                   <DialogTitle>Chave Criada com Sucesso</DialogTitle>
                   <DialogDescription>
-                    Copie sua chave agora. Ela nao sera exibida novamente.
+                    Copie sua chave agora. Ela não será exibida novamente.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
@@ -479,7 +479,7 @@ export default function IntegrationsPage() {
                 <DialogHeader>
                   <DialogTitle>Nova Chave de API</DialogTitle>
                   <DialogDescription>
-                    Configure as permissoes para esta integracao.
+                    Configure as permissões para esta integração.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-5 py-4">
@@ -489,7 +489,7 @@ export default function IntegrationsPage() {
                     </Label>
                     <Input
                       id="key-name"
-                      placeholder="Ex: Bling ERP, Minha Aplicacao"
+                      placeholder="Ex: Bling ERP, Minha Aplicação"
                       value={newKeyName}
                       onChange={(e) => setNewKeyName(e.target.value)}
                       className="mt-1.5"
@@ -497,7 +497,7 @@ export default function IntegrationsPage() {
                   </div>
 
                   <div>
-                    <Label className="text-sm font-medium">Permissoes</Label>
+                    <Label className="text-sm font-medium">Permissões</Label>
                     <p className="text-xs text-muted-foreground mt-0.5 mb-3">
                       Selecione o que esta chave pode acessar
                     </p>
@@ -536,7 +536,7 @@ export default function IntegrationsPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Revogar Chave de API</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acao e irreversivel. Qualquer sistema que utilize esta chave perdera o acesso imediatamente.
+                Esta ação é irreversível. Qualquer sistema que utilize esta chave perderá o acesso imediatamente.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

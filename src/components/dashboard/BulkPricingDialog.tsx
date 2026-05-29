@@ -31,8 +31,8 @@ export function BulkPricingDialog({
 
   const actions: { id: PricingAction; label: string; icon: React.ReactNode; desc: string }[] = [
     { id: 'discount_percent', label: 'Desconto %', icon: <Percent className="h-4 w-4" />, desc: 'Aplicar desconto percentual' },
-    { id: 'discount_fixed', label: 'Desconto R$', icon: <DollarSign className="h-4 w-4" />, desc: 'Reduzir valor fixo do preco' },
-    { id: 'increase_percent', label: 'Aumentar %', icon: <Percent className="h-4 w-4" />, desc: 'Aumentar preco percentual' },
+    { id: 'discount_fixed', label: 'Desconto R$', icon: <DollarSign className="h-4 w-4" />, desc: 'Reduzir valor fixo do preço' },
+    { id: 'increase_percent', label: 'Aumentar %', icon: <Percent className="h-4 w-4" />, desc: 'Aumentar preço percentual' },
     { id: 'remove_discounts', label: 'Remover Descontos', icon: <MinusCircle className="h-4 w-4" />, desc: 'Limpar todos os descontos' },
   ];
 
@@ -58,7 +58,7 @@ export function BulkPricingDialog({
 
   const handleApply = async () => {
     if (action !== 'remove_discounts' && (!value || parseFloat(value) <= 0)) {
-      toast.error('Informe um valor valido');
+      toast.error('Informe um valor válido');
       return;
     }
 
@@ -103,12 +103,12 @@ export function BulkPricingDialog({
         if (!error) successCount++;
       }
 
-      toast.success(`Precos atualizados para ${successCount} produtos`);
+      toast.success(`Preços atualizados para ${successCount} produtos`);
       onComplete();
       onOpenChange(false);
       setValue('');
     } catch (err) {
-      toast.error('Erro ao atualizar precos');
+      toast.error('Erro ao atualizar preços');
     } finally {
       setLoading(false);
     }
@@ -120,9 +120,9 @@ export function BulkPricingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Alterar Precos em Lote</DialogTitle>
+          <DialogTitle>Alterar Preços em Lote</DialogTitle>
           <DialogDescription>
-            Aplicar alteracao para {selectedProducts.length} {selectedProducts.length === 1 ? 'produto' : 'produtos'}
+            Aplicar alteração para {selectedProducts.length} {selectedProducts.length === 1 ? 'produto' : 'produtos'}
           </DialogDescription>
         </DialogHeader>
 

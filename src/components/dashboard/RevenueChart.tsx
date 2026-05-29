@@ -19,7 +19,7 @@ export function RevenueChart({ periodDays = 30 }: RevenueChartProps) {
     <Card className="flex-1">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Receita</CardTitle>
-        <p className="text-sm text-muted-foreground">Ultimos {periodDays} dias</p>
+        <p className="text-sm text-muted-foreground">Últimos {periodDays} dias</p>
       </CardHeader>
       <CardContent>
         {loading ? (

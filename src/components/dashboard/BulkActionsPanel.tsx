@@ -146,7 +146,7 @@ export function BulkActionsPanel({
 
             <Button variant="outline" size="sm" className="text-xs h-7 px-2" onClick={onBulkPricing} disabled={loading}>
               <DollarSign className="h-3 w-3 mr-1" />
-              <span className="hidden sm:inline">Precos</span>
+              <span className="hidden sm:inline">Preços</span>
             </Button>
 
             {/* Category Dialog */}
@@ -287,7 +287,7 @@ export function BulkActionsPanel({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir {selectedCount} produto{selectedCount > 1 ? 's' : ''}?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta acao nao pode ser desfeita. Todas as imagens serao removidas.
+                    Esta ação não pode ser desfeita. Todas as imagens serão removidas.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

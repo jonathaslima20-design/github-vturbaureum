@@ -76,7 +76,7 @@ export default function UserDetailPage() {
 
       if (userError) throw userError;
       if (!userData) {
-        toast.error('Usuario nao encontrado');
+        toast.error('Usuário não encontrado');
         navigate('/admin/users');
         return;
       }
@@ -148,7 +148,7 @@ export default function UserDetailPage() {
       });
     } catch (error) {
       console.error('Error fetching user data:', error);
-      toast.error('Erro ao carregar dados do usuario');
+      toast.error('Erro ao carregar dados do usuário');
     } finally {
       setLoading(false);
     }
@@ -163,10 +163,10 @@ export default function UserDetailPage() {
         .eq('id', user.id);
       if (error) throw error;
       setUser({ ...user, is_blocked: !user.is_blocked });
-      toast.success(user.is_blocked ? 'Usuario desbloqueado' : 'Usuario bloqueado');
+      toast.success(user.is_blocked ? 'Usuário desbloqueado' : 'Usuário bloqueado');
     } catch (error) {
       console.error('Error blocking user:', error);
-      toast.error('Erro ao bloquear/desbloquear usuario');
+      toast.error('Erro ao bloquear/desbloquear usuário');
     }
   };
 
@@ -191,13 +191,13 @@ export default function UserDetailPage() {
       );
       const result = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error(result.results?.[0]?.error || result.error?.message || 'Erro ao excluir usuario');
+        throw new Error(result.results?.[0]?.error || result.error?.message || 'Erro ao excluir usuário');
       }
-      toast.success('Usuario excluido com sucesso');
+      toast.success('Usuário excluído com sucesso');
       navigate('/admin/users');
     } catch (error: any) {
       console.error('Error deleting user:', error);
-      toast.error(error.message || 'Erro ao excluir usuario');
+      toast.error(error.message || 'Erro ao excluir usuário');
     }
   };
 
@@ -223,15 +223,15 @@ export default function UserDetailPage() {
       );
       const result = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Erro ao gerar link de impersonacao');
+        throw new Error(result.error || 'Erro ao gerar link de impersonação');
       }
 
       const redirectUrl = `${result.verifyUrl}&redirect_to=${encodeURIComponent(window.location.origin + '/dashboard')}`;
       window.open(redirectUrl, '_blank');
-      toast.success(`Sessao aberta como ${user.name} em nova aba`);
+      toast.success(`Sessão aberta como ${user.name} em nova aba`);
     } catch (error: any) {
       console.error('Error impersonating user:', error);
-      toast.error(error.message || 'Erro ao impersonar usuario');
+      toast.error(error.message || 'Erro ao impersonar usuário');
     } finally {
       setImpersonating(false);
     }
@@ -272,7 +272,7 @@ export default function UserDetailPage() {
       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         <Link to="/admin/users" className="hover:text-foreground transition-colors">Admin</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link to="/admin/users" className="hover:text-foreground transition-colors">Usuarios</Link>
+        <Link to="/admin/users" className="hover:text-foreground transition-colors">Usuários</Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="text-foreground font-medium truncate max-w-[200px]">{user.name}</span>
       </div>
@@ -305,7 +305,7 @@ export default function UserDetailPage() {
             className="gap-1.5"
           >
             {impersonating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LogIn className="h-3.5 w-3.5" />}
-            Login como Usuario
+            Login como Usuário
           </Button>
         </div>
       </div>
@@ -414,9 +414,9 @@ export default function UserDetailPage() {
 
               {/* Management Actions */}
               <div className="space-y-1.5">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Gestao</p>
+                <p className="text-xs font-medium text-muted-foreground mb-2">Gestão</p>
                 <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => setShowCloneDialog(true)}>
-                  <ClipboardCopy className="h-3.5 w-3.5" /> Clonar Usuario
+                  <ClipboardCopy className="h-3.5 w-3.5" /> Clonar Usuário
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => setShowCopyDialog(true)}>
                   <Copy className="h-3.5 w-3.5" /> Copiar Produtos
@@ -441,20 +441,20 @@ export default function UserDetailPage() {
                   className="w-full justify-start gap-2"
                 >
                   <Ban className="h-3.5 w-3.5" />
-                  {user.is_blocked ? 'Desbloquear Usuario' : 'Bloquear Usuario'}
+                  {user.is_blocked ? 'Desbloquear Usuário' : 'Bloquear Usuário'}
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="sm" className="w-full justify-start gap-2">
-                      <Trash2 className="h-3.5 w-3.5" /> Excluir Usuario
+                      <Trash2 className="h-3.5 w-3.5" /> Excluir Usuário
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Confirmar exclusao</AlertDialogTitle>
+                      <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Tem certeza que deseja excluir <strong>{user.name}</strong>? Esta acao nao pode ser desfeita.
-                        Todos os produtos e dados relacionados serao removidos.
+                        Tem certeza que deseja excluir <strong>{user.name}</strong>? Esta ação não pode ser desfeita.
+                        Todos os produtos e dados relacionados serão removidos.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -475,17 +475,17 @@ export default function UserDetailPage() {
           {/* Quick Stats */}
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
             <QuickStatCard icon={Package} label="Produtos" value={stats.totalProducts} color="text-blue-600" bg="bg-blue-50 dark:bg-blue-950" />
-            <QuickStatCard icon={Eye} label="Visualizacoes" value={stats.totalViews.toLocaleString('pt-BR')} color="text-emerald-600" bg="bg-emerald-50 dark:bg-emerald-950" />
+            <QuickStatCard icon={Eye} label="Visualizações" value={stats.totalViews.toLocaleString('pt-BR')} color="text-emerald-600" bg="bg-emerald-50 dark:bg-emerald-950" />
             <QuickStatCard icon={Users} label="Leads" value={stats.totalLeads.toLocaleString('pt-BR')} color="text-amber-600" bg="bg-amber-50 dark:bg-amber-950" />
-            <QuickStatCard icon={TrendingUp} label="Conversao" value={`${stats.conversionRate.toFixed(1)}%`} color="text-rose-600" bg="bg-rose-50 dark:bg-rose-950" />
+            <QuickStatCard icon={TrendingUp} label="Conversão" value={`${stats.conversionRate.toFixed(1)}%`} color="text-rose-600" bg="bg-rose-50 dark:bg-rose-950" />
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4 h-10">
-              <TabsTrigger value="visao-geral" className="text-xs sm:text-sm">Visao Geral</TabsTrigger>
+              <TabsTrigger value="visao-geral" className="text-xs sm:text-sm">Visão Geral</TabsTrigger>
               <TabsTrigger value="pedidos" className="text-xs sm:text-sm">Pedidos</TabsTrigger>
               <TabsTrigger value="assinatura" className="text-xs sm:text-sm">Assinatura</TabsTrigger>
-              <TabsTrigger value="indicacoes" className="text-xs sm:text-sm">Indicacoes</TabsTrigger>
+              <TabsTrigger value="indicacoes" className="text-xs sm:text-sm">Indicações</TabsTrigger>
             </TabsList>
 
             <TabsContent value="visao-geral" className="mt-5 space-y-5">
@@ -673,7 +673,7 @@ function OverviewTab({ userId, stats, userSlug }: { userId: string; stats: Aggre
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Package className="h-4 w-4" /> Distribuicao de Produtos
+              <Package className="h-4 w-4" /> Distribuição de Produtos
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -738,8 +738,8 @@ function OverviewTab({ userId, stats, userSlug }: { userId: string; stats: Aggre
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Visualizacoes e Leads</CardTitle>
-              <CardDescription className="text-xs">Ultimos 30 dias</CardDescription>
+              <CardTitle className="text-sm font-medium">Visualizações e Leads</CardTitle>
+              <CardDescription className="text-xs">Últimos 30 dias</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[260px]">
@@ -758,7 +758,7 @@ function OverviewTab({ userId, stats, userSlug }: { userId: string; stats: Aggre
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" name="Visualizacoes" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" name="Visualizações" strokeWidth={2} dot={false} />
                     <Line type="monotone" dataKey="leads" stroke="#10b981" name="Leads" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -769,12 +769,12 @@ function OverviewTab({ userId, stats, userSlug }: { userId: string; stats: Aggre
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Leads por Origem</CardTitle>
-              <CardDescription className="text-xs">Ultimos 30 dias</CardDescription>
+              <CardDescription className="text-xs">Últimos 30 dias</CardDescription>
             </CardHeader>
             <CardContent>
               {leadsBySource.length === 0 ? (
                 <div className="h-[260px] flex items-center justify-center text-sm text-muted-foreground">
-                  Sem dados de leads no periodo
+                  Sem dados de leads no período
                 </div>
               ) : (
                 <div className="h-[260px]">
@@ -986,9 +986,9 @@ function SubscriptionTab({ subscription, subscriptionLoading, recentPayments, us
       {recentPayments.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Historico de Pagamentos</CardTitle>
+            <CardTitle className="text-sm font-medium">Histórico de Pagamentos</CardTitle>
             <CardDescription className="text-xs">
-              Ultimos {recentPayments.length} pagamentos registrados
+              Últimos {recentPayments.length} pagamentos registrados
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1023,7 +1023,7 @@ function SubscriptionTab({ subscription, subscriptionLoading, recentPayments, us
                             variant={payment.status === 'completed' ? 'default' : 'secondary'}
                             className="text-xs"
                           >
-                            {payment.status === 'completed' ? 'Concluido' :
+                            {payment.status === 'completed' ? 'Concluído' :
                              payment.status === 'pending' ? 'Pendente' :
                              payment.status === 'failed' ? 'Falhou' : 'Reembolsado'}
                           </Badge>
@@ -1102,7 +1102,7 @@ function ReferralsTab({ userId, referralCode }: { userId: string; referralCode?:
       {referralLink && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Link de Indicacao</CardTitle>
+            <CardTitle className="text-sm font-medium">Link de Indicação</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -1118,7 +1118,7 @@ function ReferralsTab({ userId, referralCode }: { userId: string; referralCode?:
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="pt-4 pb-4 px-4">
-            <p className="text-xs text-muted-foreground">Indicacoes</p>
+            <p className="text-xs text-muted-foreground">Indicações</p>
             <p className="text-xl font-bold mt-1">{referralStats.total}</p>
           </CardContent>
         </Card>
@@ -1138,11 +1138,11 @@ function ReferralsTab({ userId, referralCode }: { userId: string; referralCode?:
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2"><Gift className="h-4 w-4" /> Usuarios Indicados</CardTitle>
+          <CardTitle className="text-sm font-medium flex items-center gap-2"><Gift className="h-4 w-4" /> Usuários Indicados</CardTitle>
         </CardHeader>
         <CardContent>
           {commissions.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma indicacao realizada</p>
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma indicação realizada</p>
           ) : (
             <div className="rounded-md border">
               <Table>
@@ -1150,7 +1150,7 @@ function ReferralsTab({ userId, referralCode }: { userId: string; referralCode?:
                   <TableRow>
                     <TableHead>Indicado</TableHead>
                     <TableHead>Plano</TableHead>
-                    <TableHead>Comissao</TableHead>
+                    <TableHead>Comissão</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Data</TableHead>
                   </TableRow>

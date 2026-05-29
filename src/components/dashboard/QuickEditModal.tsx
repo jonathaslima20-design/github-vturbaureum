@@ -73,7 +73,7 @@ export function QuickEditModal({ product, open, onOpenChange, onSaved }: QuickEd
       onOpenChange(false);
     } catch (err) {
       console.error('Error saving quick edit:', err);
-      toast.error('Erro ao salvar alteracoes');
+      toast.error('Erro ao salvar alterações');
     } finally {
       setSaving(false);
     }
@@ -83,12 +83,12 @@ export function QuickEditModal({ product, open, onOpenChange, onSaved }: QuickEd
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg">Edicao Rapida</DialogTitle>
+          <DialogTitle className="text-lg">Edição Rápida</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="qe-title" className="text-xs font-medium">Titulo</Label>
+            <Label htmlFor="qe-title" className="text-xs font-medium">Título</Label>
             <Input
               id="qe-title"
               value={title}
@@ -99,7 +99,7 @@ export function QuickEditModal({ product, open, onOpenChange, onSaved }: QuickEd
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="qe-price" className="text-xs font-medium">Preco (R$)</Label>
+              <Label htmlFor="qe-price" className="text-xs font-medium">Preço (R$)</Label>
               <Input
                 id="qe-price"
                 type="number"
@@ -111,7 +111,7 @@ export function QuickEditModal({ product, open, onOpenChange, onSaved }: QuickEd
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="qe-discount" className="text-xs font-medium">Preco Promocional</Label>
+              <Label htmlFor="qe-discount" className="text-xs font-medium">Preço Promocional</Label>
               <Input
                 id="qe-discount"
                 type="number"
@@ -126,7 +126,7 @@ export function QuickEditModal({ product, open, onOpenChange, onSaved }: QuickEd
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="qe-desc" className="text-xs font-medium">Descricao Curta</Label>
+            <Label htmlFor="qe-desc" className="text-xs font-medium">Descrição Curta</Label>
             <Textarea
               id="qe-desc"
               value={shortDescription}
@@ -152,7 +152,7 @@ export function QuickEditModal({ product, open, onOpenChange, onSaved }: QuickEd
           )}
 
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium">Visivel na Vitrine</Label>
+            <Label className="text-xs font-medium">Visível na Vitrine</Label>
             <Switch checked={isVisible} onCheckedChange={setIsVisible} />
           </div>
         </div>

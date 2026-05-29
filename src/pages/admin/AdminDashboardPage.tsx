@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl page-title">Painel Administrativo</h1>
-          <p className="text-muted-foreground">Visao geral do sistema</p>
+          <p className="text-muted-foreground">Visão geral do sistema</p>
         </div>
         <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
 
       {/* Primary Stats */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total de Usuarios" value={totalUsers} subtitle="usuarios cadastrados" icon={Users} loading={loading} />
+        <StatCard title="Total de Usuários" value={totalUsers} subtitle="usuários cadastrados" icon={Users} loading={loading} />
         <StatCard title="Total de Produtos" value={totalProducts} subtitle="produtos no sistema" icon={Package} loading={loading} />
         <StatCard
           title="Crescimento"
@@ -57,7 +57,7 @@ export default function AdminDashboardPage() {
               {growthPercentage < 0 && <ArrowDown className="h-4 w-4 text-red-500" />}
             </span>
           }
-          subtitle="ultimos 30 dias"
+          subtitle="últimos 30 dias"
           icon={TrendingUp}
           loading={loading}
         />
@@ -76,8 +76,8 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Novos Usuarios por Semana</CardTitle>
-            <p className="text-sm text-muted-foreground">Ultimos 3 meses</p>
+            <CardTitle className="text-base font-semibold">Novos Usuários por Semana</CardTitle>
+            <p className="text-sm text-muted-foreground">Últimos 3 meses</p>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} className="text-muted-foreground" />
                   <Tooltip
                     contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))', background: 'hsl(var(--background))' }}
-                    formatter={(value: number) => [value, 'Usuarios']}
+                    formatter={(value: number) => [value, 'Usuários']}
                     labelFormatter={(label) => `Semana de ${label}`}
                   />
                   <Bar dataKey="count" fill="hsl(var(--foreground))" radius={[4, 4, 0, 0]} opacity={0.85} />
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">Receita Mensal</CardTitle>
-            <p className="text-sm text-muted-foreground">Ultimos 6 meses</p>
+            <p className="text-sm text-muted-foreground">Últimos 6 meses</p>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -142,7 +142,7 @@ export default function AdminDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
               <CardTitle className="text-base font-semibold">Atividade Recente</CardTitle>
-              <p className="text-sm text-muted-foreground">Ultimos usuarios cadastrados</p>
+              <p className="text-sm text-muted-foreground">Últimos usuários cadastrados</p>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/admin/users" className="text-sm">
@@ -156,7 +156,7 @@ export default function AdminDashboardPage() {
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : recentUsers.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Nenhum usuario cadastrado ainda</p>
+              <p className="text-sm text-muted-foreground text-center py-8">Nenhum usuário cadastrado ainda</p>
             ) : (
               <div className="space-y-1">
                 {recentUsers.slice(0, 8).map(user => (
@@ -189,8 +189,8 @@ export default function AdminDashboardPage() {
         <Card>
           <CardHeader className="pb-3">
             <div>
-              <CardTitle className="text-base font-semibold">Assinaturas Proximas do Vencimento</CardTitle>
-              <p className="text-sm text-muted-foreground">Proximos 7 dias</p>
+              <CardTitle className="text-base font-semibold">Assinaturas Próximas do Vencimento</CardTitle>
+              <p className="text-sm text-muted-foreground">Próximos 7 dias</p>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
@@ -200,7 +200,7 @@ export default function AdminDashboardPage() {
               </div>
             ) : expiringSubscriptions.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">Nenhuma assinatura vencendo nos proximos 7 dias</p>
+                <p className="text-sm text-muted-foreground">Nenhuma assinatura vencendo nos próximos 7 dias</p>
               </div>
             ) : (
               <div className="space-y-1">

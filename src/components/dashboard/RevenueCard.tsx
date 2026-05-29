@@ -35,7 +35,7 @@ export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
                 <span className={`text-xs font-medium ${revenueChange >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                   {revenueChange >= 0 ? '+' : ''}{revenueChange.toFixed(1)}%
                 </span>
-                <span className="text-xs text-muted-foreground">vs periodo anterior</span>
+                <span className="text-xs text-muted-foreground">vs período anterior</span>
               </div>
             </>
           )}
@@ -44,7 +44,7 @@ export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Ticket Medio</CardTitle>
+          <CardTitle className="text-sm font-medium">Ticket Médio</CardTitle>
           <Receipt className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -70,7 +70,7 @@ export function RevenueCard({ periodDays = 30 }: RevenueCardProps) {
           ) : (
             <>
               <div className="text-2xl font-bold">{totalDelivered}</div>
-              <p className="text-xs text-muted-foreground">nos ultimos {periodDays} dias</p>
+              <p className="text-xs text-muted-foreground">nos últimos {periodDays} dias</p>
             </>
           )}
         </CardContent>

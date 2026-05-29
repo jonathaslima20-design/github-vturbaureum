@@ -70,7 +70,7 @@ export default function MercadoPagoPage() {
         }));
       }
     } catch (error) {
-      toast.error('Erro ao carregar configuracao');
+      toast.error('Erro ao carregar configuração');
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function MercadoPagoPage() {
     setSaving(true);
     try {
       await saveAdminConfig(config);
-      toast.success('Configuracao salva com sucesso');
+      toast.success('Configuração salva com sucesso');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao salvar');
     } finally {
@@ -96,11 +96,11 @@ export default function MercadoPagoPage() {
       if (result.success) {
         setConnectionStatus('connected');
         setAccountInfo(result.account);
-        toast.success('Conexao verificada com sucesso!');
+        toast.success('Conexão verificada com sucesso!');
       } else {
         setConnectionStatus('failed');
         setAccountInfo(null);
-        toast.error(result.error || 'Credenciais invalidas');
+        toast.error(result.error || 'Credenciais inválidas');
       }
     } catch (error) {
       setConnectionStatus('failed');
@@ -139,7 +139,7 @@ export default function MercadoPagoPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-muted-foreground" />
-              <CardTitle className="text-base">Status da Conexao</CardTitle>
+              <CardTitle className="text-base">Status da Conexão</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               {connectionStatus === 'connected' && (
@@ -153,7 +153,7 @@ export default function MercadoPagoPage() {
                 </Badge>
               )}
               {connectionStatus === 'unknown' && (
-                <Badge variant="secondary">Nao verificado</Badge>
+                <Badge variant="secondary">Não verificado</Badge>
               )}
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function MercadoPagoPage() {
             ) : (
               <RefreshCw className="h-4 w-4 mr-2" />
             )}
-            Testar Conexao
+            Testar Conexão
           </Button>
         </CardContent>
       </Card>
@@ -185,7 +185,7 @@ export default function MercadoPagoPage() {
         <CardHeader>
           <CardTitle className="text-base">Ambiente</CardTitle>
           <CardDescription>
-            Use "Teste" durante o desenvolvimento e "Producao" quando estiver pronto para receber pagamentos reais.
+            Use "Teste" durante o desenvolvimento e "Produção" quando estiver pronto para receber pagamentos reais.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -198,7 +198,7 @@ export default function MercadoPagoPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="test">Teste (Sandbox)</SelectItem>
-              <SelectItem value="production">Producao</SelectItem>
+              <SelectItem value="production">Produção</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -266,12 +266,12 @@ export default function MercadoPagoPage() {
           {/* Production Credentials */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
-              <Badge className="bg-green-500/10 text-green-600 border-transparent text-xs">Producao</Badge>
+              <Badge className="bg-green-500/10 text-green-600 border-transparent text-xs">Produção</Badge>
               Credenciais Reais
             </h4>
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Public Key (Producao)</Label>
+                <Label className="text-xs">Public Key (Produção)</Label>
                 <Input
                   value={config.public_key_prod}
                   onChange={(e) => setConfig(prev => ({ ...prev, public_key_prod: e.target.value }))}
@@ -280,7 +280,7 @@ export default function MercadoPagoPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Access Token (Producao)</Label>
+                <Label className="text-xs">Access Token (Produção)</Label>
                 <Input
                   type={showTokens ? 'text' : 'password'}
                   value={config.access_token_prod}
@@ -299,12 +299,12 @@ export default function MercadoPagoPage() {
         <CardHeader>
           <CardTitle className="text-base">Webhook</CardTitle>
           <CardDescription>
-            Configure esta URL no painel do Mercado Pago (Developers &gt; Webhooks) para receber notificacoes de pagamento automaticamente.
+            Configure esta URL no painel do Mercado Pago (Developers &gt; Webhooks) para receber notificações de pagamento automaticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-xs">URL de Notificacao</Label>
+            <Label className="text-xs">URL de Notificação</Label>
             <div className="flex gap-2">
               <Input
                 value={config.notification_url || defaultNotificationUrl}
@@ -319,7 +319,7 @@ export default function MercadoPagoPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">Webhook Secret (opcional, recomendado para producao)</Label>
+            <Label className="text-xs">Webhook Secret (opcional, recomendado para produção)</Label>
             <Input
               type={showTokens ? 'text' : 'password'}
               value={config.webhook_secret}
@@ -343,7 +343,7 @@ export default function MercadoPagoPage() {
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
           ) : null}
-          Salvar Configuracao
+          Salvar Configuração
         </Button>
       </div>
     </div>

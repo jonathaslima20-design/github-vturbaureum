@@ -72,7 +72,7 @@ export function CustomDomainSettings() {
 
   const handleRegister = async () => {
     if (!domain.trim()) {
-      toast.error('Insira um dominio valido');
+      toast.error('Insira um domínio válido');
       return;
     }
 
@@ -96,15 +96,15 @@ export function CustomDomainSettings() {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.error || 'Erro ao registrar dominio');
+        toast.error(data.error || 'Erro ao registrar domínio');
         return;
       }
 
       setDomainRecord(data.domain);
       setInstructions(data.instructions);
-      toast.success('Dominio registrado! Configure o DNS conforme as instrucoes abaixo.');
+      toast.success('Domínio registrado! Configure o DNS conforme as instruções abaixo.');
     } catch (error) {
-      toast.error('Erro ao registrar dominio');
+      toast.error('Erro ao registrar domínio');
     } finally {
       setActionLoading(false);
     }
@@ -131,11 +131,11 @@ export function CustomDomainSettings() {
 
       if (data.success && data.domain?.status === 'dns_verified') {
         setDomainRecord(data.domain);
-        toast.success('DNS verificado com sucesso! Ativando dominio...');
+        toast.success('DNS verificado com sucesso! Ativando domínio...');
         await handleActivate();
       } else {
         setDomainRecord(data.domain || domainRecord);
-        toast.error(data.message || 'DNS ainda nao verificado');
+        toast.error(data.message || 'DNS ainda não verificado');
       }
     } catch (error) {
       toast.error('Erro ao verificar DNS');
@@ -166,19 +166,19 @@ export function CustomDomainSettings() {
       if (data.success) {
         setDomainRecord(data.domain);
         setInstructions(null);
-        toast.success('Dominio ativado com sucesso!');
+        toast.success('Domínio ativado com sucesso!');
       } else {
-        toast.error(data.error || 'Erro ao ativar dominio');
+        toast.error(data.error || 'Erro ao ativar domínio');
       }
     } catch (error) {
-      toast.error('Erro ao ativar dominio');
+      toast.error('Erro ao ativar domínio');
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleRemove = async () => {
-    if (!confirm('Tem certeza que deseja remover o dominio personalizado?')) return;
+    if (!confirm('Tem certeza que deseja remover o domínio personalizado?')) return;
 
     setActionLoading(true);
     try {
@@ -202,12 +202,12 @@ export function CustomDomainSettings() {
         setDomainRecord(null);
         setDomain('');
         setInstructions(null);
-        toast.success('Dominio removido com sucesso');
+        toast.success('Domínio removido com sucesso');
       } else {
-        toast.error(data.error || 'Erro ao remover dominio');
+        toast.error(data.error || 'Erro ao remover domínio');
       }
     } catch (error) {
-      toast.error('Erro ao remover dominio');
+      toast.error('Erro ao remover domínio');
     } finally {
       setActionLoading(false);
     }
@@ -247,8 +247,8 @@ export function CustomDomainSettings() {
         <div className="flex items-center gap-3 mb-4">
           <Globe className="h-5 w-5 text-muted-foreground" />
           <div>
-            <h3 className="text-lg font-semibold">Dominio Personalizado</h3>
-            <p className="text-sm text-muted-foreground">Use seu proprio dominio na sua vitrine</p>
+            <h3 className="text-lg font-semibold">Domínio Personalizado</h3>
+            <p className="text-sm text-muted-foreground">Use seu próprio domínio na sua vitrine</p>
           </div>
         </div>
 
@@ -257,8 +257,8 @@ export function CustomDomainSettings() {
             <Lock className="h-12 w-12 text-muted-foreground/50 mb-4" />
             <h4 className="text-lg font-medium mb-2">Recurso exclusivo do Plano Anual</h4>
             <p className="text-sm text-muted-foreground max-w-md mb-6">
-              O dominio personalizado esta disponivel apenas para assinantes do plano anual.
-              Faca upgrade para usar seu proprio dominio na sua vitrine.
+              O domínio personalizado está disponível apenas para assinantes do plano anual.
+              Faça upgrade para usar seu próprio domínio na sua vitrine.
             </p>
             <Badge variant="outline" className="text-sm py-1.5 px-4">
               Disponivel no Plano Anual
@@ -274,8 +274,8 @@ export function CustomDomainSettings() {
       <div className="flex items-center gap-3 mb-4">
         <Globe className="h-5 w-5 text-primary" />
         <div>
-          <h3 className="text-lg font-semibold">Dominio Personalizado</h3>
-          <p className="text-sm text-muted-foreground">Use seu proprio dominio na sua vitrine</p>
+          <h3 className="text-lg font-semibold">Domínio Personalizado</h3>
+          <p className="text-sm text-muted-foreground">Use seu próprio domínio na sua vitrine</p>
         </div>
       </div>
 
@@ -284,7 +284,7 @@ export function CustomDomainSettings() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Dominio padrao</Label>
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Domínio padrão</Label>
               <p className="text-sm font-medium mt-1">
                 vitrineturbo.com/{user?.slug || '...'}
               </p>
@@ -295,7 +295,7 @@ export function CustomDomainSettings() {
           {domainRecord?.status === 'active' && (
             <div className="flex items-center justify-between pt-4 border-t">
               <div>
-                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Dominio personalizado</Label>
+                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Domínio personalizado</Label>
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-sm font-medium">{domainRecord.domain}</p>
                   {getStatusBadge(domainRecord.status)}
@@ -329,9 +329,9 @@ export function CustomDomainSettings() {
         <Card>
           <CardContent className="pt-6 space-y-4">
             <div>
-              <Label htmlFor="custom-domain">Seu dominio</Label>
+              <Label htmlFor="custom-domain">Seu domínio</Label>
               <p className="text-xs text-muted-foreground mb-2">
-                Insira o dominio que deseja usar (ex: www.minhaloja.com.br)
+                Insira o domínio que deseja usar (ex: www.minhaloja.com.br)
               </p>
               <div className="flex gap-2">
                 <Input
@@ -356,19 +356,19 @@ export function CustomDomainSettings() {
           <CardContent className="pt-6 space-y-6">
             <div className="flex items-center gap-2">
               {getStatusBadge(domainRecord.status)}
-              <span className="text-sm font-medium">Configure o DNS do seu dominio</span>
+              <span className="text-sm font-medium">Configure o DNS do seu domínio</span>
             </div>
 
             <Alert>
               <AlertDescription className="text-sm">
-                Acesse o painel de controle do seu provedor de dominio (Registro.br, GoDaddy, Cloudflare, etc.)
+                Acesse o painel de controle do seu provedor de domínio (Registro.br, GoDaddy, Cloudflare, etc.)
                 e adicione os registros abaixo.
               </AlertDescription>
             </Alert>
 
             {/* CNAME Record */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">1. Registro CNAME (ou A para dominio apex)</Label>
+              <Label className="text-sm font-medium">1. Registro CNAME (ou A para domínio apex)</Label>
               <div className="bg-white border rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
@@ -396,13 +396,13 @@ export function CustomDomainSettings() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Para dominio sem www (apex): use registro A apontando para 75.2.60.5
+                Para domínio sem www (apex): use registro A apontando para 75.2.60.5
               </p>
             </div>
 
             {/* TXT Record */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">2. Registro TXT (verificacao)</Label>
+              <Label className="text-sm font-medium">2. Registro TXT (verificação)</Label>
               <div className="bg-white border rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
@@ -433,7 +433,7 @@ export function CustomDomainSettings() {
 
             <Alert>
               <AlertDescription className="text-xs">
-                A propagacao DNS pode levar de alguns minutos ate 48 horas. Se voce usa Cloudflare, desative o proxy (nuvem laranja) e use "DNS Only".
+                A propagação DNS pode levar de alguns minutos até 48 horas. Se você usa Cloudflare, desative o proxy (nuvem laranja) e use "DNS Only".
               </AlertDescription>
             </Alert>
 
@@ -456,12 +456,12 @@ export function CustomDomainSettings() {
           <CardContent className="pt-6 space-y-4">
             <div className="flex items-center gap-2">
               {getStatusBadge(domainRecord.status)}
-              <span className="text-sm font-medium">DNS verificado - pronto para ativar</span>
+              <span className="text-sm font-medium">DNS verificado — pronto para ativar</span>
             </div>
             <div className="flex gap-2">
               <Button onClick={handleActivate} disabled={actionLoading} className="flex-1">
                 {actionLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
-                Ativar dominio
+                Ativar domínio
               </Button>
               <Button variant="outline" onClick={handleRemove} disabled={actionLoading}>
                 <Trash2 className="h-4 w-4" />
@@ -477,7 +477,7 @@ export function CustomDomainSettings() {
           <CardContent className="pt-6 space-y-4">
             <div className="flex items-center gap-2">
               {getStatusBadge(domainRecord.status)}
-              <span className="text-sm font-medium">Erro na ativacao</span>
+              <span className="text-sm font-medium">Erro na ativação</span>
             </div>
             {domainRecord.error_message && (
               <p className="text-sm text-red-600">{domainRecord.error_message}</p>

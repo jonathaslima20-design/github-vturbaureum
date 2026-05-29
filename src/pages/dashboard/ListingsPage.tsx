@@ -167,7 +167,7 @@ export default function ListingsPage() {
         .from('products')
         .insert({
           user_id: user.id,
-          title: `[Copia] ${product.title}`,
+          title: `[Cópia] ${product.title}`,
           description: product.description || '',
           price: product.price,
           discounted_price: product.discounted_price,
@@ -244,7 +244,7 @@ export default function ListingsPage() {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      toast.success('Produto excluido');
+      toast.success('Produto excluído');
       refreshProducts();
     } catch (err) {
       toast.error('Erro ao excluir produto');
@@ -495,7 +495,7 @@ export default function ListingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
             <AlertDialogDescription>
-              "{deleteProduct?.title}" sera excluido permanentemente junto com suas imagens.
+              "{deleteProduct?.title}" será excluído permanentemente junto com suas imagens.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
