@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStorefrontAppearance } from '@/hooks/useStorefrontAppearance';
 import { useMockupData } from '@/hooks/useMockupData';
@@ -28,6 +29,7 @@ export function AppearanceSettings() {
   const [localAppearance, setLocalAppearance] = useState<StorefrontAppearance>(DEFAULT_APPEARANCE);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showPremiumBlock, setShowPremiumBlock] = useState(false);
 
   const isFreePlan = user?.plan_status === 'free' || user?.plan_status === 'expired';
 
@@ -58,7 +60,7 @@ export function AppearanceSettings() {
 
   const handleSave = async () => {
     if (isFreePlan) {
-      toast.error('Personalização de aparência é exclusiva para planos pagos. Faça upgrade para salvar suas alterações.');
+      setShowPremiumBlock(true);
       return;
     }
     setSaving(true);
@@ -88,6 +90,32 @@ export function AppearanceSettings() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (showPremiumBlock) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Lock className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Funcionalidade Premium</h3>
+            <p className="text-muted-foreground max-w-md mb-4">
+              A personalização de aparência está disponível apenas para planos pagos. Faça upgrade para aplicar cores, fontes e estilos exclusivos à sua vitrine.
+            </p>
+            <Button
+              onClick={() => {
+                const event = new CustomEvent('open-subscription-modal');
+                window.dispatchEvent(event);
+              }}
+            >
+              Fazer Upgrade
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -215,28 +243,6 @@ export function AppearanceSettings() {
           </Button>
         </div>
 
-        {isFreePlan && (
-          <div className="rounded-lg border-2 border-dashed border-muted p-6 flex flex-col items-center text-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-              <Lock size={18} className="text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Funcionalidade Premium</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Visualize e personalize à vontade. Para salvar as alterações, você precisa de um plano pago.
-              </p>
-            </div>
-            <button
-              className="text-xs font-semibold underline underline-offset-2 hover:no-underline"
-              onClick={() => {
-                const event = new CustomEvent('open-subscription-modal');
-                window.dispatchEvent(event);
-              }}
-            >
-              Fazer Upgrade
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Phone Mockup (sticky on desktop) */}
