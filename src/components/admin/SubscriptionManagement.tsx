@@ -70,6 +70,17 @@ export default function SubscriptionManagement({
     next_payment_date: format(addMonths(new Date(), 1), 'yyyy-MM-dd'),
   });
 
+  const calculateEndDate = (billingCycle: string): string => {
+    const now = new Date();
+    switch (billingCycle) {
+      case 'monthly': return format(addMonths(now, 1), 'yyyy-MM-dd');
+      case 'quarterly': return format(addMonths(now, 3), 'yyyy-MM-dd');
+      case 'semiannually': return format(addMonths(now, 6), 'yyyy-MM-dd');
+      case 'annually': return format(addMonths(now, 12), 'yyyy-MM-dd');
+      default: return format(addMonths(now, 1), 'yyyy-MM-dd');
+    }
+  };
+
   const handleToggleStatus = async () => {
     if (!subscription) return;
 
@@ -77,12 +88,35 @@ export default function SubscriptionManagement({
 
     setIsUpdating(true);
     try {
+      const newEndDate = newStatus === 'active'
+        ? calculateEndDate(subscription.billing_cycle)
+        : undefined;
+
+      const subscriptionUpdate: Record<string, unknown> = { status: newStatus, payment_status: newStatus === 'active' ? 'paid' : subscription.payment_status };
+      if (newEndDate) {
+        subscriptionUpdate.next_payment_date = newEndDate;
+      }
+
       const { error } = await supabase
         .from('subscriptions')
-        .update({ status: newStatus })
+        .update(subscriptionUpdate)
         .eq('id', subscription.id);
 
       if (error) throw error;
+
+      if (newStatus === 'active' && newEndDate) {
+        await supabase
+          .from('users')
+          .update({
+            plan_status: 'active',
+            subscription_end_date: newEndDate,
+            next_payment_date: newEndDate,
+            billing_cycle: subscription.billing_cycle,
+          })
+          .eq('id', userId);
+      } else {
+        await updateUserPlanStatus(userId, newStatus);
+      }
 
       toast.success(
         newStatus === 'active'
@@ -90,7 +124,6 @@ export default function SubscriptionManagement({
           : 'Plano suspenso com sucesso'
       );
 
-      await updateUserPlanStatus(userId, newStatus);
       onSubscriptionUpdate();
     } catch (error) {
       console.error('Error toggling subscription status:', error);
@@ -145,9 +178,18 @@ export default function SubscriptionManagement({
 
       await updateUserPlanStatus(userId, editForm.status as SubscriptionStatus);
 
+      const userUpdate: Record<string, unknown> = {
+        billing_cycle: editForm.billing_cycle,
+        next_payment_date: editForm.next_payment_date,
+      };
+
+      if (editForm.status === 'active' && editForm.next_payment_date) {
+        userUpdate.subscription_end_date = editForm.next_payment_date;
+      }
+
       await supabase
         .from('users')
-        .update({ billing_cycle: editForm.billing_cycle })
+        .update(userUpdate)
         .eq('id', userId);
 
       toast.success('Assinatura atualizada com sucesso');
@@ -191,6 +233,7 @@ export default function SubscriptionManagement({
         .update({
           billing_cycle: createForm.billing_cycle,
           next_payment_date: createForm.next_payment_date,
+          subscription_end_date: createForm.next_payment_date,
         })
         .eq('id', userId);
 
