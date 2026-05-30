@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { User, Mail, Building2, Phone, Calendar, CreditCard, Link2, Loader, Camera, TriangleAlert as AlertTriangle } from 'lucide-react';
+import { User, Mail, Building2, Phone, Calendar, CreditCard, Loader, Camera, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionModal } from '@/contexts/SubscriptionModalContext';
 import { supabase } from '@/lib/supabase';
@@ -126,7 +126,6 @@ export default function AccountPage() {
     }
   };
 
-  const storeUrl = user?.slug ? `${window.location.origin}/${user.slug}` : null;
 
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-3xl space-y-6">
@@ -292,25 +291,6 @@ export default function AccountPage() {
               </div>
             </div>
 
-            {storeUrl && (
-              <>
-                <Separator />
-                <div className="flex items-center gap-3">
-                  <Link2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">Link da Vitrine</p>
-                    <a
-                      href={storeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-primary hover:underline truncate block"
-                    >
-                      {storeUrl}
-                    </a>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         </CardContent>
       </Card>
